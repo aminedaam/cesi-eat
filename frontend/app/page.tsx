@@ -1,88 +1,149 @@
 "use client";
-import { CustomButton } from "@/components/CustomButton";
+import { CustomButton } from "@/components/helper-components/CustomButton";
+import { CustomIconButton } from "@/components/helper-components/CustomIconButton";
+import HomeSearchBar from "@/components/HomeSearchBar";
+import { LandingPage } from "@/components/LandingPage";
+import { Restaurant, RestaurantList } from "@/components/RestaurantList";
 import Image from "next/image";
 import { useState } from "react";
 
+const restaurants: Restaurant[] = [
+  {
+    name: "Burger",
+    deliveryCosts: 4.99,
+    image: "/burger.png",
+  },
+  {
+    name: "Pizza",
+    deliveryCosts: 4.99,
+    image: "/pizza.png",
+  },
+  {
+    name: "Tacos",
+    deliveryCosts: 4.99,
+    image: "/tacos.png",
+  },
+  {
+    name: "Pizza",
+    deliveryCosts: 4.99,
+    image: "/pizza.png",
+  },
+  {
+    name: "Tacos",
+    deliveryCosts: 4.99,
+    image: "/tacos.png",
+  },
+  {
+    name: "Pizza",
+    deliveryCosts: 4.99,
+    image: "/pizza.png",
+  },
+  {
+    name: "Tacos",
+    deliveryCosts: 4.99,
+    image: "/tacos.png",
+  },
+];
+
 export default function Home() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredRestaurants = restaurants.filter((restaurant) =>
+    restaurant.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <>
       {isAuthenticated ? (
         <div>
-          <h1>Welcome to the home page</h1>
+          <div className="w-full h-16 background-primary items-center justify-between flex fixed top-0 z-50 rounded-b-xl">
+            <CustomIconButton
+              iconName="LocationOn"
+              onClick={() => {
+                console.log("Location icon pressed...");
+              }}
+            />
+            <div className="flex-1 mx-4">
+              <HomeSearchBar
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                className="text-black placeholder-neutral-800 py-1 pl-3 pr-12 rounded-2xl"
+              />
+            </div>
+            <CustomIconButton iconName="Notifications" />
+            <CustomIconButton iconName="ShoppingCart" />
+          </div>
+          <div className="flex flex-col mx-4  my-16">
+            <div className="w-full h-32 flex flex-row items-center justify-between">
+              <div>
+                <h1 className="font-bold text-xl">Passe ta commande !</h1>
+                <h4 className="text-gray-500 text-base">
+                  À découvrir sur CesiEats
+                </h4>
+              </div>
+              <Image
+                src="/cesi-eat-logo.png"
+                alt="Logo"
+                width={120}
+                height={80}
+              />
+            </div>
+            <RestaurantList restaurants={filteredRestaurants} />
+            <CustomButton
+              className="w-50 text-white button-primary-100"
+              onClick={() => {
+                setIsAuthenticated(false);
+              }}
+            >
+              Logout
+            </CustomButton>
+          </div>
+          <div className="w-full h-16 background-primary items-center justify-between flex fixed bottom-0 z-50 rounded-t-xl">
+            <CustomIconButton
+              iconName="Home"
+              title="Accueil"
+              onClick={() => {
+                console.log("Accueil clicked");
+              }}
+            />
+            <CustomIconButton
+              iconName="LocalCafe"
+              title="Courses"
+              onClick={() => {
+                console.log("Courses clicked");
+              }}
+            />
+            <CustomIconButton
+              iconName="Search"
+              title="Parcourir"
+              onClick={() => {
+                console.log("Parcourir clicked");
+              }}
+            />
+            <CustomIconButton
+              iconName="BookmarkBorder"
+              title="Commandes"
+              onClick={() => {
+                console.log("Commandes clicked");
+              }}
+            />
+            <CustomIconButton
+              iconName="Person"
+              title="Mon Compte"
+              onClick={() => {
+                console.log("Mon Compte clicked");
+              }}
+            />
+          </div>
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-between h-screen">
-          <div className="w-full h-16 background-primary items-center justify-start flex">
-            <Image
-              src="/cesi-eat-logo.png"
-              alt="logo"
-              width={100}
-              height={100}
-            />
-          </div>
-            <Image
-            src="/home-banner.png"
-            alt="home banner"
-            layout="responsive"
-            width={0}
-            height={0}
-            sizes="100vw"
-            className="w-full"
-            />
-          <div className="justify-center items-center flex flex-col space-y-5 h-45">
-            <CustomButton
-              onClick={() => setIsAuthenticated(true)}
-              className="w-50 text-white button-black"
-            >
-              Sign Up
-            </CustomButton>
-            <CustomButton
-              onClick={() => setIsAuthenticated(true)}
-              className="w-50 text-white button-primary-100"
-            >
-              Login
-            </CustomButton>
-          </div>
-          <Image
-            src="/home-footer-banner.png"
-            alt="footer home banner"
-            layout="responsive"
-            width={0}
-            height={0}
-            sizes="100vw"
-            className="w-full"
-          />
-          <div className="w-full background-primary items-center justify-center flex flex-col py-4 space-y-5">
-            <div className="flex space-x-5">
-              <Image
-                src="/app-store.png"
-                alt="app store"
-                width={100}
-                height={50}
-              />
-              <Image
-                src="/play-store.png"
-                alt="play store"
-                width={100}
-                height={50}
-              />
-            </div>
-            <Image
-              src="/social-networks.png"
-              alt="social networks"
-              width={60}
-              height={20}
-            />
-            <div className="flex  items-end justify-between w-full px-5">
-              <div className="flex flex-col">
-                <p className="text-black"> Politique de confidentialité</p>
-                <p className="text-black"> Conditions générales</p>
-              </div>
-              <p className="text-black">© 2025 Cesi Eat</p>
-            </div>
-          </div>
-        </div>
+        <LandingPage
+          onLoginClick={() => {
+            setIsAuthenticated(true);
+          }}
+          onSignupClick={() => {}}
+        />
       )}
     </>
   );

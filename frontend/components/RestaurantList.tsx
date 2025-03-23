@@ -3,29 +3,48 @@ import { CustomButton } from "./helper-components/CustomButton";
 import { Restaurant } from "@/types/Restaurants";
 import { useLocationStore } from "@/store/locationStore";
 import { Position } from "@/types/Position";
+import { useEffect, useState } from "react";
 
 interface RestaurantListProps {
   restaurants: Restaurant[];
+  filter: string;
 }
 
 export const RestaurantList: React.FC<RestaurantListProps> = ({
   restaurants,
+  filter,
 }) => {
   const location = useLocationStore((state) => state.location);
+  const [orderedRestaurantsWithDistances, setOrderedRestaurantsWithDistances] =
+    useState<{ restaurant: Restaurant; distance: number }[] | null>(null);
 
-  if (!location) {
+  const filteredRestaurants = orderedRestaurantsWithDistances?.filter((item) =>
+    item.restaurant.name.toLowerCase().includes(filter.toLowerCase())
+  );
+
+  useEffect(() => {
+    if (location) {
+      orderRestaurantsByDistance(restaurants, location).then(
+        setOrderedRestaurantsWithDistances
+      );
+    }
+  }, [location, restaurants]);
+
+  if (!location || !orderedRestaurantsWithDistances) {
     return <p>Chargement...</p>;
   }
 
-  const orderedRestaurants = orderRestaurantsByDistance(restaurants, location);
+  if (!filteredRestaurants || !filteredRestaurants.length) {
+    return <p>Aucun restaurant trouvé</p>;
+  }
 
   return (
     <ul className="list-none p-0">
-      {orderedRestaurants.map((restaurant, index) => (
+      {filteredRestaurants.map((item, index) => (
         <RestaurantItem
           key={index}
-          restaurant={restaurant}
-          userLocation={location}
+          restaurant={item.restaurant}
+          distance={item.distance}
         />
       ))}
     </ul>
@@ -34,12 +53,12 @@ export const RestaurantList: React.FC<RestaurantListProps> = ({
 
 interface RestaurantItemProps {
   restaurant: Restaurant;
-  userLocation: Position;
+  distance: number;
 }
 
 const RestaurantItem: React.FC<RestaurantItemProps> = ({
   restaurant,
-  userLocation,
+  distance,
 }) => (
   <li className="flex items-start mb-10">
     <Image
@@ -56,7 +75,7 @@ const RestaurantItem: React.FC<RestaurantItemProps> = ({
           Frais de livraisons : {restaurant.deliveryCosts}€
         </span>
         <span className="text-gray-600">
-          À {calculateDistance(userLocation, restaurant.position)} km
+          Distance : {distance.toFixed(2)} km
         </span>
       </div>
       <CustomButton
@@ -69,31 +88,26 @@ const RestaurantItem: React.FC<RestaurantItemProps> = ({
   </li>
 );
 
-function orderRestaurantsByDistance(
+async function orderRestaurantsByDistance(
   restaurants: Restaurant[],
   location: Position
-) {
-  return restaurants.sort((a, b) => {
-    const distanceA = calculateDistance(location, a.position);
-    const distanceB = calculateDistance(location, b.position);
-    return distanceA - distanceB;
-  });
+): Promise<{ restaurant: Restaurant; distance: number }[]> {
+  const distances = await Promise.all(
+    restaurants.map(async (restaurant) => {
+      const distance = await calculateDistance(location, restaurant.position);
+      return { restaurant, distance };
+    })
+  );
+
+  return distances.sort((a, b) => a.distance - b.distance);
 }
 
-function calculateDistance(position1: Position, position2: Position) {
-  const R = 6371e3; // metres
-  const φ1 = (position1.latitude * Math.PI) / 180; // φ, λ in radians
-  const φ2 = (position2.latitude * Math.PI) / 180;
-  const Δφ = ((position2.latitude - position1.latitude) * Math.PI) / 180;
-  const Δλ = ((position2.longitude - position1.longitude) * Math.PI) / 180;
-
-  const a =
-    Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-  const distanceInMeters = R * c;
-  const distanceInKm = distanceInMeters / 1000;
-
-  return Math.round(distanceInKm * 10) / 10; // rounded to one decimal place
+async function calculateDistance(position1: Position, position2: Position) {
+  const url = `http://router.project-osrm.org/route/v1/driving/${position1.longitude},${position1.latitude};${position2.longitude},${position2.latitude}?overview=false`;
+  const response = await fetch(url);
+  const data = await response.json();
+  if (data.routes && data.routes.length > 0) {
+    return data.routes[0].distance / 1000; // Distance in km
+  }
+  return 0;
 }

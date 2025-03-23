@@ -79,10 +79,6 @@ export default function Home() {
   const [isAuthenticated, setIsAuthenticated] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const filteredRestaurants = restaurants.filter((restaurant) =>
-    restaurant.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
   return (
     <>
       {isAuthenticated ? (
@@ -118,7 +114,7 @@ export default function Home() {
                 height={80}
               />
             </div>
-            <RestaurantList restaurants={filteredRestaurants} />
+            <RestaurantList restaurants={restaurants} filter={searchTerm} />
             <CustomButton
               className="w-50 text-white button-primary-100"
               onClick={() => {

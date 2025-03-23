@@ -10,7 +10,7 @@ export const CustomButton: React.FC<ButtonProps> = ({
   className,
 }) => {
   return (
-    <button className={`p-2 ${className}`} onClick={onClick}>
+    <button className={`p-2 cursor-pointer ${className}`} onClick={onClick}>
       {children}
     </button>
   );

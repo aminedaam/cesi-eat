@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { CustomButton } from "./helper-components/CustomButton";
-import { FooterMobile } from "./footers/FooterMobile";
+import { FooterMobile } from "./header_footers/FooterMobile";
 import { useMediaQuery } from "usehooks-ts";
 
 interface LandingPageProps {

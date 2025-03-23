@@ -1,52 +1,81 @@
 "use client";
+import HeaderButtons from "@/components/header_footers/HeaderButtons";
 import { CustomButton } from "@/components/helper-components/CustomButton";
 import { CustomIconButton } from "@/components/helper-components/CustomIconButton";
 import HomeSearchBar from "@/components/HomeSearchBar";
 import { LandingPage } from "@/components/LandingPage";
 import { NavigationBar } from "@/components/NavigationBar";
-import { Restaurant, RestaurantList } from "@/components/RestaurantList";
+import { RestaurantList } from "@/components/RestaurantList";
+import { useLocation } from "@/hooks/useLocation";
+import { useLocationStore } from "@/store/locationStore";
+import { Restaurant } from "@/types/Restaurants";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const restaurants: Restaurant[] = [
   {
-    name: "Burger",
+    id: 1,
+    name: "Bagaaaa",
     deliveryCosts: 4.99,
     image: "/burger.png",
+    position: {
+      latitude: 43.652777998548956,
+      longitude: 1.4394687613763628,
+    },
   },
   {
-    name: "Pizza",
+    id: 2,
+    name: "Valentinoo",
     deliveryCosts: 4.99,
-    image: "/pizza.png",
+    image: "/burger.png",
+    position: {
+      latitude: 43.60304364458921,
+      longitude: 1.4363026245644699,
+    },
   },
   {
+    id: 3,
     name: "Tacos",
     deliveryCosts: 4.99,
     image: "/tacos.png",
+    position: {
+      latitude: 48.8606,
+      longitude: 2.3376,
+    },
   },
   {
+    id: 4,
     name: "Pizza",
     deliveryCosts: 4.99,
     image: "/pizza.png",
+    position: {
+      latitude: 48.853,
+      longitude: 2.3499,
+    },
   },
   {
-    name: "Tacos",
-    deliveryCosts: 4.99,
-    image: "/tacos.png",
-  },
-  {
+    id: 5,
     name: "Pizza",
     deliveryCosts: 4.99,
     image: "/pizza.png",
-  },
-  {
-    name: "Tacos",
-    deliveryCosts: 4.99,
-    image: "/tacos.png",
+    position: {
+      latitude: 43.50304364458921,
+      longitude: 1.434,
+    },
   },
 ];
 
 export default function Home() {
+  const { location } = useLocation();
+  const updateLocation = useLocationStore.getState().updateLocation;
+  useEffect(() => {
+    if (location) {
+      updateLocation({
+        latitude: location.latitude,
+        longitude: location.longitude,
+      });
+    }
+  }, [location, updateLocation]);
   const [isAuthenticated, setIsAuthenticated] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -72,8 +101,7 @@ export default function Home() {
                 className="text-black placeholder-neutral-800 py-1 pl-3 pr-12 rounded-2xl"
               />
             </div>
-            <CustomIconButton iconName="Notifications" />
-            <CustomIconButton iconName="ShoppingCart" />
+            <HeaderButtons />
           </div>
           <div className="flex flex-col mx-4  my-16">
             <div className="w-full h-32 flex flex-row items-center justify-between">
@@ -99,8 +127,8 @@ export default function Home() {
             >
               Logout
             </CustomButton>
-            <NavigationBar />
           </div>
+          <NavigationBar />
         </div>
       ) : (
         <LandingPage

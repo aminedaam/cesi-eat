@@ -1,4 +1,3 @@
-"use client";
 import { useState, useEffect } from "react";
 
 export function useLocation() {
@@ -26,7 +25,7 @@ export function useLocation() {
     };
 
     const options = {
-      enableHighAccuracy: false, // Use GPS if available
+      enableHighAccuracy: true, // Use GPS if available
       timeout: 5000, // Time to wait before giving up
       maximumAge: 0, // Don't use cached locations
     };

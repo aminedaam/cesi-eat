@@ -7,9 +7,6 @@ export const NavigationBar = () => {
       <Link href="/">
         <CustomIconButton iconName="Home" title="Accueil" />
       </Link>
-      <Link href="/courses">
-        <CustomIconButton iconName="LocalCafe" title="Courses" />
-      </Link>
       <Link href="/browse">
         <CustomIconButton iconName="Search" title="Parcourir" />
       </Link>

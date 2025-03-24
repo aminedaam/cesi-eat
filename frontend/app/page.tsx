@@ -6,11 +6,9 @@ import HomeSearchBar from "@/components/HomeSearchBar";
 import { LandingPage } from "@/components/LandingPage";
 import { NavigationBar } from "@/components/NavigationBar";
 import { RestaurantList } from "@/components/RestaurantList";
-import { useLocation } from "@/hooks/useLocation";
-import { useLocationStore } from "@/store/locationStore";
 import { Restaurant } from "@/types/Restaurants";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const restaurants: Restaurant[] = [
   {
@@ -66,16 +64,6 @@ const restaurants: Restaurant[] = [
 ];
 
 export default function Home() {
-  const { location } = useLocation();
-  const updateLocation = useLocationStore.getState().updateLocation;
-  useEffect(() => {
-    if (location) {
-      updateLocation({
-        latitude: location.latitude,
-        longitude: location.longitude,
-      });
-    }
-  }, [location, updateLocation]);
   const [isAuthenticated, setIsAuthenticated] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 

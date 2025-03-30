@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export const FooterMobile: React.FC = () => {
   return (
-    <div className="w-full background-primary items-center justify-center flex flex-col py-4 space-y-5">
+    <div className="w-full background-primary-50 items-center justify-center flex flex-col py-4 space-y-5">
       <div className="flex space-x-5">
         <Image src="/app-store.png" alt="app store" width={100} height={50} />
         <Image src="/play-store.png" alt="play store" width={100} height={50} />

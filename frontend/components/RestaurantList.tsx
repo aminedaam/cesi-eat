@@ -3,15 +3,15 @@ import { CustomButton } from "./helper-components/CustomButton";
 import { Restaurant } from "@/types/Restaurants";
 import { useEffect, useState } from "react";
 import LoadingSpinner from "./helper-components/LoadingSpinner";
-import { useGeolocation } from "@uidotdev/usehooks";
-import { useLocationStore } from "@/store/locationStore";
 import { Position } from "@/types/Position";
+import { useLocation } from "@/context/locationContext";
 
 interface RestaurantListProps {
   restaurants: Restaurant[];
   filter: string;
 }
 
+// Le cache reste tel quel
 const restaurantDistanceCache: {
   [key: string]: { restaurant: Restaurant; distance: number }[];
 } = {};
@@ -20,19 +20,8 @@ export const RestaurantList: React.FC<RestaurantListProps> = ({
   restaurants,
   filter,
 }) => {
-  const { loading, latitude, longitude, error } = useGeolocation();
-  const location = useLocationStore((state) => state.location);
-  console.log("Location", location);
+  const { location, loading, error } = useLocation();
 
-  const updateLocation = useLocationStore.getState().updateLocation;
-  useEffect(() => {
-    if (latitude !== null && longitude !== null) {
-      updateLocation({
-        latitude: latitude,
-        longitude: longitude,
-      });
-    }
-  }, [latitude, longitude, updateLocation]);
   const [orderedRestaurantsWithDistances, setOrderedRestaurantsWithDistances] =
     useState<{ restaurant: Restaurant; distance: number }[] | null>(null);
 
@@ -41,18 +30,26 @@ export const RestaurantList: React.FC<RestaurantListProps> = ({
   );
 
   useEffect(() => {
-    if (location) {
+    if (
+      location &&
+      (!orderedRestaurantsWithDistances ||
+        orderedRestaurantsWithDistances[0]?.restaurant.id !==
+          restaurants[0]?.id)
+    ) {
       const cacheKey = `${location.latitude}-${location.longitude}`;
       if (restaurantDistanceCache[cacheKey]) {
+        console.log("Using cache for distances");
         setOrderedRestaurantsWithDistances(restaurantDistanceCache[cacheKey]);
       } else {
+        console.log("Calculating distances...");
         orderRestaurantsByDistance(restaurants, location).then((result) => {
+          console.log("Distances calculated, updating state and cache");
           restaurantDistanceCache[cacheKey] = result;
           setOrderedRestaurantsWithDistances(result);
         });
       }
     }
-  }, [location, restaurants]);
+  }, [location, restaurants, orderedRestaurantsWithDistances]); // Ajout de orderedRestaurantsWithDistances pour la condition interne
 
   if (loading) {
     return (
@@ -64,30 +61,41 @@ export const RestaurantList: React.FC<RestaurantListProps> = ({
   }
 
   if (error) {
-    return <p>Erreur lors de la local isation</p>;
+    return <p>Erreur lors de la localisation: {error.message}</p>;
+  }
+
+  if (!location) {
+    return <p>En attente de la localisation...</p>; // Ou un autre indicateur
   }
 
   if (
     !orderedRestaurantsWithDistances ||
     orderedRestaurantsWithDistances.length === 0
   ) {
+    if (restaurants.length === 0) {
+      return <p>Aucun restaurant à afficher.</p>;
+    }
     return (
       <div className="w-full flex flex-col items-center">
         <LoadingSpinner />
-        <p>Recherche des restaurants à proximite...</p>
+        <p>Recherche des restaurants à proximité...</p>
       </div>
     );
   }
 
   if (!filteredRestaurants || !filteredRestaurants.length) {
-    return <p>Aucun restaurant trouvé</p>;
+    return (
+      <p>
+        Aucun restaurant trouvé correspondant au filtre &quot;{filter}&quot;
+      </p>
+    );
   }
 
   return (
     <ul className="list-none p-0">
       {filteredRestaurants.map((item, index) => (
         <RestaurantItem
-          key={index}
+          key={item.restaurant.id || index}
           restaurant={item.restaurant}
           distance={item.distance}
         />

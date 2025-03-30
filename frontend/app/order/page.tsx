@@ -2,8 +2,9 @@
 import React from "react";
 import { Order } from "@/types/Order";
 import Image from "next/image";
-import HeaderButtons from "@/components/header_footers/HeaderButtons";
-import { NavigationBar } from "@/components/NavigationBar";
+import { NavigationBar } from "@/components/header_footers/NavigationBar";
+import BaseHeader from "@/components/header_footers/BaseHeader";
+import { Bell, MapPin, ShoppingCart } from "lucide-react";
 
 const orders: Order[] = [
   {
@@ -75,10 +76,14 @@ export default function OrderListPage() {
 
   return (
     <div>
-      <div className="w-full h-16 background-primary items-center justify-between flex fixed top-0 z-50 rounded-b-xl">
+      <BaseHeader>
+        <MapPin />
         <h1 className="text-white text-2xl font-bold ml-5">Mes commandes</h1>
-        <HeaderButtons />
-      </div>
+        <div className="flex flex-row">
+          <Bell />
+          <ShoppingCart />
+        </div>
+      </BaseHeader>
       <div className="mt-18 mx-5">
         <ul className="list-none p-0">
           {orders.map((order) => (

@@ -14,19 +14,33 @@
   --font-mono: var(--font-geist-mono);
 }
 
+.button-primary-50 {
+  background: var(--primary-50);
+}
+
 .button-primary-100 {
   background: var(--primary-100);
 }
 
-.button-primary-50 {
-  background: var(--primary-50);
+.button-primary-50:hover {
+  background: var(--primary-100);
+  transition: background 0.3s ease;
+}
+
+.button-primary-50:focus,
+.button-primary-100:focus {
+  @apply outline-none ring-2 ring-offset-2 ring-[var(--primary-50)];
 }
 
 .button-black {
   background: var(--foreground);
 }
 
-.background-primary {
+.background-primary-50 {
+  background: var(--primary-50);
+}
+
+.background-primary-100 {
   background: var(--primary-100);
 }
 

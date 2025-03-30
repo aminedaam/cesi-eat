@@ -1,16 +1,18 @@
 import React from "react";
-import { CustomInput } from "./helper-components/CustomInput";
+import Input from "./Input";
 
-interface HomeSearchBarProps {
+interface SearchBarProps {
   searchTerm: string;
   setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
   className?: string;
+  placeHolder?: string;
 }
 
-const HomeSearchBar: React.FC<HomeSearchBarProps> = ({
+const SearchBar: React.FC<SearchBarProps> = ({
   searchTerm,
   setSearchTerm,
-    className,
+  className,
+  placeHolder,
 }) => {
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
@@ -18,14 +20,16 @@ const HomeSearchBar: React.FC<HomeSearchBarProps> = ({
 
   return (
     <div>
-      <CustomInput
+      <Input
+        id="search-bar"
+        type="text"
         value={searchTerm}
         onChange={handleInputChange}
-        placeholder="Rechercher dans CesiEats"
+        placeholder={placeHolder || "Rechercher..."}
         className={className}
       />
     </div>
   );
 };
 
-export default HomeSearchBar;
+export default SearchBar;

@@ -1,0 +1,30 @@
+
+spring:
+  main:
+    allow-circular-references: true
+  cloud:
+    config:
+      discovery:
+        enabled: false
+      enabled: false
+  application:
+    name: user-service
+  datasource:
+    url: jdbc:sqlserver://ITEM-S121587;databaseName=CESI_EATS;encrypt=false;
+    username: sa
+    password: sopraSQLSERVER2019
+
+
+jpa:
+  database-platform: org.hibernate.dialect.SQLServerDialect
+  hibernate:
+    ddl-auto: update9
+  show-sql: true
+
+server:
+  port: 8082
+  servlet:
+    context-path: /
+
+jwt:
+  secret: "AMINEALEXANDREGABRIELNADAAKRAMPROJECTCESI_EATS2025"

@@ -52,6 +52,8 @@ public class User {
     private double longitude;
 
     @Column(nullable = false)
-    private String created_at;
+    private String createdAt;
+
+
 
 }

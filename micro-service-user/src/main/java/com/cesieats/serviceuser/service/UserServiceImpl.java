@@ -8,6 +8,7 @@ import com.cesieats.serviceuser.exception.UserNotFoundException;
 import com.cesieats.serviceuser.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,7 +19,11 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService{
 
     private final UserRepository userRepository ;
-
+    private final PasswordEncoder passwordEncoder;
+    @Override
+    public Optional<User> getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
     @Override
     public List<User> getAllUsers() {
         return userRepository.findAll();
@@ -31,6 +36,8 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public User saveUser(User user) {
+        // Hash du mot de passe avant enregistrement
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 
@@ -51,7 +58,6 @@ public class UserServiceImpl implements UserService{
     public void updatePassword(Long id, UserUpdatePasswordDTO passwordDTO) throws UserNotFoundException {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Utilisateur non trouvé"));
-
         user.setPassword(passwordDTO.getNewPassword());
         userRepository.save(user);
     }

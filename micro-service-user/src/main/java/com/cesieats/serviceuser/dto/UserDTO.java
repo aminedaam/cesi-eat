@@ -23,10 +23,34 @@ public class UserDTO {
 
     private String email;
 
+    private String adress;
+
+    private String city;
+
+    private String country;
+
+    private String postalCode;
+
+    private String phoneNumber;
+
+    private double latitude;
+
+    private double longitude;
+
+
+
     public UserDTO(User user) {
         this.firstName = user.getFirstName();
         this.lastName = user.getLastName();
         this.email = user.getEmail();
+        this.adress = user.getAddress();
+        this.city = user.getCity();
+        this.country = user.getCountry();
+        this.postalCode = user.getPostalCode();
+        this.phoneNumber = user.getPhoneNumber();
+        this.latitude = user.getLatitude();
+        this.longitude = user.getLongitude();
+
     }
 
 }

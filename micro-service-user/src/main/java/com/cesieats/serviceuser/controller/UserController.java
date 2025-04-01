@@ -45,6 +45,12 @@ public class UserController {
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
+    @GetMapping("/me")
+    public User getUser(@RequestHeader("Authorization") String token) {
+        String email = jwtUtil.extractUsername(token.substring(7));
+        return userService.getUserByEmail(email).orElseThrow();
+    }
+
     @PostMapping("/create")
     public User register(@Valid @RequestBody User user){
         return userService.saveUser(user);

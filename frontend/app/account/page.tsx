@@ -41,10 +41,6 @@ const MyAccountPage: React.FC = () => {
       const fetchUserProfile = async () => {
         setIsLoading(true);
         setError(null);
-        console.log(
-          "Fetching user profile with token:",
-          accessToken.substring(0, 10) + "..."
-        );
         try {
           // --- DANS UNE VRAIE APP : APPELEZ VOTRE API ICI ---
           // Exemple: const response = await fetch('/api/user/profile', {

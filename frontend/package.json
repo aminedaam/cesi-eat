@@ -32,6 +32,7 @@
     "eslint-config-next": "15.2.3",
     "formik": "^2.4.6",
     "immer": "^10.1.1",
+    "react-toastify": "^11.0.5",
     "tailwindcss": "^4",
     "typescript": "^5",
     "zustand": "^5.0.3"

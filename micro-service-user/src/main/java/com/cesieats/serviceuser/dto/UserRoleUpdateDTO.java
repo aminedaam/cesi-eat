@@ -1,6 +1,6 @@
 package com.cesieats.serviceuser.dto;
 
-import com.cesieats.serviceuser.entity.Role;
+import com.cesieats.serviceuser.enums.Role;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,11 +9,14 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 public class UserRoleUpdateDTO {
 
     @NotNull(message = "Le rôle est obligatoire")
     private Role newRole;
+
+    public UserRoleUpdateDTO(Role newRole) {
+        this.newRole = newRole;
+    }
 
 }

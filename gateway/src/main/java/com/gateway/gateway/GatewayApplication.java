@@ -1,13 +1,13 @@
-package com.cesieats.serviceuser;
+package com.gateway.gateway;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class CesiEatsApplication {
+public class GatewayApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(CesiEatsApplication.class, args);
+        SpringApplication.run(GatewayApplication.class, args);
     }
 
 }

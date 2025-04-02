@@ -10,6 +10,8 @@ import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "next/navigation";
 import { CustomButton } from "@/components/helper-components/CustomButton";
 import Link from "next/link";
+import { register } from "@/utils/api";
+import { toast } from "react-toastify";
 
 // Zod schema for validation
 const signupSchema = z.object({
@@ -19,7 +21,7 @@ const signupSchema = z.object({
     .string()
     .email("Email invalide")
     .min(1, " Veuillez renseigner ce champ"),
-  phone: z.string().min(1, "Veuillez renseigner ce champ"),
+  phoneNumber: z.string().min(1, "Veuillez renseigner ce champ"),
   address: z.string().min(1, "Veuillez renseigner ce champ"),
   postalCode: z.string().min(1, "Veuillez renseigner ce champ"),
   city: z.string(), // City is optional in the schema for now
@@ -54,15 +56,21 @@ const SignupPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
-  const register = useAuthStore((state) => state.register);
+  const login = useAuthStore((state) => state.login);
   const router = useRouter();
-  router.prefetch("/home"); // Prefetch home page for faster navigation after login/signup
+
+  useEffect(() => {
+    router.prefetch("/home");
+  }, [router]);
 
   // Scroll to top if a general submission error occurs
   useEffect(() => {
-    if (submitError) {
-      window.scrollTo({ top: 0, behavior: "smooth" });
+    // Utilisez window.scrollTo directement
+    if (submitError && typeof window !== "undefined") {
+      // scrollToTop({ x: 0, y: 0 }); // <- Supprimez cette ligne
+      window.scrollTo({ top: 0, behavior: "smooth" }); // <- Ajoutez cette ligne
     }
+    // Pas besoin d'inclure scrollToTop dans les dépendances
   }, [submitError]);
 
   // Redirect if user is already logged in
@@ -72,13 +80,12 @@ const SignupPage: React.FC = () => {
     }
   }, [isLoggedIn, router]);
 
-  // Initialize Formik
   const formik = useFormik<SignupFormValues>({
     initialValues: {
       firstName: "",
       lastName: "",
       email: "",
-      phone: "",
+      phoneNumber: "",
       address: "",
       postalCode: "",
       city: "",
@@ -86,7 +93,7 @@ const SignupPage: React.FC = () => {
       password: "",
       role: "CLIENT", // Default role
     },
-    validate: validateZodSchema, // Use the Zod validation function
+    validate: validateZodSchema,
     onSubmit: async (values) => {
       // Prevent submission if coordinates are still loading
       if (isLoadingCoordinates) {
@@ -109,24 +116,20 @@ const SignupPage: React.FC = () => {
         // Prepare payload for registration
         const userPayload = {
           ...values,
-          // Conditionally add coordinates if they exist
           ...(coordinates?.latitude != null &&
             coordinates?.longitude != null && {
               latitude: coordinates.latitude,
               longitude: coordinates.longitude,
             }),
           createdAt: new Date(),
-          updatedAt: new Date(),
         };
+        const registerResponse = await register(userPayload);
+        if (registerResponse.status == 200) {
+          toast.success("Inscription réussie !");
+          await login(userPayload.email, userPayload.password);
+        }
 
-        console.log("Payload envoyé pour l'inscription:", userPayload);
-
-        await register(userPayload);
-
-        // Use a more user-friendly notification than alert if possible
-        alert("Utilisateur créé avec succès ! Vous allez être redirigé."); // Consider using a toast notification library
-
-        formik.resetForm(); // Reset form after successful submission
+        formik.resetForm();
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
         console.error("Échec de la soumission:", error);
@@ -284,29 +287,32 @@ const SignupPage: React.FC = () => {
             <div>
               <Input
                 label="Téléphone"
-                id="phone"
-                name="phone"
+                id="phoneNumber"
+                name="phoneNumber"
                 type="tel"
                 placeholder="06 12 34 56 78"
-                value={formik.values.phone}
+                value={formik.values.phoneNumber}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${
                   // Apply red border if touched and error exists based on the new logic
-                  formik.touched.phone &&
-                  formik.errors.phone &&
-                  (formik.values.phone !== "" || formik.submitCount > 0)
+                  formik.touched.phoneNumber &&
+                  formik.errors.phoneNumber &&
+                  (formik.values.phoneNumber !== "" || formik.submitCount > 0)
                     ? "border-red-500"
                     : "border-gray-300"
                 }`}
-                aria-invalid={formik.touched.phone && !!formik.errors.phone}
+                aria-invalid={
+                  formik.touched.phoneNumber && !!formik.errors.phoneNumber
+                }
               />
               {/* MODIFIED: Show error only if touched, error exists AND (value is not empty OR form submitted) */}
-              {formik.touched.phone &&
-                formik.errors.phone &&
-                (formik.values.phone !== "" || formik.submitCount > 0) && (
+              {formik.touched.phoneNumber &&
+                formik.errors.phoneNumber &&
+                (formik.values.phoneNumber !== "" ||
+                  formik.submitCount > 0) && (
                   <p className="mt-1 text-xs text-red-600">
-                    {formik.errors.phone}
+                    {formik.errors.phoneNumber}
                   </p>
                 )}
             </div>

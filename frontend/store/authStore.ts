@@ -1,5 +1,4 @@
-import { User } from "@/types/User";
-// import { login, register } from "@/utils/api";
+import { login } from "@/utils/api";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
@@ -9,7 +8,6 @@ interface AuthState {
   accessToken: string | null;
   login: (username: string, password: string) => Promise<void>;
   logout: () => void;
-  register: (user: User) => Promise<void>;
 }
 
 // Create the store with persistence in localStorage
@@ -20,37 +18,10 @@ export const useAuthStore = create<AuthState>()(
       isLoggedIn: false,
       accessToken: null,
 
-      // Action to handle register
-      register: async (user: User) => {
-        try {
-          console.log("Register with", user);
-          // const data = await register(user)
-          // const {token} = data
-          const token = "prout";
-          if (token) {
-            set({ isLoggedIn: true, accessToken: token });
-            set((state) => {
-              console.log("logged in", state.isLoggedIn);
-              return state;
-            });
-          } else {
-            console.warn("Register successful but no token received.");
-          }
-        } catch (error) {
-          console.error("Register failed", error);
-          set({ isLoggedIn: false, accessToken: null });
-          throw error;
-        }
-      },
-
       // Action to handle login
       login: async (email: string, password: string) => {
         try {
-          console.log("Login in with", email, password);
-          // const data = await login(email, password);
-          // const { token } = data;
-          const token = "prout";
-
+          const token = await login(email, password);
           if (email === "test@gmail.com") {
             set({ isLoggedIn: false, accessToken: null });
             throw new Error("Unvalid username or password.");

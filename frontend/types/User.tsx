@@ -3,7 +3,7 @@ export interface User {
   firstName: string;
   lastName: string;
   email: string;
-  phone: string;
+  phoneNumber: string;
   address: string;
   city: string;
   postalCode: string;
@@ -11,7 +11,6 @@ export interface User {
   password: string;
   role: "CLIENT" | "RESTAURATEUR" | "LIVREUR";
   createdAt: Date;
-  updatedAt: Date;
   latitude?: number;
   longitude?: number;
 }

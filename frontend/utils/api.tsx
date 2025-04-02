@@ -7,20 +7,13 @@ const apiClient = axios.create({
   // Assurez-vous que la baseURL est correcte et complète
   baseURL: process.env.NEXT_PUBLIC_API_URL || "http://172.16.10.12:4001", // Utiliser une variable d'env est préférable
   timeout: 5000, // Garder le timeout
-  headers: {
-    "Content-Type": "application/json", // Définir le header par défaut ici
-  },
 });
 
-// Renommer la fonction et la corriger pour utiliser POST et accepter des données
 export const register = async (userData: User) => {
   try {
-    // Utiliser apiClient.post avec l'URL relative et les données utilisateur
-    const response = await apiClient.post("/user/create", userData);
-    // Retourner les données de la réponse en cas de succès
-    return response.data;
+    const response = await apiClient.post("/create", userData);
+    return response;
   } catch (error) {
-    // Log l'erreur spécifique d'Axios si possible
     if (axios.isAxiosError(error)) {
       console.error(
         "Erreur API lors de la création de l'utilisateur:",
@@ -32,14 +25,13 @@ export const register = async (userData: User) => {
         error
       );
     }
-    // Re-lancer l'erreur pour que le composant appelant puisse la gérer (par exemple, afficher un message à l'utilisateur)
     throw error;
   }
 };
 
 export const login = async (email: string, password: string) => {
   try {
-    const response = await apiClient.post("/user/login", { email, password });
+    const response = await apiClient.post("/login", { email, password });
     return response.data.token;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -54,6 +46,20 @@ export const login = async (email: string, password: string) => {
       );
     }
     throw error;
+  }
+};
+
+export const getMe = async (token : string) => {
+  try {
+      const response = await axios.get('/me', {
+          headers: {
+              Authorization: `Bearer ${token}`,
+          },
+      });
+      return response.data;
+  } catch (error) {
+      console.error('Erreur lors de la récupération des données de l\'utilisateur', error);
+      throw error;
   }
 };
 

@@ -1,0 +1,15 @@
+version: "3.8"
+
+services:
+  user-service:
+    build: ./micro-service-user
+    container_name: user-service
+    ports:
+      - "4001:4001"
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - user-service

@@ -42,7 +42,10 @@ const LoginPage: React.FC = () => {
   const authLogin = useAuthStore((state) => state.login);
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
   const router = useRouter();
-  router.prefetch("/");
+
+  useEffect(() => {
+    router.prefetch("/home");
+  }, [router]);
 
   useEffect(() => {
     if (isLoggedIn) {

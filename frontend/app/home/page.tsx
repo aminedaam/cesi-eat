@@ -1,6 +1,5 @@
 "use client";
 import BaseHeader from "@/components/header_footers/BaseHeader";
-import { CustomButton } from "@/components/helper-components/CustomButton";
 import SearchBar from "@/components/helper-components/SearchBar";
 import { RestaurantList } from "@/components/RestaurantList";
 import { useAuthStore } from "@/store/authStore";
@@ -9,6 +8,7 @@ import { Bell, MapPin, ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
+
 
 const restaurants: Restaurant[] = [
   {

@@ -8,13 +8,16 @@ spring:
         enabled: false
       enabled: false
   application:
-    name: user-service
+    name: service-user
   datasource:
     url: jdbc:sqlserver://172.16.10.12;databaseName=CESI_EATS;encrypt=false;
     username: sa
     password: CesiEat06
 
-
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
 jpa:
   database-platform: org.hibernate.dialect.SQLServerDialect
   hibernate:
@@ -23,8 +26,6 @@ jpa:
 
 server:
   port: 4001
-  servlet:
-    context-path: /
 
 jwt:
   secret: "AMINEALEXANDREGABRIELNADAAKRAMPROJECTCESI_EATS2025"

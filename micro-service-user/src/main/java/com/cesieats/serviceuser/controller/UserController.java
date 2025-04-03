@@ -31,7 +31,7 @@ public class UserController {
 
     private final JwtUtil jwtUtil;
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest authRequest) {
+    public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest authRequest) throws UserNotFoundException {
         Optional<User> userOptional = userService.getUserByEmail(authRequest.getEmail());
 
         if (userOptional.isPresent()) {
@@ -47,12 +47,12 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
     @GetMapping("/me")
-    public ResponseEntity<?> getUser(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> getUser(@RequestHeader("Authorization") String token) throws UserNotFoundException {
         // Extraire l'email du token
-        String email = jwtUtil.extractUsername(token.substring(7));// pour supprimer le Bearer
+        String email = jwtUtil.extractEmail(token.substring(7));// pour supprimer le Bearer
 
         // Rechercher l'utilisateur par email
-        Optional<User> userOpt = userService.getUserByEmail(email);
+        Optional <User> userOpt = userService.getUserByEmail(email);
         if(userOpt.isPresent()){
             return ResponseEntity.ok(userOpt.get());
         }else{
@@ -96,9 +96,13 @@ public class UserController {
         return "Rôle mis à jour avec succès";
     }
 
-    @DeleteMapping("/delete/{id}")
-    public String delete(@PathVariable Long id) throws UserNotFoundException {
-        userService.deleteUser(id);
+    @DeleteMapping("/delete/{email}")
+    public String delete(@RequestHeader("Authorization") String token,  @PathVariable String email) throws UserNotFoundException {
+        String emailUser = jwtUtil.extractEmail(token.substring(7));
+        if(!emailUser.equals(email)){
+            return "vous ne pouvez pas supprimer un autre utilisateur";
+        }
+        userService.deleteUserByEmail(email);
         return "Utilisateur supprimé";
     }
 

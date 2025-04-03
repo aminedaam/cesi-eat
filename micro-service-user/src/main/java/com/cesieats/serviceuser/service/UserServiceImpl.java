@@ -19,6 +19,7 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService{
 
     private final UserRepository userRepository ;
+
     private final PasswordEncoder passwordEncoder;
     @Override
     public Optional<User> getUserByEmail(String email) {
@@ -73,9 +74,9 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public void deleteUser(Long id) throws UserNotFoundException {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("Utilisateur non trouvé !"));
+    public void deleteUserByEmail(String email) throws UserNotFoundException {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("Utilisateur non trouvé"));
         userRepository.delete(user);
     }
 }

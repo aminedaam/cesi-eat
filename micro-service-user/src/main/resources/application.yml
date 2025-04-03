@@ -14,10 +14,7 @@ spring:
     username: sa
     password: CesiEat06
 
-eureka:
-  client:
-    service-url:
-      defaultZone: http://172.16.10.12:8761/eureka
+
 jpa:
   database-platform: org.hibernate.dialect.SQLServerDialect
   hibernate:

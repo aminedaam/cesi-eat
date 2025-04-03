@@ -35,7 +35,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
-            String email = jwtUtil.extractUsername(token);
+            String email = jwtUtil.extractEmail(token);
 
             if (email != null && jwtUtil.validateToken(token)) {
                 Optional<User> userOptional = userRepository.findByEmail(email);

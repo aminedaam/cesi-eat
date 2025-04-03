@@ -17,11 +17,12 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@CrossOrigin(
-        origins = "*",                      // Autorise toutes les origines
-        allowedHeaders = {"Content-Type", "Authorization"}, // Autorise ces en-têtes
-        methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS}
-)
+// @CrossOrigin(
+//         origins = "*",                      // Autorise toutes les origines
+//         allowedHeaders = {"Content-Type", "Authorization"}, // Autorise ces en-têtes
+//         methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS}
+// )
+@RequestMapping("/users")
 @AllArgsConstructor
 public class UserController {
 
@@ -46,9 +47,17 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
     @GetMapping("/me")
-    public User getUser(@RequestHeader("Authorization") String token) {
-        String email = jwtUtil.extractUsername(token.substring(7));
-        return userService.getUserByEmail(email).orElseThrow();
+    public ResponseEntity<?> getUser(@RequestHeader("Authorization") String token) {
+        // Extraire l'email du token
+        String email = jwtUtil.extractUsername(token.substring(7));// pour supprimer le Bearer
+
+        // Rechercher l'utilisateur par email
+        Optional<User> userOpt = userService.getUserByEmail(email);
+        if(userOpt.isPresent()){
+            return ResponseEntity.ok(userOpt.get());
+        }else{
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Utilisateur non trouvé");
+        }
     }
 
     @PostMapping("/create")

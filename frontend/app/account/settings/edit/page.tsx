@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import BaseHeader from "@/components/header_footers/BaseHeader";
 import { CustomButton } from "@/components/helper-components/CustomButton";
 import LoadingSpinner from "@/components/helper-components/LoadingSpinner";
-import { getMe, updateUser } from "@/utils/api";
+import { updateUser } from "@/utils/api";
 import { toast } from "react-toastify";
 
 // Interface for user profile
@@ -24,7 +24,7 @@ const UserSettingsPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [userId, setuserId] = useState<number>();
+  const email = useAuthStore((state) => state.email);
 
   useEffect(() => {
     if (!isLoggedIn) {
@@ -44,7 +44,6 @@ const UserSettingsPage: React.FC = () => {
             email: "john.doe@example.com",
             phoneNumber: "123-456-7890",
           }; // const data: UserProfile = await getMe(accessToken);
-          setuserId(1);
           setUserProfile(data);
         } catch (err) {
           console.error("Error fetching user profile:", err);
@@ -62,7 +61,7 @@ const UserSettingsPage: React.FC = () => {
     if (!userProfile || !accessToken) return;
     setIsUpdating(true);
     try {
-      await updateUser(userId, accessToken, userProfile); // Update user profile via API
+      await updateUser(email!, userProfile, accessToken); // Update user profile via API
       toast.success("Profile updated successfully!");
     } catch (err) {
       console.error("Error updating profile:", err);
@@ -99,7 +98,7 @@ const UserSettingsPage: React.FC = () => {
       <main className="flex-grow flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="w-full max-w-lg bg-white p-8 shadow-lg rounded-xl space-y-6">
           <h2 className="text-center text-2xl font-bold text-gray-900">
-            User Settings
+            Modifier mes informations
           </h2>
           {userProfile && (
             <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>

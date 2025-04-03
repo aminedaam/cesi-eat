@@ -38,7 +38,7 @@ const UserSettingsPage: React.FC = () => {
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
   const accessToken = useAuthStore((state) => state.accessToken);
   const logout = useAuthStore((state) => state.logout);
-  const userId = useAuthStore((state) => state.userId);
+  const email = useAuthStore((state) => state.email);
   const router = useRouter();
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
@@ -64,7 +64,7 @@ const UserSettingsPage: React.FC = () => {
 
     try {
       // Call deleteUser API here
-      console.log(userId);
+      console.log(email);
       toast.success("Account deleted successfully.");
       logout();
       router.replace("/register");

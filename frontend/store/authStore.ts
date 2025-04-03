@@ -1,10 +1,12 @@
-import { getMe, login } from "@/utils/api";
+import { login } from "@/utils/api";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
+import { jwtDecode } from "jwt-decode";
 
 // Interface defining the state structure and actions
 interface AuthState {
-  userId: number | null;
+  email: string | null;
+  role: string | null;
   isLoggedIn: boolean;
   accessToken: string | null;
   login: (username: string, password: string) => Promise<void>;
@@ -18,7 +20,8 @@ export const useAuthStore = create<AuthState>()(
       // Initial state
       isLoggedIn: false,
       accessToken: null,
-      userId: null,
+      email: null,
+      role: null,
 
       // Action to handle login
       login: async (email: string, password: string) => {
@@ -26,9 +29,13 @@ export const useAuthStore = create<AuthState>()(
           const token = await login(email, password);
 
           if (token) {
-            set({ isLoggedIn: true, accessToken: token });
-            const response = await getMe(token);
-            set({ userId: response.id });
+            const decoded = jwtDecode<{ email: string; role: string }>(token);
+            set({
+              isLoggedIn: true,
+              accessToken: token,
+              email: decoded.email,
+              role: decoded.role,
+            });
             // Optionally, you could set Axios default headers here if needed
             // axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
           } else {
@@ -45,7 +52,7 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: () => {
-        set({ isLoggedIn: false, accessToken: null, userId: null });
+        set({ isLoggedIn: false, accessToken: null, email: null });
         // Optionally, remove the token from Axios default headers
         // delete axios.defaults.headers.common['Authorization'];
         // Perform other cleanup actions if necessary.
@@ -62,6 +69,7 @@ export const useAuthStore = create<AuthState>()(
 /*
 import { useAuthStore } from './path/to/useAuthStore';
 import { useState } from 'react';
+import jwt_decode from "jwt-decode";
 
 function LoginComponent() {
   const login = useAuthStore((state) => state.login);

@@ -3,7 +3,7 @@ import { User } from "@/types/User";
 import axios from "axios";
 
 // Créez l'instance Axios avec la bonne baseURL
-const serverURL = "http://172.16.10.12:4001/users/";
+const serverURL = "http://localhost:4001";
 
 const apiUser = axios.create({
   baseURL: serverURL,
@@ -12,7 +12,7 @@ const apiUser = axios.create({
 
 export const register = async (userData: User) => {
   try {
-    const response = await apiUser.post("/create", userData);
+    const response = await apiUser.post("/users/create", userData);
     return response;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -32,7 +32,7 @@ export const register = async (userData: User) => {
 
 export const login = async (email: string, password: string) => {
   try {
-    const response = await apiUser.post("/login", { email, password });
+    const response = await apiUser.post("/users/login", { email, password });
     return response.data.token;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -53,7 +53,7 @@ export const login = async (email: string, password: string) => {
 export const getMe = async (token: string) => {
   try {
     console.log(token);
-    const response = await apiUser.get("/me", {
+    const response = await apiUser.get("users/me", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -76,12 +76,12 @@ export const getMe = async (token: string) => {
 };
 
 export const updateUser = async (
-  userId: number,
+  email: string,
   userData: Partial<User>,
   token: string
 ) => {
   try {
-    const response = await apiUser.put(`/update/${userId}`, userData, {
+    const response = await apiUser.put(`/update/${email}`, userData, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -104,14 +104,15 @@ export const updateUser = async (
 };
 
 export const updatePassword = async (
-  userId: number,
+  email: string,
+  oldPassword: string,
   newPassword: string,
   token: string
 ) => {
   try {
     const response = await apiUser.put(
-      `/update-password/${userId}`,
-      { password: newPassword },
+      `/updatePassword/${email}`,
+      { oldPassword: newPassword, newPassword: oldPassword },
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -135,9 +136,9 @@ export const updatePassword = async (
   }
 };
 
-export const deleteUser = async (userId: number, token: string) => {
+export const deleteUser = async (email: string, token: string) => {
   try {
-    const response = await apiUser.delete(`/delete/${userId}`, {
+    const response = await apiUser.delete(`/delete/${email  }`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -158,16 +159,3 @@ export const deleteUser = async (userId: number, token: string) => {
     throw error;
   }
 };
-
-// Vous pouvez garder l'ancienne fonction si elle sert ailleurs, sinon supprimez-la
-/*
-export const register = async () => {
-    try {
-      const response = await apiClient.get("/user/create"); // Ceci était incorrect pour la création
-      return response.data;
-    } catch (error) {
-      console.error("Erreur lors de la récupération des produits :", error);
-      throw error;
-    }
-  };
-*/

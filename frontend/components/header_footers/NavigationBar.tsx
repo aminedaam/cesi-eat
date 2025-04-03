@@ -12,25 +12,25 @@ export const NavigationBar = () => {
           <Link href="/home">
             <div className="flex flex-col items-center w-24">
               <Home />
-              Home
+              Accueil
             </div>
           </Link>
           <Link href="/browse">
             <div className="flex flex-col items-center w-24">
               <Search />
-              Browse
+              Parcourir
             </div>
           </Link>
           <Link href="/order">
             <div className="flex flex-col items-center w-24">
               <Bookmark />
-              Orders
+              Commandes
             </div>
           </Link>
           <Link href="/account">
             <div className="flex flex-col items-center w-24">
               <CircleUser />
-              My Account
+              Mon compte
             </div>
           </Link>
         </div>

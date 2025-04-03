@@ -45,16 +45,21 @@ const MyAccountPage: React.FC = () => {
         setIsLoading(true);
         setError(null);
         try {
-          // const response = await getMe(accessToken);
-          // console.log("Get me : ", response);
-          // const data: UserProfile = response.json();
+          const response = await getMe(accessToken);
+          console.log("Get me : ", response);
+          const data: UserProfile = {
+            firstName: response.firstName,
+            lastName: response.lastName,
+            email: response.email,
+            phoneNumber: response.phoneNumber
+          }
 
-          const data = {
-            firstName: "John",
-            lastName: "Doe",
-            email: "john.doe@example.com",
-            phoneNumber: "123-456-7890",
-          };
+          // const data = {
+          //   firstName: "John",
+          //   lastName: "Doe",
+          //   email: "john.doe@example.com",
+          //   phoneNumber: "123-456-7890",
+          // };
 
           setUserProfile(data);
         } catch (err) {

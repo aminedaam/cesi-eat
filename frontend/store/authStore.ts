@@ -1,9 +1,10 @@
-import { login } from "@/utils/api";
+import { getMe, login } from "@/utils/api";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
 // Interface defining the state structure and actions
 interface AuthState {
+  userId: number | null;
   isLoggedIn: boolean;
   accessToken: string | null;
   login: (username: string, password: string) => Promise<void>;
@@ -17,18 +18,17 @@ export const useAuthStore = create<AuthState>()(
       // Initial state
       isLoggedIn: false,
       accessToken: null,
+      userId: null,
 
       // Action to handle login
       login: async (email: string, password: string) => {
         try {
           const token = await login(email, password);
-          if (email === "test@gmail.com") {
-            set({ isLoggedIn: false, accessToken: null });
-            throw new Error("Unvalid username or password.");
-          }
 
           if (token) {
             set({ isLoggedIn: true, accessToken: token });
+            const response = await getMe(token);
+            set({ userId: response.id });
             // Optionally, you could set Axios default headers here if needed
             // axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
           } else {
@@ -45,7 +45,7 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: () => {
-        set({ isLoggedIn: false, accessToken: null });
+        set({ isLoggedIn: false, accessToken: null, userId: null });
         // Optionally, remove the token from Axios default headers
         // delete axios.defaults.headers.common['Authorization'];
         // Perform other cleanup actions if necessary.

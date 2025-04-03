@@ -3,15 +3,16 @@ import { User } from "@/types/User";
 import axios from "axios";
 
 // Créez l'instance Axios avec la bonne baseURL
-const apiClient = axios.create({
-  // Assurez-vous que la baseURL est correcte et complète
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://172.16.10.12:4001", // Utiliser une variable d'env est préférable
-  timeout: 5000, // Garder le timeout
+const serverURL = "http://172.16.10.12:4001/users/";
+
+const apiUser = axios.create({
+  baseURL: serverURL,
+  timeout: 5000,
 });
 
 export const register = async (userData: User) => {
   try {
-    const response = await apiClient.post("/create", userData);
+    const response = await apiUser.post("/create", userData);
     return response;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -31,7 +32,7 @@ export const register = async (userData: User) => {
 
 export const login = async (email: string, password: string) => {
   try {
-    const response = await apiClient.post("/login", { email, password });
+    const response = await apiUser.post("/login", { email, password });
     return response.data.token;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -49,17 +50,112 @@ export const login = async (email: string, password: string) => {
   }
 };
 
-export const getMe = async (token : string) => {
+export const getMe = async (token: string) => {
   try {
-      const response = await axios.get('/me', {
-          headers: {
-              Authorization: `Bearer ${token}`,
-          },
-      });
-      return response.data;
+    console.log(token);
+    const response = await apiUser.get("/me", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
   } catch (error) {
-      console.error('Erreur lors de la récupération des données de l\'utilisateur', error);
-      throw error;
+    if (axios.isAxiosError(error)) {
+      console.error(
+        "Erreur API lors de la récupération des données de l'utilisateur:",
+        error.response?.data || error.message
+      );
+    } else {
+      console.error(
+        "Erreur inattendue lors de la récupération des données de l'utilisateur:",
+        error
+      );
+    }
+    throw error;
+  }
+};
+
+export const updateUser = async (
+  userId: number,
+  userData: Partial<User>,
+  token: string
+) => {
+  try {
+    const response = await apiUser.put(`/update/${userId}`, userData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        "Erreur API lors de la mise à jour de l'utilisateur:",
+        error.response?.data || error.message
+      );
+    } else {
+      console.error(
+        "Erreur inattendue lors de la mise à jour de l'utilisateur:",
+        error
+      );
+    }
+    throw error;
+  }
+};
+
+export const updatePassword = async (
+  userId: number,
+  newPassword: string,
+  token: string
+) => {
+  try {
+    const response = await apiUser.put(
+      `/update-password/${userId}`,
+      { password: newPassword },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        "Erreur API lors de la mise à jour du mot de passe de l'utilisateur:",
+        error.response?.data || error.message
+      );
+    } else {
+      console.error(
+        "Erreur inattendue lors de la mise à jour du mot de passe de l'utilisateur:",
+        error
+      );
+    }
+    throw error;
+  }
+};
+
+export const deleteUser = async (userId: number, token: string) => {
+  try {
+    const response = await apiUser.delete(`/delete/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        "Erreur API lors de la suppression de l'utilisateur:",
+        error.response?.data || error.message
+      );
+    } else {
+      console.error(
+        "Erreur inattendue lors de la suppression de l'utilisateur:",
+        error
+      );
+    }
+    throw error;
   }
 };
 

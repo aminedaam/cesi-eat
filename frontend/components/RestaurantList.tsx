@@ -21,6 +21,7 @@ export const RestaurantList: React.FC<RestaurantListProps> = ({
   filter,
 }) => {
   const { location, loading, error } = useLocation();
+  console.log("Location : ", location);
 
   const [orderedRestaurantsWithDistances, setOrderedRestaurantsWithDistances] =
     useState<{ restaurant: Restaurant; distance: number }[] | null>(null);

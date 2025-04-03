@@ -24,7 +24,7 @@ const signupSchema = z.object({
   phoneNumber: z.string().min(1, "Veuillez renseigner ce champ"),
   address: z.string().min(1, "Veuillez renseigner ce champ"),
   postalCode: z.string().min(1, "Veuillez renseigner ce champ"),
-  city: z.string(), // City is optional in the schema for now
+  city: z.string().min(1, "Veuillez renseigner ce champ"),
   country: z.string().min(1, "Veuillez renseigner ce champ"),
   password: z.string().min(1, "Veuillez renseigner ce champ"),
   role: z.enum(["CLIENT", "RESTAURATEUR", "LIVREUR"], {

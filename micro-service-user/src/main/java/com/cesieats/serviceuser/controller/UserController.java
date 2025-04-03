@@ -17,11 +17,11 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@CrossOrigin(
-        origins = "*",                      // Autorise toutes les origines
-        allowedHeaders = {"Content-Type", "Authorization"}, // Autorise ces en-têtes
-        methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS}
-)
+// @CrossOrigin(
+//         origins = "*",                      // Autorise toutes les origines
+//         allowedHeaders = {"Content-Type", "Authorization"}, // Autorise ces en-têtes
+//         methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS}
+// )
 @RequestMapping("/users")
 @AllArgsConstructor
 public class UserController {

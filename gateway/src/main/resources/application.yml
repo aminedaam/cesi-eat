@@ -13,11 +13,10 @@
               predicates:
                 - Path=/users/**
 
-
-          eureka:
-            client:
-              serviceUrl:
-                defaultZone: http://172.16.10.12:8761/eureka/
+  eureka:
+    client:
+      serviceUrl:
+        defaultZone: http://172.16.10.12:8761/eureka/
 
 
 

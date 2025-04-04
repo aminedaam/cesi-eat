@@ -74,9 +74,8 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({
 };
 
 export const useLocation = (): LocationContextProps => {
+  console.log("useLocation called");
   const context = useContext(LocationContext);
-  console.log("Retrieving location from context")
-
   if (context === undefined) {
     throw new Error("useLocation must be used within a LocationProvider");
   }

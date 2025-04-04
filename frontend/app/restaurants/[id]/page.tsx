@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCartStore } from "@/store/cartStore";
@@ -8,7 +8,8 @@ import { CustomButton } from "@/components/helper-components/CustomButton";
 // import { RestaurantArticle } from "@/types/RestaurantArticle";
 import { useParams } from "next/navigation";
 import { articles } from "@/mockData/articles";
-import { restaurants } from "@/mockData/restaurants";
+import { getRestaurantById } from "@/utils/apiRestaurant";
+import { Restaurant } from "@/types/Restaurants";
 
 function RestaurantPage() {
   const { id } = useParams();
@@ -18,7 +19,16 @@ function RestaurantPage() {
     state.getTotalItemsByRestaurantId(restaurantId)
   );
 
-  const restaurant = restaurants.filter((r) => r.id == restaurantId)[0];
+  const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
+
+  useEffect(() => {
+    async function fetchRestaurant() {
+      const fetchedRestaurant = await getRestaurantById(restaurantId);
+      console.log(fetchRestaurant);
+      setRestaurant(fetchedRestaurant);
+    }
+    fetchRestaurant();
+  }, [restaurantId]);
 
   const articlesFromRestaurant = articles.filter(
     (article) => article.restaurantId == restaurantId
@@ -36,39 +46,47 @@ function RestaurantPage() {
         />
       </div>
 
-      <h1 className="text-center font-bold text-xl my-4">{restaurant.name}</h1>
+      <h1 className="text-center font-bold text-xl my-4">
+        {restaurant?.name ?? "blabla"}
+      </h1>
 
-      <ul className="p-4">
-        {articlesFromRestaurant.map((article) => (
-          <li
-            key={article.id}
-            className="flex items-center justify-between mb-4 border-b pb-4"
-          >
-            <div className="flex items-center">
-              <Image
-                src={article.imagePath}
-                alt={article.name}
-                width={80}
-                height={80}
-                className="rounded-md"
-              />
-              <div className="ml-4">
-                <h2 className="font-semibold">{article.name}</h2>
-                <p className="text-sm text-gray-500">{article.price}</p>
-                <p className="text-xs text-gray-400">{article.description}</p>
-              </div>
+      {articlesFromRestaurant.length > 0 ? (
+        <ul className="p-4">
+          {articlesFromRestaurant.map((article) => (
+        <li
+          key={article.id}
+          className="flex items-center justify-between mb-4 border-b pb-4"
+        >
+          <div className="flex items-center">
+            <Image
+          src={article.imagePath}
+          alt={article.name}
+          width={80}
+          height={80}
+          className="rounded-md"
+            />
+            <div className="ml-4">
+          <h2 className="font-semibold">{article.name}</h2>
+          <p className="text-sm text-gray-500">{article.price}</p>
+          <p className="text-xs text-gray-400">{article.description}</p>
             </div>
-            <CustomButton
-              className="text-2xl text-black font-bold"
-              onClick={() => {
-                addItem(article);
-              }}
-            >
-              +
-            </CustomButton>
-          </li>
-        ))}
-      </ul>
+          </div>
+          <CustomButton
+            className="text-2xl text-black font-bold"
+            onClick={() => {
+          addItem(article);
+            }}
+          >
+            +
+          </CustomButton>
+        </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-center text-gray-500 mt-4">
+          Aucun article disponible pour ce restaurant.
+        </p>
+      )}
 
       {totalItemsFromCurrentRestaurant > 0 && (
         <Link href={`/cart/${restaurantId}`}>

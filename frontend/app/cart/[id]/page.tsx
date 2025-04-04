@@ -5,11 +5,12 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Minus, Plus, Trash } from "lucide-react";
 import Link from "next/link";
-import { restaurants } from "@/mockData/restaurants";
 import { CustomButton } from "@/components/helper-components/CustomButton";
 import Modal from "react-modal";
 import { toast } from "react-toastify";
 import { customModalStyles } from "@/components/header_footers/CustomModalStyles";
+import { getRestaurantById } from "@/utils/apiRestaurant";
+import { Restaurant } from "@/types/Restaurants";
 
 const CartPage = () => {
   const router = useRouter();
@@ -21,7 +22,16 @@ const CartPage = () => {
     useCartStore();
 
   const restaurantId = Number(id);
-  const restaurant = restaurants.filter((r) => r.id == restaurantId)[0];
+  const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
+
+  useEffect(() => {
+    async function fetchRestaurant() {
+      const fetchedRestaurant = await getRestaurantById(restaurantId);
+      console.log(fetchRestaurant);
+      setRestaurant(fetchedRestaurant);
+    }
+    fetchRestaurant();
+  }, [restaurantId]);
 
   const restaurantItems = getItemsByRestaurant(restaurantId);
 
@@ -66,7 +76,9 @@ const CartPage = () => {
   return (
     <div className="min-h-screen">
       <div className="max-w-md mx-auto bg-white rounded-2xl shadow p-4">
-        <h1 className="font-semibold text-xl mb-4">{restaurant.name}</h1>
+        <h1 className="font-semibold text-xl mb-4">
+          {restaurant?.name ?? "Restaurant"}
+        </h1>
 
         <div className="space-y-4">
           {restaurantItems.map((item) => (

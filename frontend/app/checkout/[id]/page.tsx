@@ -11,7 +11,6 @@ import {
   Tag,
   Clock,
 } from "lucide-react";
-import { restaurants } from "@/mockData/restaurants";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useAuthStore } from "@/store/authStore";
 import { getMe } from "@/utils/apiUser";
@@ -19,9 +18,11 @@ import useCoordinates from "@/hooks/useCoordinates";
 import "leaflet/dist/leaflet.css";
 import L, { Map as LeafletMap, Marker as LeafletMarker } from "leaflet";
 import useAddressFromCoordinates from "@/hooks/useAddressFromCoordinates";
-import { Position } from "@/types/Position"; // Assuming Position has { latitude: number; longitude: number }
+import { Position } from "@/types/Position"; // Assuming Position has { lgit atitude: number; longitude: number }
 import LoadingSpinner from "@/components/helper-components/LoadingSpinner";
 import useTravelTime from "@/hooks/useTravelTime";
+import { getRestaurantById } from "@/utils/apiRestaurant";
+import { Restaurant } from "@/types/Restaurants";
 
 const formatSecondsToMinutes = (totalSeconds: number): number | null => {
   if (totalSeconds === null || totalSeconds === undefined) {
@@ -45,7 +46,16 @@ const CheckoutPage = () => {
   );
 
   const restaurantId = Number(id);
-  const restaurant = restaurants.find((r) => r.id === restaurantId);
+  const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
+
+  useEffect(() => {
+    async function fetchRestaurant() {
+      const fetchedRestaurant = await getRestaurantById(restaurantId);
+      console.log(fetchRestaurant);
+      setRestaurant(fetchedRestaurant);
+    }
+    fetchRestaurant();
+  }, [restaurantId]);
 
   const sousTotal = restaurantItems.reduce(
     (acc, item) => acc + item.article.price * item.quantity,
@@ -75,8 +85,10 @@ const CheckoutPage = () => {
   );
 
   const { duration, loading: loadingDuration } = useTravelTime(
-    restaurant?.position ?? null,
-    newPosition ?? coordinates
+    restaurant?.latitude ?? null,
+    restaurant?.longitude ?? null,
+    newPosition?.latitude ?? coordinates?.latitude ?? null,
+    newPosition?.longitude ?? coordinates?.longitude ?? null
   );
 
   useEffect(() => {
@@ -249,7 +261,7 @@ const CheckoutPage = () => {
         >
           <div className="flex items-center">
             <Image
-              src={restaurant?.image || "/images/restaurant-placeholder.png"}
+              src="/burger.png"
               width={40}
               height={40}
               alt={restaurant?.name || "Restaurant"}

@@ -8,7 +8,7 @@ export const articles: RestaurantArticle[] = [
     description: "Description du produit",
     imagePath: "/burger.png",
     createdAt: Date.now(),
-    restaurantId: 1,
+    restaurantId: 4,
     typeProd: "",
   },
   {
@@ -18,7 +18,7 @@ export const articles: RestaurantArticle[] = [
     description: "Description du produit",
     imagePath: "/burger.png",
     createdAt: Date.now(),
-    restaurantId: 1,
+    restaurantId: 4,
     typeProd: "",
   },
   {
@@ -28,7 +28,7 @@ export const articles: RestaurantArticle[] = [
     description: "Description du produit",
     imagePath: "/burger.png",
     createdAt: Date.now(),
-    restaurantId: 1,
+    restaurantId: 4,
     typeProd: "",
   },
   {
@@ -38,7 +38,7 @@ export const articles: RestaurantArticle[] = [
     description: "Description du produit",
     imagePath: "/burger.png",
     createdAt: Date.now(),
-    restaurantId: 1,
+    restaurantId: 4,
     typeProd: "",
   },
   {
@@ -48,7 +48,7 @@ export const articles: RestaurantArticle[] = [
     description: "Description du produit",
     imagePath: "/burger.png",
     createdAt: Date.now(),
-    restaurantId: 1,
+    restaurantId: 4,
     typeProd: "",
   },
   {
@@ -58,7 +58,7 @@ export const articles: RestaurantArticle[] = [
     description: "Description du produit",
     imagePath: "/burger.png",
     createdAt: Date.now(),
-    restaurantId: 1,
+    restaurantId: 4,
     typeProd: "",
   },
   {
@@ -68,7 +68,7 @@ export const articles: RestaurantArticle[] = [
     description: "Description du produit",
     imagePath: "/burger.png",
     createdAt: Date.now(),
-    restaurantId: 1,
+    restaurantId: 4,
     typeProd: "",
   },
   {
@@ -78,7 +78,7 @@ export const articles: RestaurantArticle[] = [
     description: "Description du produit",
     imagePath: "/burger.png",
     createdAt: Date.now(),
-    restaurantId: 1,
+    restaurantId: 4,
     typeProd: "",
   },
   {
@@ -88,7 +88,7 @@ export const articles: RestaurantArticle[] = [
     description: "Description du produit",
     imagePath: "/burger.png",
     createdAt: Date.now(),
-    restaurantId: 1,
+    restaurantId: 4,
     typeProd: "",
   },
   {
@@ -98,7 +98,7 @@ export const articles: RestaurantArticle[] = [
     description: "Description du produit",
     imagePath: "/burger.png",
     createdAt: Date.now(),
-    restaurantId: 2,
+    restaurantId: 7,
     typeProd: "",
   },
   {
@@ -108,7 +108,7 @@ export const articles: RestaurantArticle[] = [
     description: "Description du produit",
     imagePath: "/burger.png",
     createdAt: Date.now(),
-    restaurantId: 2,
+    restaurantId: 7,
     typeProd: "",
   },
   {
@@ -118,7 +118,7 @@ export const articles: RestaurantArticle[] = [
     description: "Description du produit",
     imagePath: "/burger.png",
     createdAt: Date.now(),
-    restaurantId: 2,
+    restaurantId: 7,
     typeProd: "",
   },
   {
@@ -128,7 +128,7 @@ export const articles: RestaurantArticle[] = [
     description: "Description du produit",
     imagePath: "/burger.png",
     createdAt: Date.now(),
-    restaurantId: 2,
+    restaurantId: 7,
     typeProd: "",
   },
   {
@@ -138,7 +138,7 @@ export const articles: RestaurantArticle[] = [
     description: "Description du produit",
     imagePath: "/burger.png",
     createdAt: Date.now(),
-    restaurantId: 2,
+    restaurantId: 7,
     typeProd: "",
   },
   {
@@ -148,7 +148,7 @@ export const articles: RestaurantArticle[] = [
     description: "Description du produit",
     imagePath: "/burger.png",
     createdAt: Date.now(),
-    restaurantId: 2,
+    restaurantId: 7,
     typeProd: "",
   },
   {
@@ -158,7 +158,7 @@ export const articles: RestaurantArticle[] = [
     description: "Description du produit",
     imagePath: "/burger.png",
     createdAt: Date.now(),
-    restaurantId: 2,
+    restaurantId: 7,
     typeProd: "",
   },
   {
@@ -168,7 +168,7 @@ export const articles: RestaurantArticle[] = [
     description: "Description du produit",
     imagePath: "/burger.png",
     createdAt: Date.now(),
-    restaurantId: 2,
+    restaurantId: 7,
     typeProd: "",
   },
   {
@@ -178,7 +178,7 @@ export const articles: RestaurantArticle[] = [
     description: "Description du produit",
     imagePath: "/burger.png",
     createdAt: Date.now(),
-    restaurantId: 2,
+    restaurantId: 7,
     typeProd: "",
   },
 ];

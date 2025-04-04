@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Position } from "@/types/Position"; // Assuming Position interface exists
 
 interface TravelTimeResult {
   duration: number | null; // Duration in seconds
@@ -9,17 +8,24 @@ interface TravelTimeResult {
 
 
 const useTravelTime = (
-  startPosition: Position | null,
-  endPosition: Position | null
+  startLat: number | null,
+  startLng: number | null,
+  endLat: number | null,
+  endLng: number | null
 ): TravelTimeResult => {
   const [duration, setDuration] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log("Start position:", startPosition);
-    console.log("End position:", endPosition);
-    if (!startPosition || !endPosition) {
+    console.log("Start coordinates:", { startLat, startLng });
+    console.log("End coordinates:", { endLat, endLng });
+    if (
+      startLat === null ||
+      startLng === null ||
+      endLat === null ||
+      endLng === null
+    ) {
       setDuration(null);
       setError(null);
       setLoading(false);
@@ -30,9 +36,6 @@ const useTravelTime = (
       setLoading(true);
       setError(null);
       setDuration(null);
-
-      const { latitude: startLat, longitude: startLng } = startPosition;
-      const { latitude: endLat, longitude: endLng } = endPosition;
 
       const apiUrl = `https://router.project-osrm.org/route/v1/driving/${startLng},${startLat};${endLng},${endLat}?overview=false`;
 
@@ -46,7 +49,6 @@ const useTravelTime = (
 
         if (data.routes && data.routes.length > 0) {
           // Duration is in seconds
-
           setDuration(data.routes[0].duration);
         } else {
           setError(
@@ -62,7 +64,7 @@ const useTravelTime = (
     };
 
     fetchTravelTime();
-  }, [startPosition, endPosition]);
+  }, [startLat, startLng, endLat, endLng]);
 
   return { duration, loading, error };
 };

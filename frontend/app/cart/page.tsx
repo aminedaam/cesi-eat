@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { Trash } from "lucide-react";
 import { useState, useEffect } from "react";
 // import { Restaurant } from "@/types/Restaurants"; // Import the restaurants array
-import { restaurants } from "@/mockData/restaurants";
 import Modal from "react-modal";
 import { toast } from "react-toastify";
 import { CustomButton } from "@/components/helper-components/CustomButton";
@@ -14,6 +13,8 @@ import Link from "next/link";
 import { customModalStyles } from "@/components/header_footers/CustomModalStyles";
 import { getMe } from "@/utils/apiUser";
 import { useAuthStore } from "@/store/authStore";
+import { getAllRestaurants } from "@/utils/apiRestaurant";
+import { Restaurant } from "@/types/Restaurants";
 
 interface RestaurantDetails {
   name?: string;
@@ -72,6 +73,17 @@ const CartPage = () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   }, {} as any);
 
+  const [restaurants, setRestaurants] = useState<Restaurant[] | null>(null);
+
+  useEffect(() => {
+    async function fetchRestaurant() {
+      const fetchedRestaurants = await getAllRestaurants();
+      console.log(fetchRestaurant);
+      setRestaurants(fetchedRestaurants);
+    }
+    fetchRestaurant();
+  }, []);
+
   useEffect(() => {
     const fetchRestaurantData = () => {
       const uniqueRestaurantIds = Object.keys(groupedByRestaurant).map(Number);
@@ -79,11 +91,11 @@ const CartPage = () => {
       const details: { [restaurantId: number]: RestaurantDetails } = {};
 
       for (const restaurantId of uniqueRestaurantIds) {
-        const restaurant = restaurants.find((r) => r.id === restaurantId);
+        const restaurant = restaurants?.find((r) => r.id === restaurantId);
         if (restaurant) {
           details[restaurantId] = {
             name: restaurant.name,
-            imagePath: restaurant.image, // Assuming 'image' in your Restaurant type is the path
+            imagePath: "/burger.png", // Assuming 'image' in your Restaurant type is the path
             // You might not have an 'address' property in your Restaurant type,
             // you can either add a mock address here or remove it from the rendering
           };
@@ -93,7 +105,7 @@ const CartPage = () => {
     };
 
     fetchRestaurantData();
-  }, []); // Make sure to include groupedByRestaurant in the dependency array
+  }, [restaurants]); // Make sure to include groupedByRestaurant in the dependency array
 
   const openDeleteModal = ({ id, name }: { id: number; name: string }) => {
     setRestaurantIdToDelete(id);

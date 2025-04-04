@@ -1,4 +1,3 @@
-
 spring:
   main:
     allow-circular-references: true
@@ -10,10 +9,9 @@ spring:
   application:
     name: service-user
   datasource:
-    url: jdbc:sqlserver://ITEM-S121587;databaseName=CESI_EATS;encrypt=false;
+    url: jdbc:sqlserver://172.16.10.12;databaseName=CESI_EATS;encrypt=false;
     username: sa
-    password: sopraSQLSERVER2019
-
+    password: CesiEat06
 
 jpa:
   database-platform: org.hibernate.dialect.SQLServerDialect

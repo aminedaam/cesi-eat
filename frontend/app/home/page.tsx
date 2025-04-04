@@ -2,66 +2,14 @@
 import BaseHeader from "@/components/header_footers/BaseHeader";
 import SearchBar from "@/components/helper-components/SearchBar";
 import { RestaurantList } from "@/components/RestaurantList";
+import { restaurants } from "@/mockData/restaurants";
 import { useAuthStore } from "@/store/authStore";
-import { Restaurant } from "@/types/Restaurants";
+// import { Restaurant } from "@/types/Restaurants";
 import { Bell, MapPin, ShoppingCart } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
-
-
-const restaurants: Restaurant[] = [
-  {
-    id: 1,
-    name: "Bagaaaa",
-    deliveryCosts: 4.99,
-    image: "/burger.png",
-    position: {
-      latitude: 43.652777998548956,
-      longitude: 1.4394687613763628,
-    },
-  },
-  {
-    id: 2,
-    name: "Valentinoo",
-    deliveryCosts: 4.99,
-    image: "/burger.png",
-    position: {
-      latitude: 43.60304364458921,
-      longitude: 1.4363026245644699,
-    },
-  },
-  {
-    id: 3,
-    name: "Tacos",
-    deliveryCosts: 4.99,
-    image: "/tacos.png",
-    position: {
-      latitude: 48.8606,
-      longitude: 2.3376,
-    },
-  },
-  {
-    id: 4,
-    name: "Pizza",
-    deliveryCosts: 4.99,
-    image: "/pizza.png",
-    position: {
-      latitude: 48.853,
-      longitude: 2.3499,
-    },
-  },
-  {
-    id: 5,
-    name: "Pizza",
-    deliveryCosts: 4.99,
-    image: "/pizza.png",
-    position: {
-      latitude: 43.50304364458921,
-      longitude: 1.434,
-    },
-  },
-];
 
 const HomePage: React.FC = () => {
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
@@ -86,9 +34,11 @@ const HomePage: React.FC = () => {
             placeHolder="Rechercher dans CesiEat..."
           />
         </div>
-        <div className="flex flex-row">
+        <div className="flex flex-row space-x-3">
           <Bell />
-          <ShoppingCart />
+          <Link href={"/cart"}>
+            <ShoppingCart />
+          </Link>
         </div>
       </BaseHeader>
       <div className="flex flex-col mx-4  my-16">

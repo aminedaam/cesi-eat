@@ -43,6 +43,7 @@ public class SecurityConfig {
                 .build();
     }
 
+<<<<<<< HEAD
     // @Bean
     // public CorsConfigurationSource corsConfigurationSource() {
     //     CorsConfiguration configuration = new CorsConfiguration();
@@ -50,6 +51,15 @@ public class SecurityConfig {
     //     configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
     //     configuration.setAllowedHeaders(List.of("*"));
     //     configuration.setAllowCredentials(true);
+=======
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true);
+>>>>>>> feat/myAccount
 
     //     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     //     source.registerCorsConfiguration("/**", configuration);

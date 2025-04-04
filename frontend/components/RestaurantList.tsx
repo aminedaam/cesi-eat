@@ -3,8 +3,9 @@ import { CustomButton } from "./helper-components/CustomButton";
 import { Restaurant } from "@/types/Restaurants";
 import { useEffect, useState } from "react";
 import LoadingSpinner from "./helper-components/LoadingSpinner";
-import { Position } from "@/types/Position";
 import { useLocation } from "@/context/locationContext";
+import Link from "next/link";
+import { orderRestaurantsByDistance } from "@/utils/orderRestaurantsByDistance";
 
 interface RestaurantListProps {
   restaurants: Restaurant[];
@@ -21,6 +22,7 @@ export const RestaurantList: React.FC<RestaurantListProps> = ({
   filter,
 }) => {
   const { location, loading, error } = useLocation();
+  console.log("Location : ", location);
 
   const [orderedRestaurantsWithDistances, setOrderedRestaurantsWithDistances] =
     useState<{ restaurant: Restaurant; distance: number }[] | null>(null);
@@ -131,36 +133,14 @@ const RestaurantItem: React.FC<RestaurantItemProps> = ({
           Distance : {distance.toFixed(2)} km
         </span>
       </div>
-      <CustomButton
-        className="w-30 text-black button-primary-50 rounded-xl text-sm"
-        onClick={() => console.log("Je commande !")}
-      >
-        Je commande !
-      </CustomButton>
+      <Link href={`/restaurants/${restaurant.id}`}>
+        <CustomButton
+          className="w-30 text-black button-primary-50 rounded-xl text-sm"
+          onClick={() => console.log("Je commande !")}
+        >
+          Je commande !
+        </CustomButton>
+      </Link>
     </div>
   </li>
 );
-
-async function orderRestaurantsByDistance(
-  restaurants: Restaurant[],
-  location: Position
-): Promise<{ restaurant: Restaurant; distance: number }[]> {
-  const distances = await Promise.all(
-    restaurants.map(async (restaurant) => {
-      const distance = await calculateDistance(location, restaurant.position);
-      return { restaurant, distance };
-    })
-  );
-
-  return distances.sort((a, b) => a.distance - b.distance);
-}
-
-async function calculateDistance(position1: Position, position2: Position) {
-  const url = `http://router.project-osrm.org/route/v1/driving/${position1.longitude},${position1.latitude};${position2.longitude},${position2.latitude}?overview=false`;
-  const response = await fetch(url);
-  const data = await response.json();
-  if (data.routes && data.routes.length > 0) {
-    return data.routes[0].distance / 1000; // Distance in km
-  }
-  return 0;
-}

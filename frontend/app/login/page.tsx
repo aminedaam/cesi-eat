@@ -10,6 +10,7 @@ import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { CustomButton } from "@/components/helper-components/CustomButton";
+import { toast } from "react-toastify";
 
 const loginSchema = z.object({
   email: z
@@ -70,7 +71,7 @@ const LoginPage: React.FC = () => {
       setSubmitError(null);
       try {
         await authLogin(values.email, values.password);
-        console.log("Connexion réussie !");
+        toast.success("Connexion réussie !");
       } catch (error) {
         console.error("Échec de la connexion:", error);
         setSubmitError(

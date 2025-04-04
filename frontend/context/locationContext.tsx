@@ -73,9 +73,9 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({
   );
 };
 
-// Le hook useLocation reste le même, mais retourne maintenant loading et error
 export const useLocation = (): LocationContextProps => {
   const context = useContext(LocationContext);
+  console.log("Retrieving location from context")
 
   if (context === undefined) {
     throw new Error("useLocation must be used within a LocationProvider");

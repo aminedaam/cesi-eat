@@ -1,59 +1,221 @@
-import Image from "next/image";
-import { CustomButton } from "./helper-components/CustomButton";
+"use client";
+
 import { Restaurant } from "@/types/Restaurants";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import LoadingSpinner from "./helper-components/LoadingSpinner";
 import { useLocation } from "@/context/locationContext";
-import Link from "next/link";
 import { orderRestaurantsByDistance } from "@/utils/orderRestaurantsByDistance";
+import { RestaurantItem } from "./RestaurantItem";
+import { toast } from "react-toastify";
+import { getAllRestaurants } from "@/utils/apiRestaurant";
 
 interface RestaurantListProps {
-  restaurants: Restaurant[];
   filter: string;
 }
 
-// Le cache reste tel quel
-const restaurantDistanceCache: {
-  [key: string]: { restaurant: Restaurant; distance: number }[];
-} = {};
+// Module-level cache for restaurant distances based on location
+// Keys are strings like "latitude-longitude"
+const restaurantDistanceCache: Record<string, Restaurant[]> = {};
 
-export const RestaurantList: React.FC<RestaurantListProps> = ({
-  restaurants,
-  filter,
-}) => {
-  const { location, loading, error } = useLocation();
-  console.log("Location : ", location);
+// Constant for the location timeout duration
+const LOCATION_TIMEOUT_MS = 5000;
 
-  const [orderedRestaurantsWithDistances, setOrderedRestaurantsWithDistances] =
-    useState<{ restaurant: Restaurant; distance: number }[] | null>(null);
+export const RestaurantList: React.FC<RestaurantListProps> = ({ filter }) => {
+  // --- State Definitions ---
 
-  const filteredRestaurants = orderedRestaurantsWithDistances?.filter((item) =>
-    item.restaurant.name.toLowerCase().includes(filter.toLowerCase())
-  );
+  console.log("RestaurantList component rendered");
 
+  // Raw restaurant data fetched from API
+  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  // State to track if fetching initial restaurants failed
+  const [fetchError, setFetchError] = useState<string | null>(null);
+  // State for the list of restaurants to be displayed (potentially sorted)
+  const [processedRestaurants, setProcessedRestaurants] = useState<
+    Restaurant[]
+  >([]);
+  // Flag indicating if location fetching has timed out
+  const [locationTimedOut, setLocationTimedOut] = useState(false);
+
+  const [loadForRestaurants, setLoadForRestaurants] = useState(false);
+
+  // --- Hooks ---
+
+  // Get location data, loading status, and error from context
+  const {
+    location,
+    loading: locationLoading,
+    error: locationError,
+  } = useLocation();
+
+  // Refs for managing timeouts and preventing duplicate toasts
+  const locationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const locationToastShownRef = useRef(false);
+
+  // --- Effects ---
+
+  // Effect 1: Fetch all restaurants on initial component mount
   useEffect(() => {
-    if (
-      location &&
-      (!orderedRestaurantsWithDistances ||
-        orderedRestaurantsWithDistances[0]?.restaurant.id !==
-          restaurants[0]?.id)
-    ) {
-      const cacheKey = `${location.latitude}-${location.longitude}`;
-      if (restaurantDistanceCache[cacheKey]) {
-        console.log("Using cache for distances");
-        setOrderedRestaurantsWithDistances(restaurantDistanceCache[cacheKey]);
-      } else {
-        console.log("Calculating distances...");
-        orderRestaurantsByDistance(restaurants, location).then((result) => {
-          console.log("Distances calculated, updating state and cache");
-          restaurantDistanceCache[cacheKey] = result;
-          setOrderedRestaurantsWithDistances(result);
-        });
+    let isMounted = true; // Flag to prevent state updates on unmounted component
+
+    const fetchRestaurants = async () => {
+      try {
+        setLoadForRestaurants(true);
+        const fetchedRestaurants = await getAllRestaurants();
+        if (isMounted) {
+          console.log(
+            "Données des restaurants récupérées:",
+            fetchedRestaurants
+          );
+          setRestaurants(fetchedRestaurants);
+          setLoadForRestaurants(false);
+          // Initialize processed restaurants with the fetched list (default order)
+          setProcessedRestaurants(fetchedRestaurants);
+          setFetchError(null); // Clear any previous fetch error
+        }
+      } catch (error) {
+        console.error("Failed to fetch restaurants:", error);
+        if (isMounted) {
+          const errorMessage =
+            "Erreur lors de la récupération des restaurants.";
+          setFetchError(errorMessage);
+          toast.error(errorMessage);
+          setRestaurants([]); // Ensure restaurants list is empty on error
+          setProcessedRestaurants([]);
+        }
+      }
+    };
+
+    fetchRestaurants();
+
+    // Cleanup function to set the mounted flag to false when component unmounts
+    return () => {
+      isMounted = false;
+    };
+  }, []); // Empty dependency array ensures this runs only once on mount
+
+  // Effect 2: Manage the location timeout logic
+  useEffect(() => {
+    // If location is still loading and hasn't timed out yet
+    if (locationLoading && !location && !locationError && !locationTimedOut) {
+      // Clear any existing timeout before setting a new one
+      if (locationTimeoutRef.current) clearTimeout(locationTimeoutRef.current);
+
+      locationTimeoutRef.current = setTimeout(() => {
+        // Check again inside the timeout if location is still missing
+        if (!location) {
+          setLocationTimedOut(true);
+          if (!locationToastShownRef.current) {
+            toast.error(
+              "Impossible de récupérer votre position après 5 secondes. Les restaurants seront affichés par défaut."
+            );
+            locationToastShownRef.current = true;
+          }
+        }
+      }, LOCATION_TIMEOUT_MS);
+    }
+
+    // If location is found, an error occurred, or timeout happened, clear the timeout
+    if (location || locationError || locationTimedOut) {
+      if (locationTimeoutRef.current) {
+        clearTimeout(locationTimeoutRef.current);
+        locationTimeoutRef.current = null;
+      }
+      // Reset timeout flag if location arrives *after* timeout was set
+      // This might happen if timeout triggers, then location resolves immediately after
+      if (locationTimedOut && location) {
+        setLocationTimedOut(false);
+        // If the toast was shown due to timeout, maybe show a success/info toast? Optional.
+        // toast.info("Position récupérée, affichage par distance activé.");
+        locationToastShownRef.current = false; // Allow timeout toast again if location is lost later
       }
     }
-  }, [location, restaurants, orderedRestaurantsWithDistances]); // Ajout de orderedRestaurantsWithDistances pour la condition interne
 
-  if (loading) {
+    // Cleanup: Clear timeout if component unmounts while timeout is pending
+    return () => {
+      if (locationTimeoutRef.current) {
+        clearTimeout(locationTimeoutRef.current);
+      }
+    };
+  }, [location, locationLoading, locationError, locationTimedOut]); // Dependencies for managing the timeout lifecycle
+
+  // Effect 3: Process restaurants (sort by distance if location is available)
+  useEffect(() => {
+    // Only process if we have restaurants and location isn't loading anymore (or timed out)
+    if (restaurants.length === 0 || locationLoading) {
+      // If still loading location (and not timed out), keep the current processed list
+      // If restaurants aren't loaded yet, processedRestaurants is already []
+      // If location timed out or errored, we'll handle it below
+      if (!locationTimedOut && !locationError) return;
+    }
+
+    // Determine if we should use distance sorting
+    const canSortByDistance = location && !locationTimedOut && !locationError;
+
+    if (canSortByDistance) {
+      console.log("Tri par distance activé:", location);
+      const cacheKey = `${location.latitude}-${location.longitude}`;
+      console.log("Cache key:", cacheKey);
+
+      if (restaurantDistanceCache[cacheKey]) {
+        // Use cached sorted list
+        setProcessedRestaurants(restaurantDistanceCache[cacheKey]);
+      } else {
+        // Need to sort: perform async operation
+        let isMounted = true;
+        const sortRestaurants = async () => {
+          try {
+            console.log("Calcul des distances pour:", location);
+            const ordered = await orderRestaurantsByDistance(
+              [...restaurants], // Pass a copy to avoid potential mutation issues
+              location
+            );
+            if (isMounted) {
+              restaurantDistanceCache[cacheKey] = ordered; // Update cache
+              setProcessedRestaurants(ordered);
+            }
+          } catch (error) {
+            console.error("Erreur lors du calcul des distances:", error);
+            if (isMounted) {
+              toast.error(
+                "Impossible de calculer les distances. Affichage par défaut."
+              );
+              // Fallback to the default (unsorted) list on error
+              setProcessedRestaurants(restaurants);
+            }
+          }
+        };
+        sortRestaurants();
+
+        // Cleanup for the async operation
+        return () => {
+          isMounted = false;
+        };
+      }
+    } else {
+      // Cannot sort by distance (no location, timeout, error, or still loading restaurants)
+      // Use the default fetched order
+      console.log("Utilisation de l'ordre par défaut des restaurants.");
+      setProcessedRestaurants(restaurants);
+    }
+  }, [restaurants, location, locationTimedOut, locationError, locationLoading]); // Re-run when these change
+
+  // --- Memoization ---
+
+  // Memoize the filtering logic based on the processed list and filter prop
+  const filteredRestaurants = useMemo(() => {
+    if (!filter) {
+      return processedRestaurants; // No filter applied, return the whole processed list
+    }
+    const lowerCaseFilter = filter.toLowerCase();
+    return processedRestaurants.filter((item) =>
+      item.name.toLowerCase().includes(lowerCaseFilter)
+    );
+  }, [processedRestaurants, filter]); // Recalculate only when processed list or filter changes
+
+  // --- Render Logic ---
+
+  // Condition 1: Loading location (initial phase, before timeout)
+  if (locationLoading && !locationTimedOut && !locationError) {
     return (
       <div className="w-full flex flex-col items-center">
         <LoadingSpinner />
@@ -62,85 +224,56 @@ export const RestaurantList: React.FC<RestaurantListProps> = ({
     );
   }
 
-  if (error) {
-    return <p>Erreur lors de la localisation: {error.message}</p>;
+  // Condition 2: Error fetching initial restaurants
+  if (fetchError) {
+    return <p>{fetchError}</p>;
   }
 
-  if (!location) {
-    return <p>En attente de la localisation...</p>; // Ou un autre indicateur
-  }
-
-  if (
-    !orderedRestaurantsWithDistances ||
-    orderedRestaurantsWithDistances.length === 0
-  ) {
-    if (restaurants.length === 0) {
-      return <p>Aucun restaurant à afficher.</p>;
-    }
+  if (loadForRestaurants) {
     return (
       <div className="w-full flex flex-col items-center">
         <LoadingSpinner />
-        <p>Recherche des restaurants à proximité...</p>
+        <p>Chargement des restaurants...</p>
       </div>
     );
   }
 
-  if (!filteredRestaurants || !filteredRestaurants.length) {
-    return (
-      <p>
-        Aucun restaurant trouvé correspondant au filtre &quot;{filter}&quot;
-      </p>
-    );
+  // Condition 3: Location error occurred (but we might still show default list)
+  // The toast/console logs handle informing the user. We proceed to show the default list.
+  // If locationError is critical and *no* restaurants should be shown, add that logic here.
+  // Currently, locationError leads to using the default restaurant list order.
+
+  // Condition 4: No restaurants found (either fetch returned none, or filter cleared them all)
+  // We check this *after* loading states and fetch errors.
+  if (restaurants.length > 0 && filteredRestaurants.length === 0) {
+    return <p>Aucun restaurant ne correspond à votre filtre.</p>;
   }
 
+  // Condition 5: No restaurants fetched initially (and not due to a fetch error already handled)
+  // This handles the case where getAllRestaurants() successfully returns an empty array.
+  if (restaurants && restaurants.length === 0) {
+    console.log("Aucun restaurant trouvé dans la liste initiale.");
+    console.log(restaurants);
+    return <p>Aucun restaurant disponible pour le moment.</p>;
+  }
+
+  // Default Render: Display the filtered list
+  // The `processedRestaurants` state ensures we have *some* list (sorted or default)
+  // `filteredRestaurants` applies the text filter on top of that.
   return (
     <ul className="list-none p-0">
-      {filteredRestaurants.map((item, index) => (
+      {filteredRestaurants.map((restaurant) => (
         <RestaurantItem
-          key={item.restaurant.id || index}
-          restaurant={item.restaurant}
-          distance={item.distance}
+          key={restaurant.id}
+          restaurant={restaurant}
+          // Show distance only if location is available and wasn't timed out
+          distance={
+            location && !locationTimedOut
+              ? restaurant.distanceFromUser
+              : undefined
+          }
         />
       ))}
     </ul>
   );
 };
-
-interface RestaurantItemProps {
-  restaurant: Restaurant;
-  distance: number;
-}
-
-const RestaurantItem: React.FC<RestaurantItemProps> = ({
-  restaurant,
-  distance,
-}) => (
-  <li className="flex items-start mb-10">
-    <Image
-      src={restaurant.image}
-      alt={restaurant.name}
-      width={120}
-      height={120}
-      className="mr-3.5"
-    />
-    <div className="flex flex-col">
-      <span className="font-bold text-xl mb-1">{restaurant.name}</span>
-      <div className="mb-1.5 flex flex-col">
-        <span className="text-gray-600">
-          Frais de livraisons : {restaurant.deliveryCosts}€
-        </span>
-        <span className="text-gray-600">
-          Distance : {distance.toFixed(2)} km
-        </span>
-      </div>
-      <Link href={`/restaurants/${restaurant.id}`}>
-        <CustomButton
-          className="w-30 text-black button-primary-50 rounded-xl text-sm"
-          onClick={() => console.log("Je commande !")}
-        >
-          Je commande !
-        </CustomButton>
-      </Link>
-    </div>
-  </li>
-);

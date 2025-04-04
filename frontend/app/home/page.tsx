@@ -2,9 +2,7 @@
 import BaseHeader from "@/components/header_footers/BaseHeader";
 import SearchBar from "@/components/helper-components/SearchBar";
 import { RestaurantList } from "@/components/RestaurantList";
-import { restaurants } from "@/mockData/restaurants";
 import { useAuthStore } from "@/store/authStore";
-// import { Restaurant } from "@/types/Restaurants";
 import { Bell, MapPin, ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -51,7 +49,7 @@ const HomePage: React.FC = () => {
           </div>
           <Image src="/cesi-eat-logo.png" alt="Logo" width={120} height={80} />
         </div>
-        <RestaurantList restaurants={restaurants} filter={searchTerm} />
+        <RestaurantList filter={searchTerm} />
       </div>
     </div>
   );

@@ -1,9 +1,19 @@
-import { Position } from "./Position";
-
 export interface Restaurant {
   id: number;
   name: string;
-  deliveryCosts: number;
-  image: string;
-  position: Position;
+  categorie: string;
+  address: string;
+  country: string;
+  city: string;
+  latitude: number;
+  longitude: number;
+  imagePath: string;
+  description: string;
+  delevryCost: number;
+  email: string;
+  closingTime: string;
+  phoneNumber: string;
+  averageRate: number;
+  nbRate: number;
+  distanceFromUser?: number; // Optional property to store distance from user
 }

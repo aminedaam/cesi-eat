@@ -2,6 +2,7 @@ import { login } from "@/utils/apiUser";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { jwtDecode } from "jwt-decode";
+import { useCartStore } from "./cartStore";
 
 // Interface defining the state structure and actions
 interface AuthState {
@@ -54,6 +55,10 @@ export const useAuthStore = create<AuthState>()(
 
       logout: () => {
         set({ isLoggedIn: false, accessToken: null, email: null });
+        const clearCart = useCartStore.getState().clearCart;
+        clearCart();
+
+        
         // Optionally, remove the token from Axios default headers
         // delete axios.defaults.headers.common['Authorization'];
         // Perform other cleanup actions if necessary.
@@ -65,57 +70,3 @@ export const useAuthStore = create<AuthState>()(
     }
   )
 );
-
-// --- How to use this store ---
-/*
-import { useAuthStore } from './path/to/useAuthStore';
-import { useState } from 'react';
-import jwt_decode from "jwt-decode";
-
-function LoginComponent() {
-  const login = useAuthStore((state) => state.login);
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  const handleLoginSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    setError(null);
-    setLoading(true);
-    try {
-      // Use the actual login function from the store
-      await login(username, password);
-      // On success, Zustand state updates automatically.
-      // Redirect user or update UI here.
-      console.log('Login successful!');
-    } catch (err) {
-      setError('Login failed. Please check your credentials.');
-      console.error(err); // Log the actual error from the API/store
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // ... JSX for the login form using username, password, handleLoginSubmit, loading, error
-}
-
-function UserProfile() {
-  const { isLoggedIn, accessToken } = useAuthStore((state) => ({
-    isLoggedIn: state.isLoggedIn,
-    accessToken: state.accessToken,
-  }));
-  const logout = useAuthStore((state) => state.logout);
-
-  if (!isLoggedIn) {
-    return <p>Please log in.</p>;
-  }
-
-  return (
-    <div>
-      <p>Welcome! Your token: {accessToken?.substring(0, 10)}...</p>
-      <button onClick={logout}>Logout</button>
-    </div>
-  );
-}
-*/

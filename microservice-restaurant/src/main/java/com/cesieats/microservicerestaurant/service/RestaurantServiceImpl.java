@@ -1,7 +1,6 @@
 package com.cesieats.microservicerestaurant.service;
 
-import com.cesieats.microservicerestaurant.dto.RestaurantDTO;
-import com.cesieats.microservicerestaurant.entity.Categorie;
+import com.cesieats.microservicerestaurant.enums.Categorie;
 import com.cesieats.microservicerestaurant.entity.Restaurant;
 import com.cesieats.microservicerestaurant.error.RestaurantNotFoundException;
 import com.cesieats.microservicerestaurant.repository.RestaurantRepository;
@@ -18,33 +17,23 @@ public class RestaurantServiceImpl implements RestaurantService {
     private final RestaurantRepository restaurantRepository;
 
     @Override
-    public List<RestaurantDTO> getAllRestaurant() {
+    public List<Restaurant> getAllRestaurant() {
+        return restaurantRepository.findAll();
+    }
+
+    @Override
+    public List<Restaurant> findByCategorie(Categorie categorie) {
         return restaurantRepository.findAll().stream()
-                .map(restaurant -> new RestaurantDTO(
-                        restaurant.getName(),
-                        restaurant.getAdress(),
-                        restaurant.getCountry(),
-                        restaurant.getCity(),
-                        restaurant.getDescription(),
-                        restaurant.getEmail(),
-                        restaurant.getImagePath()))
+                .filter(restaurant -> restaurant.getCategorie().equals(categorie))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<RestaurantDTO> getRestaurantByCategorie(Categorie categorie) {
-        return restaurantRepository.findAll().stream()
-                .filter(restaurant -> restaurant.getCategorie().equals(categorie))
-                .map(restaurant -> new RestaurantDTO(
-                        restaurant.getName(),
-                        restaurant.getAdress(),
-                        restaurant.getCountry(),
-                        restaurant.getCity(),
-                        restaurant.getDescription(),
-                        restaurant.getEmail(),
-                        restaurant.getImagePath()))
-                .collect(Collectors.toList());
+    public Restaurant findRestaurantById(Long id) throws RestaurantNotFoundException {
+        return restaurantRepository.findById(id)
+                .orElseThrow(() -> new RestaurantNotFoundException("Restaurant non trouvé"));
     }
+
 
     @Override
     public Restaurant saveRestaurant(Restaurant restaurant) {
@@ -57,19 +46,27 @@ public class RestaurantServiceImpl implements RestaurantService {
     }
 
     @Override
-    public RestaurantDTO updateRestaurant(Long id, RestaurantDTO restaurantDto) throws RestaurantNotFoundException {
-        Restaurant restaurant = restaurantRepository.findById(id)
-                .orElseThrow(() -> new RestaurantNotFoundException("Restaurant not found"));
+    public Restaurant updateRestaurant(Long id, Restaurant restaurant) {
+        Restaurant existing = restaurantRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Restaurant non trouvé"));
 
-        if (restaurantDto.getName() != null) restaurant.setName(restaurantDto.getName());
-        if (restaurantDto.getAdress() != null) restaurant.setAdress(restaurantDto.getAdress());
-        if (restaurantDto.getCountry() != null) restaurant.setCountry(restaurantDto.getCountry());
-        if (restaurantDto.getCity() != null) restaurant.setCity(restaurantDto.getCity());
-        if (restaurantDto.getDescription() != null) restaurant.setDescription(restaurantDto.getDescription());
-        if (restaurantDto.getEmail() != null) restaurant.setEmail(restaurantDto.getEmail());
-        if (restaurantDto.getImagePath() != null) restaurant.setImagePath(restaurantDto.getImagePath());
-
-        return new RestaurantDTO(restaurantRepository.save(restaurant));
-
+        existing.setName(restaurant.getName());
+        existing.setAddress(restaurant.getAddress());
+        existing.setCountry(restaurant.getCountry());
+        existing.setCity(restaurant.getCity());
+        existing.setLongitude(restaurant.getLongitude());
+        existing.setLatitude(restaurant.getLatitude());
+        existing.setImagePath(restaurant.getImagePath());
+        existing.setDescription(restaurant.getDescription());
+        existing.setDelevryCost(restaurant.getDelevryCost());
+        existing.setEmail(restaurant.getEmail());
+        existing.setCreated_date(restaurant.getCreated_date());
+        existing.setOppeningHours(restaurant.getOppeningHours());
+        existing.setClosingTime(restaurant.getClosingTime());
+        existing.setPhoneNumber(restaurant.getPhoneNumber());
+        existing.setAverageRate(restaurant.getAverageRate());
+        existing.setCategorie(restaurant.getCategorie());
+        existing.setNbRate(restaurant.getNbRate());
+        return restaurantRepository.save(existing);
     }
 }

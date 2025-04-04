@@ -1,5 +1,6 @@
 package com.cesieats.microservicerestaurant.entity;
 
+import com.cesieats.microservicerestaurant.enums.Categorie;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,7 +9,6 @@ import org.hibernate.annotations.Check;
 
 @Entity
 @Table(name = "Restaurant")
-@Check(constraints = "average_rate >= 0 AND average_rate <= 5")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -22,7 +22,7 @@ public class Restaurant {
     private String name;
 
     @Column(nullable = false)
-    private String adress;
+    private String address;
 
     @Column(nullable = false)
     private String country;
@@ -52,11 +52,10 @@ public class Restaurant {
     private String phoneNumber;
 
     @Column(name = "average_rate", nullable = false)
-    private double average_rate;
+    private double averageRate;
 
     private Categorie categorie;
 
     private int nbRate;
-
 
 }

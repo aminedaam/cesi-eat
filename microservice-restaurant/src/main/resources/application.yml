@@ -13,16 +13,16 @@ spring:
     url: jdbc:sqlserver://ITEM-S121587;databaseName=CESI_EATS;encrypt=false;
     username: sa
     password: sopraSQLSERVER2019
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
 
 
-jpa:
-  database-platform: org.hibernate.dialect.SQLServerDialect
-  hibernate:
-    ddl-auto: update
-  show-sql: true
 
 server:
-  port: 4001
+  port: 4002
 
 jwt:
   secret: "AMINEALEXANDREGABRIELNADAAKRAMPROJECTCESI_EATS2025"

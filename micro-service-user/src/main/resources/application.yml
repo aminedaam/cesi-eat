@@ -11,7 +11,7 @@ spring:
   datasource:
     url: jdbc:sqlserver://172.16.10.12;databaseName=CESI_EATS;encrypt=false;
     username: sa
-    password: CesiEat06
+    password: CesiEats06
 
 jpa:
   database-platform: org.hibernate.dialect.SQLServerDialect

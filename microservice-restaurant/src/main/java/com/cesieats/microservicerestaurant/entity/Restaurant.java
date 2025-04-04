@@ -54,6 +54,8 @@ public class Restaurant {
     @Column(name = "average_rate", nullable = false)
     private double averageRate;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "categorie", nullable = false)
     private Categorie categorie;
 
     private int nbRate;

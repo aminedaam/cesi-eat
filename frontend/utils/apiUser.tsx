@@ -1,18 +1,16 @@
 // utils/api.tsx
 import { User } from "@/types/User";
 import axios from "axios";
-
-// Créez l'instance Axios avec la bonne baseURL
-const serverURL = "http://localhost:4001";
+import { serverURL } from "./serverURL";
 
 const apiUser = axios.create({
-  baseURL: serverURL,
+  baseURL: serverURL + "/users/",
   timeout: 5000,
 });
 
 export const register = async (userData: User) => {
   try {
-    const response = await apiUser.post("/users/create", userData);
+    const response = await apiUser.post("/create", userData);
     return response;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -32,7 +30,7 @@ export const register = async (userData: User) => {
 
 export const login = async (email: string, password: string) => {
   try {
-    const response = await apiUser.post("/users/login", { email, password });
+    const response = await apiUser.post("/login", { email, password });
     return response.data.token;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -52,8 +50,7 @@ export const login = async (email: string, password: string) => {
 
 export const getMe = async (token: string) => {
   try {
-    console.log(token);
-    const response = await apiUser.get("users/me", {
+    const response = await apiUser.get("/me", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -138,7 +135,7 @@ export const updatePassword = async (
 
 export const deleteUser = async (email: string, token: string) => {
   try {
-    const response = await apiUser.delete(`/delete/${email  }`, {
+    const response = await apiUser.delete(`delete/${email}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

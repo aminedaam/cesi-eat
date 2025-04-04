@@ -1,4 +1,4 @@
-import { login } from "@/utils/api";
+import { login } from "@/utils/apiUser";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { jwtDecode } from "jwt-decode";
@@ -29,13 +29,14 @@ export const useAuthStore = create<AuthState>()(
           const token = await login(email, password);
 
           if (token) {
-            const decoded = jwtDecode<{ email: string; role: string }>(token);
+            const decoded = jwtDecode<{ sub: string; role: string }>(token);
             set({
               isLoggedIn: true,
               accessToken: token,
-              email: decoded.email,
+              email: decoded.sub,
               role: decoded.role,
             });
+            console.log(decoded.sub);
             // Optionally, you could set Axios default headers here if needed
             // axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
           } else {

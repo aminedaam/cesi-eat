@@ -10,7 +10,7 @@ import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "next/navigation";
 import { CustomButton } from "@/components/helper-components/CustomButton";
 import Link from "next/link";
-import { register } from "@/utils/api";
+import { register } from "@/utils/apiUser";
 import { toast } from "react-toastify";
 
 // Zod schema for validation

@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import BaseHeader from "@/components/header_footers/BaseHeader";
 import { CustomButton } from "@/components/helper-components/CustomButton";
 import LoadingSpinner from "@/components/helper-components/LoadingSpinner";
-import { getMe } from "@/utils/api";
+import { getMe } from "@/utils/apiUser";
 import { toast } from "react-toastify";
 import Link from "next/link";
 import { Settings } from "lucide-react";
@@ -17,6 +17,7 @@ interface UserProfile {
   lastName: string;
   email: string;
   phoneNumber: string;
+  address: string;
   // Ajoutez d'autres champs si nécessaire
 }
 
@@ -51,15 +52,9 @@ const MyAccountPage: React.FC = () => {
             firstName: response.firstName,
             lastName: response.lastName,
             email: response.email,
-            phoneNumber: response.phoneNumber
-          }
-
-          // const data = {
-          //   firstName: "John",
-          //   lastName: "Doe",
-          //   email: "john.doe@example.com",
-          //   phoneNumber: "123-456-7890",
-          // };
+            phoneNumber: response.phoneNumber,
+            address: response.address,
+          };
 
           setUserProfile(data);
         } catch (err) {
@@ -127,6 +122,7 @@ const MyAccountPage: React.FC = () => {
               <InfoItem label="Nom" value={userProfile.lastName} />
               <InfoItem label="Email" value={userProfile.email} />
               <InfoItem label="Téléphone" value={userProfile.phoneNumber} />
+              <InfoItem label="Adresse" value={userProfile.address} />
             </div>
           ) : (
             <p className="text-center text-gray-500">

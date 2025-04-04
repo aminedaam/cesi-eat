@@ -6,7 +6,7 @@ import BaseHeader from "@/components/header_footers/BaseHeader";
 import { CustomButton } from "@/components/helper-components/CustomButton";
 import { toast } from "react-toastify";
 import { useAuthStore } from "@/store/authStore";
-import { updatePassword } from "@/utils/api";
+import { updatePassword } from "@/utils/apiUser";
 
 const ChangePasswordPage: React.FC = () => {
   const router = useRouter();
@@ -15,7 +15,7 @@ const ChangePasswordPage: React.FC = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
-  const userId = useAuthStore((state) => state.userId);
+  const userId = useAuthStore((state) => state.email);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -32,7 +32,7 @@ const ChangePasswordPage: React.FC = () => {
 
     setIsUpdating(true);
     try {
-      await updatePassword(userId!, newPassword, accessToken);
+      await updatePassword(userId!, currentPassword, newPassword, accessToken);
       toast.success("Password updated successfully!");
       router.replace("/account/settings");
     } catch (err) {

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import BaseHeader from "@/components/header_footers/BaseHeader";
 import { CustomButton } from "@/components/helper-components/CustomButton";
 import LoadingSpinner from "@/components/helper-components/LoadingSpinner";
-import { updateUser } from "@/utils/api";
+import { getMe, updateUser } from "@/utils/apiUser";
 import { toast } from "react-toastify";
 
 // Interface for user profile
@@ -38,12 +38,7 @@ const UserSettingsPage: React.FC = () => {
         setIsLoading(true);
         setError(null);
         try {
-          const data = {
-            firstName: "John",
-            lastName: "Doe",
-            email: "john.doe@example.com",
-            phoneNumber: "123-456-7890",
-          }; // const data: UserProfile = await getMe(accessToken);
+          const data: UserProfile = await getMe(accessToken);
           setUserProfile(data);
         } catch (err) {
           console.error("Error fetching user profile:", err);
@@ -79,7 +74,7 @@ const UserSettingsPage: React.FC = () => {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
         <LoadingSpinner />
-        <p className="mt-2 text-gray-600">Loading user information...</p>
+        <p className="mt-2 text-gray-600">Chargement des informations...</p>
       </div>
     );
   }

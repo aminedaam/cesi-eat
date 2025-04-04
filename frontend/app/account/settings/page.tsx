@@ -1,34 +1,13 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "next/navigation";
 import BaseHeader from "@/components/header_footers/BaseHeader";
 import { CustomButton } from "@/components/helper-components/CustomButton";
 import Modal from "react-modal";
 import { toast } from "react-toastify";
-
-// Style for the modal
-const customModalStyles = {
-  content: {
-    top: "50%",
-    left: "50%",
-    right: "auto",
-    bottom: "auto",
-    marginRight: "-50%",
-    transform: "translate(-50%, -50%)",
-    borderRadius: "8px",
-    padding: "2rem",
-    boxShadow:
-      "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
-    maxWidth: "500px",
-    width: "90%",
-    backgroundColor: "white",
-  },
-  overlay: {
-    backgroundColor: "rgba(0, 0, 0, 0.75)",
-    zIndex: 1000,
-  },
-};
+import { deleteUser } from "@/utils/apiUser";
+import { customModalStyles } from "@/components/header_footers/CustomModalStyles";
 
 if (typeof window !== "undefined") {
   Modal.setAppElement("#__next");
@@ -41,7 +20,7 @@ const UserSettingsPage: React.FC = () => {
   const email = useAuthStore((state) => state.email);
   const router = useRouter();
 
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   useEffect(() => {
     if (!isLoggedIn) {
@@ -63,7 +42,7 @@ const UserSettingsPage: React.FC = () => {
     closeDeleteModal();
 
     try {
-      // Call deleteUser API here
+      await deleteUser(email!, accessToken);
       console.log(email);
       toast.success("Account deleted successfully.");
       logout();

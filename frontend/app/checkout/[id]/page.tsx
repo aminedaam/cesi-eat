@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useAuthStore } from "@/store/authStore";
-import { getMe } from "@/utils/apiUser";
 import useCoordinates from "@/hooks/useCoordinates";
 import "leaflet/dist/leaflet.css";
 import L, { Map as LeafletMap, Marker as LeafletMarker } from "leaflet";
@@ -23,6 +22,7 @@ import LoadingSpinner from "@/components/helper-components/LoadingSpinner";
 import useTravelTime from "@/hooks/useTravelTime";
 import { getRestaurantById } from "@/utils/apiRestaurant";
 import { Restaurant } from "@/types/Restaurants";
+import { useMe } from "@/hooks/useMe";
 
 const formatSecondsToMinutes = (totalSeconds: number): number | null => {
   if (totalSeconds === null || totalSeconds === undefined) {
@@ -39,7 +39,6 @@ const CheckoutPage = () => {
   const mapRef = useRef<HTMLDivElement | null>(null);
   const leafletMapRef = useRef<LeafletMap | null>(null);
   const markerRef = useRef<LeafletMarker | null>(null);
-  const [loadingUserData, setLoadingUserData] = useState<boolean>(true);
 
   const restaurantItems = items.filter(
     (item) => item.article.restaurantId === Number(id)
@@ -63,16 +62,12 @@ const CheckoutPage = () => {
   );
 
   const accessToken = useAuthStore((state) => state.accessToken);
-  const [userAddress, setuserAddress] = useState<string>("");
-  const [userPostalCode, setuserPostalCode] = useState<string>("");
-  const [userCity, setuserCity] = useState<string>("");
-  const [userCountry, setuserCountry] = useState<string>("");
-  const [userPhone, setuserPhone] = useState<string>("");
+  const { user, loading: loadingUserData } = useMe(accessToken ?? "");
 
   const { coordinates, isLoading: isLoadingCoordinates } = useCoordinates(
-    userAddress,
-    userPostalCode,
-    userCountry
+    user?.address ?? "",
+    user?.postalCode ?? "",
+    user?.country ?? ""
   );
 
   const [newPosition, setNewPosition] = useState<Position | null>(coordinates);
@@ -90,27 +85,6 @@ const CheckoutPage = () => {
     newPosition?.latitude ?? coordinates?.latitude ?? null,
     newPosition?.longitude ?? coordinates?.longitude ?? null
   );
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoadingUserData(true);
-      try {
-        if (!accessToken) return;
-        const response = await getMe(accessToken!);
-        setuserAddress(response.address);
-        setuserPostalCode(response.postalCode);
-        setuserCity(response.city);
-        setuserCountry(response.country);
-        setuserPhone(response.phoneNumber);
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-        // Optionally set an error state for user data
-      } finally {
-        setLoadingUserData(false);
-      }
-    };
-    fetchData();
-  }, [accessToken]);
 
   const handleMarkerDragEnd = useCallback((event: L.DragEndEvent) => {
     const newLatLng = event.target.getLatLng();
@@ -171,7 +145,13 @@ const CheckoutPage = () => {
         );
       }
     }
-  }, [coordinates, userAddress, userCity, userPostalCode]);
+  }, [
+    coordinates,
+    user?.address,
+    user?.postalCode,
+    user?.country,
+    handleMarkerDragEnd,
+  ]);
 
   const fraisService: number = 1.67;
   const fraisLivraison: number = 5.49;
@@ -206,9 +186,9 @@ const CheckoutPage = () => {
               </p>
             ) : !userChangedPosition && address ? (
               <div>
-                <p className="font-semibold">{userAddress}</p>
+                <p className="font-semibold">{user?.address}</p>
                 <p className="text-sm text-gray-400">
-                  {userPostalCode} {userCity}
+                  {user?.postalCode} {user?.city}
                 </p>
               </div>
             ) : (
@@ -229,7 +209,7 @@ const CheckoutPage = () => {
             {loadingUserData ? (
               <p className="text-gray-500 italic text-sm">Chargement...</p>
             ) : (
-              <p className="font-semibold">{userPhone}</p>
+              <p className="font-semibold">{user?.phoneNumber}</p>
             )}
           </div>
           <ChevronRight className="text-gray-400" />

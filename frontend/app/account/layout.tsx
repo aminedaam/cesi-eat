@@ -5,6 +5,7 @@ export default function AccountLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // get user role using localstorage zustand 
   return (
     <div>
       <NavigationBar />

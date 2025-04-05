@@ -4,6 +4,8 @@ import com.cesieats.serviceuser.dto.UserDTO;
 import com.cesieats.serviceuser.dto.UserRoleUpdateDTO;
 import com.cesieats.serviceuser.dto.UserUpdatePasswordDTO;
 import com.cesieats.serviceuser.entity.User;
+import com.cesieats.serviceuser.exception.InvalidPasswordException;
+import com.cesieats.serviceuser.exception.UserEmailUsedException;
 import com.cesieats.serviceuser.exception.UserNotFoundException;
 
 import java.util.List;
@@ -19,9 +21,11 @@ public interface UserService {
     Optional<User> getUserById(Long id) throws UserNotFoundException;
     User saveUser(User user);
 
-    UserDTO updateUser(Long id, UserDTO userUpdated) throws UserNotFoundException;
-    void updatePassword(Long id, UserUpdatePasswordDTO passwordDTO) throws UserNotFoundException;
+    User updateUser(Long id, UserDTO userUpdated) throws UserNotFoundException, UserEmailUsedException;
+    void updatePassword(Long id, UserUpdatePasswordDTO passwordDTO) throws UserNotFoundException, InvalidPasswordException;
     void updateUserRole(Long id, UserRoleUpdateDTO userRoleUpdateDTO) throws UserNotFoundException;
 
     void deleteUserByEmail(String email) throws UserNotFoundException;
+
+    User findUserById(Long id) throws UserNotFoundException;
 }

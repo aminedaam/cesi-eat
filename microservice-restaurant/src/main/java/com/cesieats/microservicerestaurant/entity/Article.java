@@ -39,8 +39,7 @@ public class Article {
         private String createdAt;
 
         @ManyToOne
-        @JoinColumn(name = "menu_id", nullable = false)
+        @JoinColumn(name = "menu_id", nullable = true)
         private Menu menu;
-
 
 }

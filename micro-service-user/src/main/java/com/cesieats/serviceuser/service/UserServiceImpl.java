@@ -4,6 +4,8 @@ import com.cesieats.serviceuser.dto.UserDTO;
 import com.cesieats.serviceuser.dto.UserRoleUpdateDTO;
 import com.cesieats.serviceuser.dto.UserUpdatePasswordDTO;
 import com.cesieats.serviceuser.entity.User;
+import com.cesieats.serviceuser.exception.InvalidPasswordException;
+import com.cesieats.serviceuser.exception.UserEmailUsedException;
 import com.cesieats.serviceuser.exception.UserNotFoundException;
 import com.cesieats.serviceuser.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -44,22 +46,44 @@ public class UserServiceImpl implements UserService{
 
 
     @Override
-    public UserDTO updateUser(Long id, UserDTO userUpdated) throws UserNotFoundException {
+    public User updateUser(Long id, UserDTO userUpdated) throws UserNotFoundException, UserEmailUsedException {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Utilisateur non trouvé"));
 
-        if (userUpdated.getFirstName() != null) user.setFirstName(userUpdated.getFirstName());
-        if (userUpdated.getLastName() != null) user.setLastName(userUpdated.getLastName());
-        if (userUpdated.getEmail() != null) user.setEmail(userUpdated.getEmail());
+        if (userUpdated.getFirstName() != null && !userUpdated.getFirstName().isEmpty()) user.setFirstName(userUpdated.getFirstName());
+        if (userUpdated.getLastName() != null && !userUpdated.getLastName().isEmpty()) user.setLastName(userUpdated.getLastName());
+        if(userUpdated.getEmail() != null && !userUpdated.getEmail().isEmpty()) {
 
-        return new UserDTO(userRepository.save(user));
+            Optional<User> userWithSameEmail = userRepository.findByEmail(userUpdated.getEmail());
+            // je vérif si le mail existe déjà et si l'id de l'utilisateur est différent de celui de l'utilisateur en cours
+            // de modification
+            if (userWithSameEmail.isPresent() && !userWithSameEmail.get().getId().equals(user.getId())) {
+                throw new UserEmailUsedException("L'email est déjà utilisé par un autre compte");
+            }
+            user.setEmail(userUpdated.getEmail());
+        }
+
+        if(userUpdated.getAddress() != null && !userUpdated.getAddress().isEmpty()) user.setAddress(userUpdated.getAddress());
+        if(userUpdated.getCity() != null && !userUpdated.getCity().isEmpty()) user.setCity(userUpdated.getCity());
+        if (userUpdated.getCountry() != null && !userUpdated.getCountry().isEmpty()) user.setCountry(userUpdated.getCountry());
+        if (userUpdated.getPostalCode() != null && !userUpdated.getPostalCode().isEmpty()) user.setPostalCode(userUpdated.getPostalCode());
+        if (userUpdated.getPhoneNumber() != null && !userUpdated.getPhoneNumber().isEmpty()) user.setPhoneNumber(userUpdated.getPhoneNumber());
+
+        return userRepository.save(user);
     }
 
     @Override
-    public void updatePassword(Long id, UserUpdatePasswordDTO passwordDTO) throws UserNotFoundException {
+    public void updatePassword(Long id, UserUpdatePasswordDTO userPasswordDTO) throws UserNotFoundException, InvalidPasswordException {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Utilisateur non trouvé"));
-        user.setPassword(passwordDTO.getNewPassword());
+        if(userPasswordDTO.getNewPassword() == null || userPasswordDTO.getNewPassword().isEmpty()) {
+            throw new InvalidPasswordException("Le Mot de passe doit contenir au moins 8 caractères");
+        }
+
+        if(passwordEncoder.matches(userPasswordDTO.getNewPassword(), user.getPassword())) {
+            throw new InvalidPasswordException("Le Mot de passe doit etre différent de l'ancien");
+        }
+        user.setPassword(passwordEncoder.encode(userPasswordDTO.getNewPassword()));
         userRepository.save(user);
     }
 
@@ -68,7 +92,6 @@ public class UserServiceImpl implements UserService{
     public void updateUserRole(Long userId, UserRoleUpdateDTO roleUpdateDTO) throws UserNotFoundException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Utilisateur non trouvé"));
-
         user.setRole(roleUpdateDTO.getNewRole());
         userRepository.save(user);
     }
@@ -78,5 +101,10 @@ public class UserServiceImpl implements UserService{
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("Utilisateur non trouvé"));
         userRepository.delete(user);
+    }
+
+    @Override
+    public User findUserById(Long id) throws UserNotFoundException {
+        return userRepository.findUserById(id);
     }
 }

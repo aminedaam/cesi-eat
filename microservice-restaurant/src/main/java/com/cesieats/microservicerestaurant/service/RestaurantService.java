@@ -2,6 +2,7 @@ package com.cesieats.microservicerestaurant.service;
 
 import com.cesieats.microservicerestaurant.enums.Categorie;
 import com.cesieats.microservicerestaurant.entity.Restaurant;
+import com.cesieats.microservicerestaurant.error.AccesException;
 import com.cesieats.microservicerestaurant.error.RestaurantNotFoundException;
 
 import java.util.List;
@@ -21,4 +22,7 @@ public interface RestaurantService {
 
     Restaurant updateRestaurant(Long id, Restaurant restaurantDto) throws RestaurantNotFoundException;
 
+    List<Restaurant> getMyRestaurants(String email) throws RestaurantNotFoundException;
+
+    List<Restaurant> findRestaurantByName(String name) throws RestaurantNotFoundException;
 }

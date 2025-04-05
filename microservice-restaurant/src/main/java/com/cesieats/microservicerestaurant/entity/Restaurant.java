@@ -27,6 +27,9 @@ public class Restaurant {
     @Column(nullable = false)
     private String country;
 
+    @Column(nullable = false)
+    private String codePostal;
+
     private double longitude;
 
     private double latitude;
@@ -42,6 +45,9 @@ public class Restaurant {
     private double delevryCost;
 
     private String email;
+
+    @Column(name = "creator_email", nullable = false)
+    private String creatorEmail;
 
     private String created_date;
 

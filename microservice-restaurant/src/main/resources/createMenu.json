@@ -1,0 +1,14 @@
+{
+  "name": "Menu de test",
+  "priceMenu": "12.99",
+  "restaurant": {
+    "id": 5,
+    "creatorEmail":"restaurateur@gmail.com"
+  },
+    "createdAt": "2025-04-05T12:00:00Z",
+    "description": "Description du menu"
+}
+
+// dans le JSON
+// pour le restaurant  il faut au minimun id et creatorEmail
+// mais préferable d'avoir toutes les infos du restaurant dans le JSON

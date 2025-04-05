@@ -3,6 +3,8 @@ package com.cesieats.serviceuser.controller;
 import com.cesieats.serviceuser.config.JwtUtil;
 import com.cesieats.serviceuser.dto.*;
 import com.cesieats.serviceuser.entity.User;
+import com.cesieats.serviceuser.exception.InvalidPasswordException;
+import com.cesieats.serviceuser.exception.UserEmailUsedException;
 import com.cesieats.serviceuser.exception.UserNotFoundException;
 import com.cesieats.serviceuser.service.UserService;
 import jakarta.validation.Valid;
@@ -41,10 +43,12 @@ public class UserController {
             if (passwordEncoder.matches(authRequest.getPassword(), user.getPassword())) {
                 String token = jwtUtil.generateToken(user);
                 return ResponseEntity.ok(new AuthResponse(token));
+            }else{
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new AuthResponse("Mot de passe incorrect"));
             }
         }
 
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new AuthResponse("Utilisateur ou mot de passe incorrect"));
     }
     @GetMapping("/me")
     public ResponseEntity<?> getUser(@RequestHeader("Authorization") String token) throws UserNotFoundException {
@@ -61,32 +65,35 @@ public class UserController {
     }
 
     @PostMapping("/create")
-    public User register(@Valid @RequestBody User user){
-        return userService.saveUser(user);
+    public ResponseEntity<User> register(@Valid @RequestBody User user){
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(userService.saveUser(user));
     }
 
-    @GetMapping("/users")
+    @GetMapping("/all")
     public List<User> getAllUsers(){
         return userService.getAllUsers();
     }
 
-    @GetMapping("/users/{id}")
+    @GetMapping("/{id}")
     public User getUserById(@PathVariable Long id) throws UserNotFoundException {
         return userService.getUserById(id)
                 .orElseThrow(() -> new UserNotFoundException("Utilisateur non trouvé"));
     }
 
     @PutMapping("/update-profil/{id}")
-    public UserDTO update(@PathVariable Long id, @Valid @RequestBody UserDTO userUpdated) throws UserNotFoundException { // http://localhost:port/user/update/125
-        return userService.updateUser(id, userUpdated);
+    public ResponseEntity<String> update(@PathVariable Long id, @Valid @RequestBody UserDTO userUpdated) throws UserNotFoundException, UserEmailUsedException { // http://localhost:port/user/update/125
+        User userModifier = userService.updateUser(id, userUpdated);
+        return ResponseEntity.ok("Utilisateur mis à jour avec succès + token:" + jwtUtil.generateToken(userModifier));
     }
 
 
-    @PutMapping("/update-password/{id}")// Dans la requete update le json doit être avec newPassword et pas password car on point sur l'attribut du UserUpdatePassworDTO
-    // TODO on verra par la suite si on crypt le message ou non
-    public String updatePassword(@PathVariable Long id, @Valid @RequestBody UserUpdatePasswordDTO userUpdatedPassword) throws UserNotFoundException { // http://localhost:port/user/update/125
-        userService.updatePassword(id,userUpdatedPassword);
-        return "Mot de passe mis à jour";
+    @PutMapping("/update-password/{id}")
+    public ResponseEntity<String> updatePassword(@PathVariable Long id, @Valid @RequestBody UserUpdatePasswordDTO userUpdatedPassword) throws UserNotFoundException, InvalidPasswordException {
+        // Dans la requete il faut que tu mettre newPassword et pas password si tu fais un appel API sur postman
+        // Car on prend le newPassword dans le DTO !!!!!!
+        userService.updatePassword(id, userUpdatedPassword);
+        return ResponseEntity.ok("Mot de passe mis à jour");
     }
 
     @PutMapping("/update-role/{id}")
@@ -100,7 +107,7 @@ public class UserController {
     public String delete(@RequestHeader("Authorization") String token,  @PathVariable String email) throws UserNotFoundException {
         String emailUser = jwtUtil.extractEmail(token.substring(7));
         if(!emailUser.equals(email)){
-            return "vous ne pouvez pas supprimer un autre utilisateur";
+            return "vous ne pouvez pas supprimer un autre utilisateur que vous même";
         }
         userService.deleteUserByEmail(email);
         return "Utilisateur supprimé";

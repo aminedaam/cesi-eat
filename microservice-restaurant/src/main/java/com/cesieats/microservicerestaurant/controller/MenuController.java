@@ -1,6 +1,7 @@
 package com.cesieats.microservicerestaurant.controller;
 
 
+import com.cesieats.microservicerestaurant.config.JwtUtil;
 import com.cesieats.microservicerestaurant.entity.Menu;
 import com.cesieats.microservicerestaurant.error.MenuNotFoundException;
 import com.cesieats.microservicerestaurant.service.MenuService;
@@ -14,31 +15,43 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/menu")
+@RequestMapping("/menus")
+@AllArgsConstructor
 public class MenuController {
 
     private final MenuService menuService;
+    private final JwtUtil jwtUtil;
 
-    public MenuController(MenuService menuService) {
-        this.menuService = menuService;
-    }
-    @PostMapping
+
+    @PostMapping("/create")
     @PreAuthorize("hasAuthority('RESTAURATEUR')")
-    public ResponseEntity<Menu> createMenu(@Valid @RequestBody Menu menu) {
+    public ResponseEntity<Menu> createMenu(@RequestHeader("Authorization") String token ,@Valid @RequestBody Menu menu) {
+        String email = jwtUtil.extractEmail(token.substring(7));
+        if(!menu.getRestaurant().getCreatorEmail().equals(email)){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         Menu created = menuService.createMenu(menu);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('RESTAURATEUR')")
-    public ResponseEntity<Menu> updateMenu(@PathVariable Long id, @Valid @RequestBody Menu menu) throws MenuNotFoundException {
+    public ResponseEntity<Menu> updateMenu(@RequestHeader("Authorization") String token, @PathVariable Long id, @Valid @RequestBody Menu menu) throws MenuNotFoundException {
+        String email = jwtUtil.extractEmail(token.substring(7));
+        if(!menu.getRestaurant().getCreatorEmail().equals(email)){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         Menu updated = menuService.updateMenu(id, menu);
         return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("delete/{id}")
     @PreAuthorize("hasAuthority('RESTAURATEUR')")
-    public ResponseEntity<Void> deleteMenu(@PathVariable Long id) throws MenuNotFoundException {
+    public ResponseEntity<Void> deleteMenu(@RequestHeader("Authorization") String token, @PathVariable Long id) throws MenuNotFoundException {
+        String email = jwtUtil.extractEmail(token.substring(7));
+        if(!menuService.findMenuById(id).getRestaurant().getCreatorEmail().equals(email)){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         menuService.deleteMenu(id);
         return ResponseEntity.noContent().build();
     }

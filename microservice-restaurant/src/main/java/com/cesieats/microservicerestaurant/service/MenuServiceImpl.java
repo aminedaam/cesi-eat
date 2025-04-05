@@ -25,7 +25,7 @@ public class MenuServiceImpl implements MenuService{
 
     @Override
     public List<Menu> getMenuByRestaurantId(Long restaurantId) {
-        return menuRepository.findByRestaurantId(restaurantId);
+        return menuRepository.findByRestaurant_Id(restaurantId);
     }
 
     @Override

@@ -1,17 +1,19 @@
 {
   "name": "Bagga Burger",
   "categorie":"THAI",
-  "address":"5 av des crêtes",
+  "address":"6 av des crêtes",
   "country":"France",
+  "codePostal":"31000",
   "longitude": 52.63,
   "latitude":32.158312,
   "city": "Toulouse",
   "imagePath":"src/ress/image/bagga.png",
   "description":"Restaurant de smash Burger",
   "delevryCost":3.75,
-  "email":"bagga@mail.com",
+  "email":"Bagga@gmail.com",
   "closingTime": "15-10-59-UTC+2",
   "phoneNumber":"0762448915",
   "averageRate":4.9,
-  "nbRate":1200
+  "nbRate":1200,
+  "creatorEmail":"restaurateur@gmail.com"
 }

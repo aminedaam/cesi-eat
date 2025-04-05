@@ -1,0 +1,19 @@
+{
+  "name": "Nom de l'article",
+  "typeProd": "PLAT",
+  "description": "Description de l'article",
+  "imagePath": "http://exemple.com/image.jpg",
+  "restaurant": {
+    "id": 5,
+    "creatorEmail": "restaurateur@gmail.com"
+  },
+  "price": 12.99,
+  "createdAt": "2025-04-05T12:00:00Z",
+  "menu": {
+    "id": 1,
+    "restaurantId": 5
+  }
+}
+// dans le JSON
+// pour le menu il faut minimun menu_id et restaurant_id
+// pour le restaurant  il faut au minimun id et creatorEmail (préferable d'avoir tout l'objet)

@@ -29,4 +29,6 @@ public class Menu {
 
     private String description;
 
+    @Column(nullable = false)
+    private double priceMenu;
 }

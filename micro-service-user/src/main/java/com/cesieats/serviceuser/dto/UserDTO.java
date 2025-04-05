@@ -23,7 +23,7 @@ public class UserDTO {
 
     private String email;
 
-    private String adress;
+    private String address;
 
     private String city;
 
@@ -43,7 +43,7 @@ public class UserDTO {
         this.firstName = user.getFirstName();
         this.lastName = user.getLastName();
         this.email = user.getEmail();
-        this.adress = user.getAddress();
+        this.address = user.getAddress();
         this.city = user.getCity();
         this.country = user.getCountry();
         this.postalCode = user.getPostalCode();

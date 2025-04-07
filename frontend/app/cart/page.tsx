@@ -10,7 +10,7 @@ import Modal from "react-modal";
 import { toast } from "react-toastify";
 import { CustomButton } from "@/components/helper-components/CustomButton";
 import Link from "next/link";
-import { customModalStyles } from "@/components/header_footers/CustomModalStyles";
+import { customModalStyles } from "@/components/CustomModalStyles";
 import { getMe } from "@/utils/apiUser";
 import { useAuthStore } from "@/store/authStore";
 import { getAllRestaurants } from "@/utils/apiRestaurant";
@@ -95,9 +95,7 @@ const CartPage = () => {
         if (restaurant) {
           details[restaurantId] = {
             name: restaurant.name,
-            imagePath: "/burger.png", // Assuming 'image' in your Restaurant type is the path
-            // You might not have an 'address' property in your Restaurant type,
-            // you can either add a mock address here or remove it from the rendering
+            imagePath: restaurant.imagePath,
           };
         }
       }

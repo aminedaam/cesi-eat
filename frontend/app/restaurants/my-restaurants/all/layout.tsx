@@ -5,7 +5,7 @@ import { RestaurateurNavigationBar } from "@/components/header_footers/Restaurat
 import { useMe } from "@/hooks/useMe";
 import { useAuthStore } from "@/store/authStore";
 
-export default function AccountLayout({
+export default function RestaurantsLayout({
   children,
 }: {
   children: React.ReactNode;

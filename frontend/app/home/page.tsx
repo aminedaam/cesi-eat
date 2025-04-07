@@ -28,7 +28,7 @@ const HomePage: React.FC = () => {
           <SearchBar
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
-            className="text-black placeholder-neutral-800 py-1 pl-3 pr-12 rounded-2xl"
+            className="text-black placeholder-neutral-800 py-1 pl-3 pr-12 rounded-xl border border-gray-700"
             placeHolder="Rechercher dans CesiEat..."
           />
         </div>

@@ -8,7 +8,7 @@ import Link from "next/link";
 import { CustomButton } from "@/components/helper-components/CustomButton";
 import Modal from "react-modal";
 import { toast } from "react-toastify";
-import { customModalStyles } from "@/components/header_footers/CustomModalStyles";
+import { customModalStyles } from "@/components/CustomModalStyles";
 import { getRestaurantById } from "@/utils/apiRestaurant";
 import { Restaurant } from "@/types/Restaurants";
 

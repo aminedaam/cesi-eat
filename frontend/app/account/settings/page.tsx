@@ -7,7 +7,7 @@ import { CustomButton } from "@/components/helper-components/CustomButton";
 import Modal from "react-modal";
 import { toast } from "react-toastify";
 import { deleteUser } from "@/utils/apiUser";
-import { customModalStyles } from "@/components/header_footers/CustomModalStyles";
+import { customModalStyles } from "@/components/CustomModalStyles";
 
 if (typeof window !== "undefined") {
   Modal.setAppElement("#__next");

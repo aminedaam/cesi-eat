@@ -72,6 +72,7 @@ const LoginPage: React.FC = () => {
       try {
         await authLogin(values.email, values.password);
         toast.success("Connexion réussie !");
+        
       } catch (error) {
         console.error("Échec de la connexion:", error);
         setSubmitError(

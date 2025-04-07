@@ -5,72 +5,95 @@ import { useRouter } from "next/navigation";
 import BaseHeader from "@/components/header_footers/BaseHeader";
 import { CustomButton } from "@/components/helper-components/CustomButton";
 import LoadingSpinner from "@/components/helper-components/LoadingSpinner";
-import { getMe, updateUser } from "@/utils/apiUser";
+import { updateUser } from "@/utils/apiUser";
 import { toast } from "react-toastify";
+import { useMe } from "@/hooks/useMe";
+import { User } from "@/types/User"; // Assuming User type includes firstName, lastName, email, phoneNumber?
 
-// Interface for user profile
-interface UserProfile {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phoneNumber: string;
-}
+// Define a specific type for the form data if needed, or use Partial<User>
+type UserFormData = Partial<User>;
 
 const UserSettingsPage: React.FC = () => {
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
   const accessToken = useAuthStore((state) => state.accessToken);
   const router = useRouter();
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const email = useAuthStore((state) => state.email);
+  const { user, loading, error } = useMe(accessToken ?? ""); // Fetch user data using the custom hook
 
+  // State to hold the form data being edited
+  const [formData, setFormData] = useState<UserFormData>({});
+
+  // Effect to redirect if not logged in
   useEffect(() => {
-    if (!isLoggedIn) {
+    if (!isLoggedIn && !loading) {
+      // Added !loading check to prevent redirect while auth state might still be resolving
       router.replace("/login");
     }
-  }, [isLoggedIn, router]);
+  }, [isLoggedIn, loading, router]);
 
+  // Effect to initialize form data when user data is loaded
   useEffect(() => {
-    if (isLoggedIn && accessToken) {
-      const fetchUserProfile = async () => {
-        setIsLoading(true);
-        setError(null);
-        try {
-          const data: UserProfile = await getMe(accessToken);
-          setUserProfile(data);
-        } catch (err) {
-          console.error("Error fetching user profile:", err);
-          setError("Unable to load user information.");
-        } finally {
-          setIsLoading(false);
-        }
-      };
-
-      fetchUserProfile();
+    if (user) {
+      // Initialize form data with fetched user data
+      setFormData({
+        firstName: user.firstName || "",
+        lastName: user.lastName || "",
+        email: user.email || "",
+        phoneNumber: user.phoneNumber || "",
+        // Add other fields from User type as needed
+      });
     }
-  }, [isLoggedIn, accessToken]);
+  }, [user]); // Re-run this effect if the user object changes
+
+  // Generic input change handler
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [id]: value, // Use input id to update the correct field in formData
+    }));
+  };
 
   const handleUpdate = async () => {
-    if (!userProfile || !accessToken) return;
+    // Use the original user's email as the identifier, but send merged data as the payload
+    if (!user?.email || !accessToken) {
+      toast.error("Cannot update profile: User data or session missing.");
+      return;
+    }
     setIsUpdating(true);
     try {
-      await updateUser(email!, userProfile, accessToken); // Update user profile via API
-      toast.success("Profile updated successfully!");
+      // 1. Create the complete payload
+      // Start with all fields from the original user object...
+      // ...then overwrite with any fields that were changed in the form (present in formData)
+      const payloadData = {
+        ...user, // Includes all original fields (id, createdAt, roles, etc., whatever 'user' contains)
+        ...formData, // Overwrites firstName, lastName, email, phoneNumber with form values
+      };
+
+      // 2. Make the API call with the merged data
+      // Ensure updateUser expects the user identifier (email) and the full data payload
+      await updateUser(user.email, payloadData, accessToken); // Pass payloadData instead of just formData
+
+      toast.success("Le profile a été mis à jour avec succès !");
+      // Optional: Refetch user data if useMe doesn't automatically revalidate
+      // refetch();
     } catch (err) {
       console.error("Error updating profile:", err);
-      toast.error("Failed to update profile.");
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to update profile.";
+      toast.error(errorMessage);
     } finally {
       setIsUpdating(false);
     }
   };
 
   const handleCancel = () => {
-    router.replace("/account/settings");
+    // Optionally reset form data to original user data or simply navigate away
+    // setFormData({ ...initial user data... }); // if staying on the page
+    router.back(); // Go back to the previous page, or use replace("/account/settings") if preferred
   };
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
         <LoadingSpinner />
@@ -82,7 +105,28 @@ const UserSettingsPage: React.FC = () => {
   if (error) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
-        <p className="text-red-600">{error}</p>
+        {/* Improved error display */}
+        <p className="text-red-600 font-semibold">
+          Erreur lors du chargement des informations:
+        </p>
+        <p className="text-red-500 mt-1">{String(error)}</p>
+        <CustomButton
+          onClick={() => router.back()} // Or back to settings
+          className="mt-4 px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white button-primary-50"
+        >
+          Retour
+        </CustomButton>
+      </div>
+    );
+  }
+
+  // Don't render the form until user data is available and user is logged in
+  // The redirect effect handles the !isLoggedIn case
+  if (!isLoggedIn || !user) {
+    // You might show a brief message or just rely on the redirect
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
+        <p className="text-gray-600">Redirection...</p>
       </div>
     );
   }
@@ -90,108 +134,108 @@ const UserSettingsPage: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <BaseHeader />
-      <main className="flex-grow flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <main className="flex-grow flex flex-col items-center justify-start pt-12 px-4 sm:px-6 lg:px-8">
+        {" "}
+        {/* Changed justify-center to justify-start */}
         <div className="w-full max-w-lg bg-white p-8 shadow-lg rounded-xl space-y-6">
-          <h2 className="text-center text-2xl font-bold text-gray-900">
+          <h2 className="text-center text-3xl font-extrabold text-gray-900">
+            {" "}
+            {/* Adjusted heading style */}
             Modifier mes informations
           </h2>
-          {userProfile && (
-            <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-              <div>
-                <label
-                  htmlFor="firstName"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  First Name
-                </label>
-                <input
-                  id="firstName"
-                  type="text"
-                  value={userProfile.firstName}
-                  onChange={(e) =>
-                    setUserProfile({
-                      ...userProfile,
-                      firstName: e.target.value,
-                    })
-                  }
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="lastName"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Last Name
-                </label>
-                <input
-                  id="lastName"
-                  type="text"
-                  value={userProfile.lastName}
-                  onChange={(e) =>
-                    setUserProfile({ ...userProfile, lastName: e.target.value })
-                  }
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Email
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  value={userProfile.email}
-                  onChange={(e) =>
-                    setUserProfile({ ...userProfile, email: e.target.value })
-                  }
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="phoneNumber"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Phone Number
-                </label>
-                <input
-                  id="phoneNumber"
-                  type="tel"
-                  value={userProfile.phoneNumber}
-                  onChange={(e) =>
-                    setUserProfile({
-                      ...userProfile,
-                      phoneNumber: e.target.value,
-                    })
-                  }
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                />
-              </div>
-              <div className="flex justify-between space-x-4 pt-4">
-                <CustomButton
-                  type="button"
-                  onClick={handleUpdate}
-                  disabled={isUpdating}
-                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white button-primary-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
-                  {isUpdating ? "Updating..." : "Save Changes"}
-                </CustomButton>
-                <CustomButton
-                  type="button"
-                  onClick={handleCancel}
-                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-                >
-                  Cancel
-                </CustomButton>
-              </div>
-            </form>
-          )}
+          {/* Form should only render if user data is loaded */}
+          <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
+            <div>
+              <label
+                htmlFor="firstName"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Nom de famille
+              </label>
+              <input
+                id="firstName" // Ensure ID matches the key in formData
+                type="text"
+                value={formData.firstName || ""} // Bind to formData state, handle potential undefined
+                onChange={handleInputChange} // Use the generic handler
+                required // Add required if applicable
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="lastName"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Prénom
+              </label>
+              <input
+                id="lastName" // Ensure ID matches the key in formData
+                type="text"
+                value={formData.lastName || ""} // Bind to formData state
+                onChange={handleInputChange} // Use the generic handler
+                required // Add required if applicable
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Email
+              </label>
+              <input
+                id="email" // Ensure ID matches the key in formData
+                type="email"
+                value={formData.email || ""} // Bind to formData state
+                onChange={handleInputChange} // Use the generic handler
+                required // Email is usually required
+                // Consider adding 'readOnly' or disabling if email shouldn't be changed
+                // readOnly
+                // className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-100 cursor-not-allowed" // Example disabled style
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="phoneNumber"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Numéro de téléphone
+              </label>
+              <input
+                id="phoneNumber" // Ensure ID matches the key in formData
+                type="tel"
+                value={formData.phoneNumber || ""} // Bind to formData state
+                onChange={handleInputChange} // Use the generic handler
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              />
+            </div>
+            <div className="flex justify-between space-x-4 pt-4">
+              {" "}
+              {/* Adjusted flex layout for responsiveness */}
+              <CustomButton
+                type="button" // Changed from submit as we handle via onClick
+                onClick={handleUpdate}
+                disabled={isUpdating || loading} // Also disable if initial load is happening? Maybe not necessary.
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white button-primary-50 disabled:opacity-50" // Added disabled style
+              >
+                {isUpdating ? <LoadingSpinner /> : "Modifier"}{" "}
+                {/* Show spinner in button */}
+              </CustomButton>
+              <CustomButton
+                type="button"
+                onClick={handleCancel}
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+              >
+                Annuler
+              </CustomButton>
+            </div>
+          </form>
         </div>
       </main>
+      {/* Optional: Add a BaseFooter component here if you have one */}
+      {/* <BaseFooter /> */}
     </div>
   );
 };

@@ -13,13 +13,14 @@ export const RestaurantItem: React.FC<RestaurantItemProps> = ({
   distance,
 }) => (
   <li className="flex items-start mb-10">
-    <Image
-      src={"/burger.png"}
-      alt={restaurant.name}
-      width={120}
-      height={120}
-      className="mr-3.5 rounded-2xl"
-    />
+    <div className="w-[120px] h-[120px] relative mr-3.5 rounded-2xl shadow-md">
+      <Image
+        src={restaurant.imagePath ?? "/burger.png"}
+        alt={restaurant.name}
+        fill
+        className="object-cover rounded-2xl"
+      />
+    </div>
     <div className="flex flex-col">
       <span className="font-bold text-xl mb-1">{restaurant.name}</span>
       <div className="mb-1.5 flex flex-col">

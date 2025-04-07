@@ -1,13 +1,11 @@
 import { login } from "@/utils/apiUser";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { jwtDecode } from "jwt-decode";
 import { useCartStore } from "./cartStore";
+import { useUserStore } from "./userStore";
 
 // Interface defining the state structure and actions
 interface AuthState {
-  email: string | null;
-  role: string | null;
   isLoggedIn: boolean;
   accessToken: string | null;
   login: (username: string, password: string) => Promise<void>;
@@ -21,8 +19,6 @@ export const useAuthStore = create<AuthState>()(
       // Initial state
       isLoggedIn: false,
       accessToken: null,
-      email: null,
-      role: null,
 
       // Action to handle login
       login: async (email: string, password: string) => {
@@ -30,14 +26,10 @@ export const useAuthStore = create<AuthState>()(
           const token = await login(email, password);
 
           if (token) {
-            const decoded = jwtDecode<{ sub: string; role: string }>(token);
             set({
               isLoggedIn: true,
               accessToken: token,
-              email: decoded.sub,
-              role: decoded.role,
             });
-            console.log(decoded.sub);
             // Optionally, you could set Axios default headers here if needed
             // axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
           } else {
@@ -54,11 +46,12 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: () => {
-        set({ isLoggedIn: false, accessToken: null, email: null });
+        set({ isLoggedIn: false, accessToken: null });
         const clearCart = useCartStore.getState().clearCart;
         clearCart();
+        const clearUser = useUserStore.getState().clearUser;
+        clearUser();
 
-        
         // Optionally, remove the token from Axios default headers
         // delete axios.defaults.headers.common['Authorization'];
         // Perform other cleanup actions if necessary.

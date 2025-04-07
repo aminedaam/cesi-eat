@@ -10,6 +10,7 @@ import { useParams } from "next/navigation";
 import { articles } from "@/mockData/articles";
 import { getRestaurantById } from "@/utils/apiRestaurant";
 import { Restaurant } from "@/types/Restaurants";
+import { useAuthStore } from "@/store/authStore";
 
 function RestaurantPage() {
   const { id } = useParams();
@@ -18,12 +19,13 @@ function RestaurantPage() {
   const totalItemsFromCurrentRestaurant = useCartStore((state) =>
     state.getTotalItemsByRestaurantId(restaurantId)
   );
+  const token = useAuthStore((state) => state.accessToken);
 
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
 
   useEffect(() => {
     async function fetchRestaurant() {
-      const fetchedRestaurant = await getRestaurantById(restaurantId);
+      const fetchedRestaurant = await getRestaurantById(restaurantId, token!);
       console.log(fetchRestaurant);
       setRestaurant(fetchedRestaurant);
     }
@@ -38,7 +40,7 @@ function RestaurantPage() {
     <div className="max-w-md mx-auto">
       <div className="relative w-full h-40">
         <Image
-          src="/burger.png"
+          src={restaurant?.imagePath ?? "/burger.png"}
           alt="Restaurant Banner"
           layout="fill"
           objectFit="cover"
@@ -53,33 +55,33 @@ function RestaurantPage() {
       {articlesFromRestaurant.length > 0 ? (
         <ul className="p-4">
           {articlesFromRestaurant.map((article) => (
-        <li
-          key={article.id}
-          className="flex items-center justify-between mb-4 border-b pb-4"
-        >
-          <div className="flex items-center">
-            <Image
-          src={article.imagePath}
-          alt={article.name}
-          width={80}
-          height={80}
-          className="rounded-md"
-            />
-            <div className="ml-4">
-          <h2 className="font-semibold">{article.name}</h2>
-          <p className="text-sm text-gray-500">{article.price}</p>
-          <p className="text-xs text-gray-400">{article.description}</p>
-            </div>
-          </div>
-          <CustomButton
-            className="text-2xl text-black font-bold"
-            onClick={() => {
-          addItem(article);
-            }}
-          >
-            +
-          </CustomButton>
-        </li>
+            <li
+              key={article.id}
+              className="flex items-center justify-between mb-4 border-b pb-4"
+            >
+              <div className="flex items-center">
+                <Image
+                  src={article.imagePath}
+                  alt={article.name}
+                  width={80}
+                  height={80}
+                  className="rounded-md"
+                />
+                <div className="ml-4">
+                  <h2 className="font-semibold">{article.name}</h2>
+                  <p className="text-sm text-gray-500">{article.price}</p>
+                  <p className="text-xs text-gray-400">{article.description}</p>
+                </div>
+              </div>
+              <CustomButton
+                className="text-2xl text-black font-bold"
+                onClick={() => {
+                  addItem(article);
+                }}
+              >
+                +
+              </CustomButton>
+            </li>
           ))}
         </ul>
       ) : (

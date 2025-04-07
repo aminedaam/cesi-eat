@@ -15,17 +15,24 @@ public class MenuServiceImpl implements MenuService{
     private MenuRepository menuRepository;
     @Override
     public List<Menu> getAllMenu() {
-        return null;
+        return menuRepository.findAll();
     }
 
     @Override
-    public Menu getMenuByName(String name) {
+    public Menu getMenuByName(String name) throws MenuNotFoundException {
+        if(menuRepository.findByName(name) == null){
+            throw new MenuNotFoundException("Menu non trouvé");
+        }
         return menuRepository.findByName(name);
     }
 
     @Override
-    public List<Menu> getMenuByRestaurantId(Long restaurantId) {
-        return menuRepository.findByRestaurant_Id(restaurantId);
+    public List<Menu> getMenuByRestaurantId(Long restaurantId) throws MenuNotFoundException {
+        List<Menu> menus = menuRepository.findByRestaurant_Id(restaurantId);
+        if(menus.isEmpty()){
+            throw new MenuNotFoundException("Aucun menu trouvé pour ce restaurant");
+        }
+        return menus;
     }
 
     @Override

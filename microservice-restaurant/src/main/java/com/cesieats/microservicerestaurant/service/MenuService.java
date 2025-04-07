@@ -9,9 +9,9 @@ public interface MenuService {
 
     List<Menu> getAllMenu();
 
-    Menu getMenuByName(String name);
+    Menu getMenuByName(String name) throws MenuNotFoundException;
 
-    List<Menu> getMenuByRestaurantId(Long restaurantId);
+    List<Menu> getMenuByRestaurantId(Long restaurantId) throws MenuNotFoundException;
 
     Menu findMenuById(Long id) throws MenuNotFoundException;
 

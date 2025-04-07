@@ -57,7 +57,7 @@ public class MenuController {
     }
 
     @GetMapping("/{name}")
-    public ResponseEntity<Menu> getMenu(@PathVariable String name) {
+    public ResponseEntity<Menu> getMenu(@PathVariable String name) throws MenuNotFoundException {
         Menu menu = menuService.getMenuByName(name);
         return ResponseEntity.ok(menu);
     }
@@ -69,7 +69,7 @@ public class MenuController {
     }
 
     @GetMapping("/restaurant/{restaurantId}")
-    public ResponseEntity<List<Menu>> getMenusByRestaurantId(@PathVariable Long restaurantId) {
+    public ResponseEntity<List<Menu>> getMenusByRestaurantId(@PathVariable Long restaurantId) throws MenuNotFoundException {
         List<Menu> menus = menuService.getMenuByRestaurantId(restaurantId);
         return ResponseEntity.ok(menus);
     }

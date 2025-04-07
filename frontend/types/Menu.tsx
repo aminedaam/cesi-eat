@@ -6,4 +6,5 @@ export interface Menu {
   restaurant?: Restaurant;
   description?: string;
   priceMenu: number;
+  createdAt?: string;
 }

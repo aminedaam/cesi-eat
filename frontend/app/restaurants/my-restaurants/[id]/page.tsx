@@ -118,22 +118,27 @@ function RestaurantPage() {
         </div>
         <div className="flex flex-col items-center justify-center w-full mb-4">
           <p className="text-sm text-gray-500">{restaurant?.description}</p>
-            <div className="flex flex-row items-center justify-center mt-2 w-full">
+          <div className="flex flex-row items-center justify-center mt-2 w-full">
             <span className="text-sm text-black flex items-center">
-            {restaurant?.averageRate}
-            <Star className="h-4" />
-            <span className="text-sm text-gray-500 ml-1">
-            ({restaurant?.nbRate} avis)
+              {restaurant?.averageRate}
+              <Star className="h-4" />
+              <span className="text-sm text-gray-500 ml-1">
+                ({restaurant?.nbRate} avis)
+              </span>
             </span>
-            </span>
-            </div>
-<div className="flex flex-row items-center justify-end w-full mt-5">
-<Link href={`/restaurants/${restaurantId}/articles/create`}>
-            <CustomButton className="rounded-2xl bg-gray-50 py-1.5 px-3 text-sm shadow-sm border border-gray-600">
-              Ajouter un article
-            </CustomButton>
-          </Link>
-</div>
+          </div>
+          <div className="flex flex-col items-end justify-end w-full mt-5">
+            <Link href={`/restaurants/${restaurantId}/articles/create`}>
+              <CustomButton className="rounded-2xl bg-gray-50 py-1.5 px-3 text-sm shadow-sm border border-gray-600">
+                Ajouter un article
+              </CustomButton>
+            </Link>
+            <Link href={`/restaurants/${restaurantId}/menus/create`}>
+              <CustomButton className="rounded-2xl bg-gray-50 py-1.5 px-3 text-sm shadow-sm border border-gray-600 mt-2">
+                Ajouter un menu
+              </CustomButton>
+            </Link>
+          </div>
         </div>
       </div>
 

@@ -8,7 +8,7 @@ import { articles } from "@/mockData/articles";
 import { deleteRestaurant, getRestaurantById } from "@/utils/apiRestaurant";
 import { Restaurant } from "@/types/Restaurants";
 import Link from "next/link";
-import { Edit, Trash } from "lucide-react";
+import { Edit, Star, Trash } from "lucide-react";
 import LoadingSpinner from "@/components/helper-components/LoadingSpinner";
 import { useAuthStore } from "@/store/authStore";
 import { CustomButton } from "@/components/helper-components/CustomButton";
@@ -41,7 +41,7 @@ function RestaurantPage() {
       }
     }
     fetchRestaurant();
-  }, [restaurantId]);
+  }, [restaurantId, token]);
 
   const articlesFromRestaurant = articles.filter(
     (article) => article.restaurantId == restaurantId
@@ -99,7 +99,7 @@ function RestaurantPage() {
         />
       </div>
 
-      <div className="flex flex-col items-center justify-between mr-4">
+      <div className="flex flex-col items-center justify-between mx-4">
         <div className="flex flex-row items-center justify-end w-full">
           <Link href={`/restaurants/edit/${restaurantId}`}>
             <Edit className="h-6 ml-auto" />
@@ -115,6 +115,25 @@ function RestaurantPage() {
           <h1 className="text-center font-bold text-2xl my-4">
             {restaurant?.name}
           </h1>
+        </div>
+        <div className="flex flex-col items-center justify-center w-full mb-4">
+          <p className="text-sm text-gray-500">{restaurant?.description}</p>
+            <div className="flex flex-row items-center justify-center mt-2 w-full">
+            <span className="text-sm text-black flex items-center">
+            {restaurant?.averageRate}
+            <Star className="h-4" />
+            <span className="text-sm text-gray-500 ml-1">
+            ({restaurant?.nbRate} avis)
+            </span>
+            </span>
+            </div>
+<div className="flex flex-row items-center justify-end w-full mt-5">
+<Link href={`/restaurants/${restaurantId}/articles/create`}>
+            <CustomButton className="rounded-2xl bg-gray-50 py-1.5 px-3 text-sm shadow-sm border border-gray-600">
+              Ajouter un article
+            </CustomButton>
+          </Link>
+</div>
         </div>
       </div>
 

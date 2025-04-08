@@ -8,6 +8,7 @@ import { useUserStore } from "./userStore";
 interface AuthState {
   isLoggedIn: boolean;
   accessToken: string | null;
+  setAccessToken: (token: string) => void;
   login: (username: string, password: string) => Promise<void>;
   logout: () => void;
 }
@@ -19,6 +20,7 @@ export const useAuthStore = create<AuthState>()(
       // Initial state
       isLoggedIn: false,
       accessToken: null,
+      setAccessToken: (token: string) => set({ accessToken: token }),
 
       // Action to handle login
       login: async (email: string, password: string) => {

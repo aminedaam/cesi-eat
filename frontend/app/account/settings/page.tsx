@@ -8,6 +8,7 @@ import Modal from "react-modal";
 import { toast } from "react-toastify";
 import { deleteUser } from "@/utils/apiUser";
 import { customModalStyles } from "@/components/CustomModalStyles";
+import { useMe } from "@/hooks/useMe";
 
 if (typeof window !== "undefined") {
   Modal.setAppElement("#__next");
@@ -17,7 +18,7 @@ const UserSettingsPage: React.FC = () => {
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
   const accessToken = useAuthStore((state) => state.accessToken);
   const logout = useAuthStore((state) => state.logout);
-  const email = useAuthStore((state) => state.email);
+  const { user } = useMe(accessToken ?? "");
   const router = useRouter();
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -42,8 +43,8 @@ const UserSettingsPage: React.FC = () => {
     closeDeleteModal();
 
     try {
-      await deleteUser(email!, accessToken);
-      console.log(email);
+      await deleteUser(user!.email!, accessToken);
+      console.log(user!.email);
       toast.success("Account deleted successfully.");
       logout();
       router.replace("/register");

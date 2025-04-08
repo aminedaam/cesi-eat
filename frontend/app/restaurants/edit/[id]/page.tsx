@@ -32,7 +32,7 @@ const restaurantSchema = z.object({
     errorMap: () => ({ message: "Veuillez sélectionner une catégorie valide" }),
   }),
   address: z.string().min(1, "Veuillez renseigner ce champ"),
-  postalCode: z
+  codePostal: z
     .string()
     .regex(/^\d{5}$/, "Le code postal doit être composé de 5 chiffres"),
   country: z.string().min(1, "Veuillez renseigner ce champ"),
@@ -82,12 +82,13 @@ const EditRestaurantPage: React.FC = () => {
     const fetchRestaurant = async () => {
       try {
         const restaurant = await getRestaurantById(restaurantId, accessToken);
+        console.log("Fetched restaurant:", restaurant);
         setInitialRestaurant(restaurant);
         setInitialValues({
           name: restaurant.name,
           categorie: restaurant.categorie,
           address: restaurant.address,
-          postalCode: restaurant.postalCode,
+          codePostal: restaurant.codePostal,
           country: restaurant.country,
           city: restaurant.city,
           imagePath: restaurant.imagePath,
@@ -113,7 +114,7 @@ const EditRestaurantPage: React.FC = () => {
       name: "",
       categorie: "PIZZA",
       address: "",
-      postalCode: "",
+      codePostal: "",
       country: "",
       city: "",
       imagePath: "",
@@ -320,13 +321,13 @@ const EditRestaurantPage: React.FC = () => {
                   name="postalCode"
                   type="text"
                   placeholder="Ex: 34140"
-                  value={formik.values.postalCode}
+                  value={formik.values.codePostal}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
-                  className={getInputClass("postalCode")}
+                  className={getInputClass("codePostal")}
                   error={
-                    formik.touched.postalCode && formik.errors.postalCode
-                      ? formik.errors.postalCode
+                    formik.touched.codePostal && formik.errors.codePostal
+                      ? formik.errors.codePostal
                       : undefined
                   }
                 />

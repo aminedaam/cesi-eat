@@ -5,17 +5,21 @@ import { useRouter } from "next/navigation";
 import BaseHeader from "@/components/header_footers/BaseHeader";
 import { CustomButton } from "@/components/helper-components/CustomButton";
 import LoadingSpinner from "@/components/helper-components/LoadingSpinner";
-import { updateUser } from "@/utils/apiUser";
+import { getMe, updateUser } from "@/utils/apiUser";
 import { toast } from "react-toastify";
 import { useMe } from "@/hooks/useMe";
 import { User } from "@/types/User"; // Assuming User type includes firstName, lastName, email, phoneNumber?
+import { useUserStore } from "@/store/userStore";
 
 // Define a specific type for the form data if needed, or use Partial<User>
 type UserFormData = Partial<User>;
 
 const UserSettingsPage: React.FC = () => {
-  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
-  const accessToken = useAuthStore((state) => state.accessToken);
+      const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+      const accessToken = useAuthStore((state) => state.accessToken);
+      const setAccessToken = useAuthStore((state) => state.setAccessToken);
+      
+  const { setUser } = useUserStore(); // Assuming you have a user store to manage user state
   const router = useRouter();
   const [isUpdating, setIsUpdating] = useState(false);
   const { user, loading, error } = useMe(accessToken ?? ""); // Fetch user data using the custom hook
@@ -70,13 +74,20 @@ const UserSettingsPage: React.FC = () => {
         ...formData, // Overwrites firstName, lastName, email, phoneNumber with form values
       };
 
-      // 2. Make the API call with the merged data
-      // Ensure updateUser expects the user identifier (email) and the full data payload
-      await updateUser(user.email, payloadData, accessToken); // Pass payloadData instead of just formData
+
+      const response = await updateUser(user.id!, payloadData, accessToken); // Pass payloadData instead of just formData
+      const tokenPart = response.split("token:")[1];
+      if (tokenPart) {
+        setAccessToken(tokenPart);
+      }
+
+      console.log("New token:", response.token);
+
 
       toast.success("Le profile a été mis à jour avec succès !");
-      // Optional: Refetch user data if useMe doesn't automatically revalidate
-      // refetch();
+      const newUser = await getMe(tokenPart); // Fetch updated user data
+      setUser(newUser);
+      router.push("/account"); // Redirect to settings page after update
     } catch (err) {
       console.error("Error updating profile:", err);
       const errorMessage =

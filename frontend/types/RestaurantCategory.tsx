@@ -1,10 +1,9 @@
-type RestaurantCategory =
-  | "PIZZA"
-  | "BURGER"
-  | "TACOS"
-  | "HALAL"
-  | "VEGETARIEN"
-  | "JAPONAIS"
-  | "THAI";
-
-export default RestaurantCategory;
+export enum RestaurantCategory {
+  PIZZA = "PIZZA",
+  BURGER = "BURGER",
+  TACOS = "TACOS",
+  HALAL = "HALAL",
+  VEGETARIEN = "VEGETARIEN",
+  JAPONAIS = "JAPONAIS",
+  THAI = "THAI",
+}

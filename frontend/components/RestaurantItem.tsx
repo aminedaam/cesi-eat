@@ -5,42 +5,44 @@ import Link from "next/link";
 
 interface RestaurantItemProps {
   restaurant: Restaurant;
-  distance: number | undefined;
+  distance?: number;
 }
 
 export const RestaurantItem: React.FC<RestaurantItemProps> = ({
   restaurant,
   distance,
 }) => (
-  <li className="flex items-start mb-10">
-    <div className="w-[120px] h-[120px] relative mr-3.5 rounded-2xl shadow-md">
+  <div className="flex flex-col h-full">
+    <div className="relative w-full aspect-[4/3]">
       <Image
         src={restaurant.imagePath ?? "/burger.png"}
         alt={restaurant.name}
         fill
-        className="object-cover rounded-2xl"
+        className="object-cover"
       />
     </div>
-    <div className="flex flex-col">
-      <span className="font-bold text-xl mb-1">{restaurant.name}</span>
-      <div className="mb-1.5 flex flex-col">
-        <span className="text-gray-600">
-          Frais de livraisons : {restaurant.delevryCost}€
-        </span>
+    <div className="p-4 flex flex-col flex-grow">
+      <h3 className="font-bold text-xl mb-2 line-clamp-1">{restaurant.name}</h3>
+      <div className="space-y-1 mb-4">
+        <p className="text-gray-600 text-sm">
+          Frais de livraison : {restaurant.delevryCost}€
+        </p>
         {distance !== undefined && distance !== null && (
-          <span className="text-gray-600">
-            Distance : {distance.toFixed(2)} km
-          </span>
+          <p className="text-gray-600 text-sm">
+            Distance : {distance.toFixed(1)} km
+          </p>
         )}
       </div>
-      <Link href={`/restaurants/${restaurant.id}`}>
-        <CustomButton
-          className="w-30 text-black button-primary-50 rounded-xl text-sm"
-          onClick={() => console.log("Je commande !")}
-        >
-          Je commande !
-        </CustomButton>
-      </Link>
+      <div className="mt-auto">
+        <Link href={`/restaurants/${restaurant.id}`} className="block">
+          <CustomButton
+            className="w-full text-black button-primary-50 rounded-xl text-sm py-2"
+            onClick={() => console.log("Je commande !")}
+          >
+            Je commande !
+          </CustomButton>
+        </Link>
+      </div>
     </div>
-  </li>
+  </div>
 );

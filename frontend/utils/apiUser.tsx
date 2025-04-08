@@ -11,6 +11,7 @@ const apiUser = axios.create({
 export const register = async (userData: User) => {
   try {
     const response = await apiUser.post("/create", userData);
+    console.log("Utilisateur créé avec succès:", response);
     return response;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -73,12 +74,12 @@ export const getMe = async (token: string) => {
 };
 
 export const updateUser = async (
-  email: string,
+  email: number,
   userData: Partial<User>,
   token: string
 ) => {
   try {
-    const response = await apiUser.put(`/update/${email}`, userData, {
+    const response = await apiUser.put(`/update-profil/${email}`, userData, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -101,15 +102,15 @@ export const updateUser = async (
 };
 
 export const updatePassword = async (
-  email: string,
+  id: number,
   oldPassword: string,
   newPassword: string,
   token: string
 ) => {
   try {
     const response = await apiUser.put(
-      `/updatePassword/${email}`,
-      { oldPassword: newPassword, newPassword: oldPassword },
+      `/update-password/${id}`,
+      { oldPassword: oldPassword, newPassword: newPassword },
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -135,11 +136,13 @@ export const updatePassword = async (
 
 export const deleteUser = async (email: string, token: string) => {
   try {
+    console.log("email!", email)
     const response = await apiUser.delete(`delete/${email}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
+    console.log("Utilisateur supprimé avec succès:", response);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {

@@ -1,0 +1,8 @@
+export enum TypeProduit {
+    PLAT = "PLAT",
+    DESSERT = "DESSERT",
+    BOISSONS = "BOISSONS",
+    ENTREES = "ENTREES",
+    SAUCES = "SAUCES",
+    ACCOMPAGNEMENTS = "ACCOMPAGNEMENTS",
+  }

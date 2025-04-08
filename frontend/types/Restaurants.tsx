@@ -1,11 +1,11 @@
-import RestaurantCategory from "./RestaurantCategory";
+import { RestaurantCategory } from "./RestaurantCategory";
 
 export interface Restaurant {
   id: number | null; // null when creating a new restaurant
   name: string;
   categorie: RestaurantCategory;
   address: string;
-  postalCode: string;
+  codePostal: string;
   country: string;
   city: string;
   latitude: number;

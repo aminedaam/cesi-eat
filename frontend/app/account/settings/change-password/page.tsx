@@ -17,6 +17,9 @@ const ChangePasswordPage: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
   const { user } = useMe(accessToken ?? "");
+  if (!user || !accessToken) {
+    router.replace("/login");
+  }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -34,7 +37,7 @@ const ChangePasswordPage: React.FC = () => {
     setIsUpdating(true);
     try {
       await updatePassword(
-        user?.email ?? "",
+        user?.id!,
         currentPassword,
         newPassword,
         accessToken

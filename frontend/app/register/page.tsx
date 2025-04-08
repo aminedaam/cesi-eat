@@ -124,7 +124,7 @@ const SignupPage: React.FC = () => {
           createdAt: new Date(),
         };
         const registerResponse = await register(userPayload);
-        if (registerResponse.status == 200) {
+        if (registerResponse.status == 201) {
           toast.success("Inscription réussie !");
           await login(userPayload.email, userPayload.password);
         }

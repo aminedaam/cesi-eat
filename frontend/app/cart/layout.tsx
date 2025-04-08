@@ -21,7 +21,7 @@ export default function CartLayout({ children }: CartLayoutProps) {
           >
             <ChevronLeft className="w-6 h-6 text-gray-700" />
           </button>
-          <Link href="/orders" className="focus:outline-none flex items-center bg-gray-200 p-2 rounded-full">
+          <Link href="/orders/all" className="focus:outline-none flex items-center bg-gray-200 p-2 rounded-full">
             <Bookmark className="w-4 h-4 text-black mr-2" />
             <span className="text-sm font-medium text-black">Commandes</span>
           </Link>

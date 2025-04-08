@@ -2,15 +2,9 @@ import { Article } from "@/types/Articles";
 import axios from "axios";
 import { serverURL } from "./serverURL";
 import { RestaurantCategory } from "@/types/RestaurantCategory";
-import { Menu } from "@/types/Menu";
 
 const apiArticle = axios.create({
   baseURL: serverURL + "/articles",
-  timeout: 5000,
-});
-
-const apiMenu = axios.create({
-  baseURL: serverURL + "/menus",
   timeout: 5000,
 });
 

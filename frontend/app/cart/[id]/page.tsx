@@ -14,6 +14,7 @@ import { getRestaurantById } from "@/utils/apiRestaurant";
 import { Restaurant } from "@/types/Restaurants";
 import { Article } from "@/types/Articles"; // Keep Article type
 import { Menu } from "@/types/Menu"; // Keep Menu type
+import { useAuthStore } from "@/store/authStore";
 
 // Helper Type Guard
 function isArticleCartItem(
@@ -27,6 +28,7 @@ const RestaurantCartPage = () => {
   const router = useRouter();
   const { id } = useParams();
   const restaurantId = Number(id);
+  const accessToken = useAuthStore((state) => state.accessToken);
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<{
@@ -56,7 +58,10 @@ const RestaurantCartPage = () => {
       if (!restaurantId) return;
       setIsLoadingRestaurant(true);
       try {
-        const fetchedRestaurant = await getRestaurantById(restaurantId);
+        const fetchedRestaurant = await getRestaurantById(
+          restaurantId,
+          accessToken!
+        );
         // console.log("Fetched Restaurant for Cart Page:", fetchedRestaurant);
         setRestaurant(fetchedRestaurant);
       } catch (error) {
@@ -253,7 +258,7 @@ const RestaurantCartPage = () => {
           <Link href={`/restaurants/${restaurantId}`}>
             <button className="flex items-center justify-center bg-gray-100 rounded-full py-2 px-4 text-sm font-medium text-gray-700 hover:bg-gray-200 transition-colors">
               <Plus className="w-4 h-4 mr-2" />
-              Ajouter d'autres articles
+              Ajouter d&apos;autres articles
             </button>
           </Link>
         </div>

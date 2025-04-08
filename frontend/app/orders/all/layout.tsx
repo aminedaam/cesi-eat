@@ -18,21 +18,21 @@ export default function OrdersLayout({
     case "RESTAURATEUR":
       return (
         <div className="min-h-screen flex flex-col bg-gray-50">
-          <RestaurateurNavigationBar />
+          <RestaurateurNavigationBar selectedPage={"orders"} />
           <main>{children}</main>
         </div>
       );
     case "LIVREUR":
       return (
         <div className="min-h-screen flex flex-col bg-gray-50">
-          <LivreurNavigationBar />
+          <LivreurNavigationBar selectedPage={"orders"} />
           <main>{children}</main>
         </div>
       );
     default:
       return (
         <div className="min-h-screen flex flex-col bg-gray-50">
-          <ClientNavigationBar />
+          <ClientNavigationBar selectedPage={"orders"} />
           <main>{children}</main>
         </div>
       );

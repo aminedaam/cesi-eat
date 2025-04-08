@@ -1,5 +1,3 @@
-// import { Restaurant } from "@/types/Restaurants";
-// import { RestaurantArticle } from "@/types/RestaurantArticle";
 import axios from "axios";
 import { serverURL } from "./serverURL";
 import { Restaurant } from "@/types/Restaurants";

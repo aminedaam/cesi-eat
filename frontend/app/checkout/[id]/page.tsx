@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 // Import specific types and functions from store
 import { useCartStore, ArticleCartItem, MenuCartItem } from "@/store/cartStore";
 import {
@@ -28,6 +28,13 @@ import { useMe } from "@/hooks/useMe";
 import { Article } from "@/types/Articles";
 import { Menu } from "@/types/Menu";
 import CreditCardForm from "@/components/creditCartForm";
+import { Commande, CommandeArticle, CommandeMenu } from "@/types/Commandes";
+import {
+  convertArticleCartItemsToCommandeArticles,
+  convertMenuCartItemsToCommandeMenus,
+} from "@/utils/convertCartItemToCommandeItem";
+import { createCommande } from "@/utils/apiCommandes";
+import { toast } from "react-toastify";
 
 // Helper Type Guard
 function isArticleCartItem(
@@ -72,6 +79,7 @@ const calculDeliveryCost = (
 // -----------------------------
 
 const CheckoutPage = () => {
+  const router = useRouter();
   const { id } = useParams();
   const restaurantId = Number(id);
   const accessToken = useAuthStore((state) => state.accessToken);
@@ -83,7 +91,11 @@ const CheckoutPage = () => {
     setIsCardFormValid(isValid);
   }, []); // Pas de dépendances, setIsCardFormValid est stable
 
-  const { getTotalItemsByRestaurantId, getItemsByRestaurant } = useCartStore();
+  const {
+    getTotalItemsByRestaurantId,
+    getItemsByRestaurant,
+    clearCartForRestaurant,
+  } = useCartStore();
 
   const [showItems, setShowItems] = useState<boolean>(false);
   const mapRef = useRef<HTMLDivElement | null>(null);
@@ -94,6 +106,60 @@ const CheckoutPage = () => {
 
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [isLoadingRestaurant, setIsLoadingRestaurant] = useState(true);
+
+  const handlePayment = async () => {
+    if (
+      !restaurantId ||
+      !accessToken ||
+      !user?.id ||
+      totalValue === null ||
+      totalValue === undefined
+    ) {
+      console.error("Missing required data for payment.");
+      return;
+    }
+
+    try {
+      const restaurant = await getRestaurantById(restaurantId, accessToken);
+      if (!restaurant) {
+        console.error("Restaurant not found.");
+        return;
+      }
+
+      const commandeArticles: CommandeArticle[] =
+        convertArticleCartItemsToCommandeArticles(
+          restaurantItems.filter((item) => isArticleCartItem(item))
+        );
+      const commandeMenus: CommandeMenu[] = convertMenuCartItemsToCommandeMenus(
+        restaurantItems.filter(
+          (item) => !isArticleCartItem(item)
+        ) as MenuCartItem[]
+      );
+
+      const commande: Commande = {
+        restaurant: restaurant,
+        client: user,
+        article: commandeArticles,
+        menu: commandeMenus,
+        prixTotal: totalValue,
+        status: "PENDING",
+        createdAt: new Date().toISOString(),
+      };
+      // Prepare order item
+
+      const newOrder = await createCommande(commande, accessToken);
+
+      console.log("Order created:", newOrder);
+
+      clearCartForRestaurant(restaurantId);
+      toast.success("Commande créée avec succès !");
+      router.push("/home");
+    } catch (error) {
+      console.error("Failed to create order:", error);
+      alert("Erreur lors de la création de la commande.");
+    }
+  };
+  // user createCommande from apiCommande
 
   // Fetch Restaurant Data
   useEffect(() => {
@@ -465,11 +531,13 @@ const CheckoutPage = () => {
           }
           // --- Ajouter un onClick pour la logique de paiement réelle (à implémenter) ---
           onClick={() => {
-            console.log("Déclencher le paiement RÉEL ici !");
-            // Mettez ici votre logique pour appeler une API de paiement
-            // avec les détails de la commande et potentiellement les infos
-            // de carte (même si le formulaire est fake, on simule le déclenchement)
-            alert("Logique de paiement à implémenter !");
+            if (isCardFormValid) {
+              handlePayment(); // Appeler la fonction de paiement si le formulaire est valide
+            } else {
+              alert(
+                "Veuillez remplir correctement les informations de paiement."
+              );
+            }
           }}
           // --------------------------------------------------------------------------
         >

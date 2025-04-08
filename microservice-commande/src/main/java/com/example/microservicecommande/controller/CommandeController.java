@@ -28,6 +28,11 @@ public class CommandeController {
         commandeService.updateCommande(commandeId,updated);
         return ResponseEntity.ok("Commande updated successfully");
     }
+    @PutMapping("/update-status/{commandeId}")
+    public ResponseEntity<String> updateCommandeStatus(@PathVariable String commandeId, @RequestBody String status) throws CommandeNotFoundException {
+        commandeService.updateCommandeStatus(commandeId, status);
+        return ResponseEntity.ok("Commande status updated successfully");
+    }
 
     @DeleteMapping("/delete/{commandeId}")
     public ResponseEntity<String> deleteCommande(@PathVariable String commandeId) throws CommandeNotFoundException {

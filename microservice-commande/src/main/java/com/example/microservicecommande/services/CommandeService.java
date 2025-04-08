@@ -1,5 +1,6 @@
 package com.example.microservicecommande.services;
 
+import com.example.microservicecommande.enums.Status;
 import com.example.microservicecommande.exception.CommandeNotFoundException;
 import com.example.microservicecommande.repository.CommandeRepository;
 import lombok.AllArgsConstructor;
@@ -29,6 +30,14 @@ public class CommandeService {
             // Dans la logique de l'application on est pas censé pouvoir modifier le restaurant et le client d'une commande
             //commande.setRestaurantId(commandeUpdated.getRestaurantId());
             //commande.setClientId(commandeUpdated.getClientId());
+            commandeRepository.save(commande);
+        }
+    }
+    public void updateCommandeStatus(String commandeId, String status) throws CommandeNotFoundException {
+        Commande commande = commandeRepository.findById(commandeId).orElseThrow(
+                () -> new CommandeNotFoundException("Commande non trouvée avec l'id :" + commandeId));
+        if (commande != null) {
+            commande.setStatus(Status.valueOf(status));
             commandeRepository.save(commande);
         }
     }

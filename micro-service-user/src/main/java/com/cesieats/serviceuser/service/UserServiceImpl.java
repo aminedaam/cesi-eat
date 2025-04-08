@@ -5,7 +5,7 @@ import com.cesieats.serviceuser.dto.UserRoleUpdateDTO;
 import com.cesieats.serviceuser.dto.UserUpdatePasswordDTO;
 import com.cesieats.serviceuser.entity.User;
 import com.cesieats.serviceuser.enums.Status;
-import com.cesieats.serviceuser.exception.CodeParrainnageAlreadyUsedException;
+import com.cesieats.serviceuser.exception.CodeParrainageAlreadyUsedException;
 import com.cesieats.serviceuser.exception.InvalidPasswordException;
 import com.cesieats.serviceuser.exception.UserEmailUsedException;
 import com.cesieats.serviceuser.exception.UserNotFoundException;
@@ -52,14 +52,14 @@ public class UserServiceImpl implements UserService{
         return code.toString();
     }
     @Override
-    public User saveUser(User user) throws CodeParrainnageAlreadyUsedException,UserEmailUsedException {
+    public User saveUser(User user) throws CodeParrainageAlreadyUsedException,UserEmailUsedException {
         // Hash du mot de passe avant enregistrement
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setCodeParrainage(generateCodeParrainage());
         user.setStatus(Status.ACTIVE);
         if(user.getCodeParrainage() == null || user.getCodeParrainage().isEmpty()
                 || userRepository.findByCodeParrainage(user.getCodeParrainage()) != null) {
-            throw new CodeParrainnageAlreadyUsedException("Le code de parrainage est déjà utilisé");
+            throw new CodeParrainageAlreadyUsedException("Le code de parrainage est déjà utilisé");
         }
         if(user.getEmail() == null || user.getEmail().isEmpty() || userRepository.findByEmail(user.getEmail()).isPresent()) {
             throw new UserEmailUsedException("L'email est déjà incorrecte ou déjà utilisé");
@@ -126,8 +126,5 @@ public class UserServiceImpl implements UserService{
         userRepository.delete(user);
     }
 
-    @Override
-    public User findUserById(Long id) throws UserNotFoundException {
-        return userRepository.findUserById(id);
-    }
+
 }

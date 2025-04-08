@@ -4,7 +4,7 @@ import com.cesieats.serviceuser.config.JwtUtil;
 import com.cesieats.serviceuser.dto.*;
 import com.cesieats.serviceuser.entity.User;
 import com.cesieats.serviceuser.enums.Role;
-import com.cesieats.serviceuser.exception.CodeParrainnageAlreadyUsedException;
+import com.cesieats.serviceuser.exception.CodeParrainageAlreadyUsedException;
 import com.cesieats.serviceuser.exception.InvalidPasswordException;
 import com.cesieats.serviceuser.exception.UserEmailUsedException;
 import com.cesieats.serviceuser.exception.UserNotFoundException;
@@ -15,7 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -68,7 +67,7 @@ public class UserController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<User> register(@Valid @RequestBody User user) throws UserEmailUsedException, CodeParrainnageAlreadyUsedException {
+    public ResponseEntity<User> register(@Valid @RequestBody User user) throws UserEmailUsedException, CodeParrainageAlreadyUsedException {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(userService.saveUser(user));
     }

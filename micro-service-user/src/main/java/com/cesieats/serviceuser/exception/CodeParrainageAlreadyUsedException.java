@@ -1,7 +1,7 @@
 package com.cesieats.serviceuser.exception;
 
-public class CodeParrainnageAlreadyUsedException extends Exception{
-    public CodeParrainnageAlreadyUsedException(String message) {
+public class CodeParrainageAlreadyUsedException extends Exception{
+    public CodeParrainageAlreadyUsedException(String message) {
         super(message);
     }
 

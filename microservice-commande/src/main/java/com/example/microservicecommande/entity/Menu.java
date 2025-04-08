@@ -8,12 +8,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Menu {
-    private String menuId;
+    private String id;
     private String name;
     private String description;
     private double price;
-    private String imageUrl;
     private String restaurantId;
-    private String categoryId;
     private int quantity;
 }

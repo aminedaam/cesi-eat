@@ -9,9 +9,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Restaurant {
 
-    private String restaurantId;
+    private long id;
     private String name;
     private String address;
+    private String phoneNumber;
     private String city;
     private String postalCode;
     private String country;

@@ -1,5 +1,6 @@
 package com.example.microservicecommande.entity;
 
+import com.example.microservicecommande.enums.Status;
 import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -13,18 +14,20 @@ import java.util.List;
 @NoArgsConstructor
 public class Commande {
 
-    private String commandeId;
+    private String id;
 
-    private Restaurant restaurantId;
+    private Restaurant restaurant;
 
-    private User clientId;
+    private User client;
 
-    private List<Article> articles;
+    private List<Article> article;
 
-    private List<Menu> menus;
+    private List<Menu> menu;
 
 
     private double prixTotal;
 
     private String createdAt;
+
+    private Status status;
 }

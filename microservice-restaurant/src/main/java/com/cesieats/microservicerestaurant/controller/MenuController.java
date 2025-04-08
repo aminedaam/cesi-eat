@@ -3,6 +3,7 @@ package com.cesieats.microservicerestaurant.controller;
 
 import com.cesieats.microservicerestaurant.config.JwtUtil;
 import com.cesieats.microservicerestaurant.entity.Menu;
+import com.cesieats.microservicerestaurant.error.ArticleNotFoundException;
 import com.cesieats.microservicerestaurant.error.MenuNotFoundException;
 import com.cesieats.microservicerestaurant.service.MenuService;
 import jakarta.validation.Valid;
@@ -47,7 +48,7 @@ public class MenuController {
 
     @DeleteMapping("delete/{id}")
     @PreAuthorize("hasAuthority('RESTAURATEUR')")
-    public ResponseEntity<Void> deleteMenu(@RequestHeader("Authorization") String token, @PathVariable Long id) throws MenuNotFoundException {
+    public ResponseEntity<Void> deleteMenu(@RequestHeader("Authorization") String token, @PathVariable Long id) throws MenuNotFoundException, ArticleNotFoundException {
         String email = jwtUtil.extractEmail(token.substring(7));
         if(!menuService.findMenuById(id).getRestaurant().getCreatorEmail().equals(email)){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -57,7 +58,7 @@ public class MenuController {
     }
 
     @GetMapping("/{name}")
-    public ResponseEntity<Menu> getMenu(@PathVariable String name) {
+    public ResponseEntity<Menu> getMenu(@PathVariable String name) throws MenuNotFoundException {
         Menu menu = menuService.getMenuByName(name);
         return ResponseEntity.ok(menu);
     }
@@ -69,7 +70,7 @@ public class MenuController {
     }
 
     @GetMapping("/restaurant/{restaurantId}")
-    public ResponseEntity<List<Menu>> getMenusByRestaurantId(@PathVariable Long restaurantId) {
+    public ResponseEntity<List<Menu>> getMenusByRestaurantId(@PathVariable Long restaurantId) throws MenuNotFoundException {
         List<Menu> menus = menuService.getMenuByRestaurantId(restaurantId);
         return ResponseEntity.ok(menus);
     }

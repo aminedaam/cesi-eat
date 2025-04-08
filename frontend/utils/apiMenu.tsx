@@ -26,9 +26,16 @@ export const getAllMenus = async (): Promise<Menu[]> => {
   }
 };
 
-export const getMenuByName = async (name: string): Promise<Menu> => {
+export const getMenuByName = async (
+  name: string,
+  token: string
+): Promise<Menu> => {
   try {
-    const response = await apiMenu.get(`/${name}`);
+    const response = await apiMenu.get(
+      `/${name}
+      `,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
     const menu: Menu = response.data;
     console.log("Menu data retrieved:", menu);
     return menu;

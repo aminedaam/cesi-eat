@@ -244,9 +244,12 @@ export const RestaurantList: React.FC<RestaurantListProps> = ({ filter }) => {
   // Currently, locationError leads to using the default restaurant list order.
 
   // Condition 4: No restaurants found (either fetch returned none, or filter cleared them all)
-  // We check this *after* loading states and fetch errors.
   if (restaurants.length > 0 && filteredRestaurants.length === 0) {
-    return <p>Aucun restaurant ne correspond à votre filtre.</p>;
+    return (
+      <div className="w-full p-4 text-center">
+        <p className="text-gray-600 text-lg">Aucun restaurant ne correspond à votre filtre.</p>
+      </div>
+    );
   }
 
   // Condition 5: No restaurants fetched initially (and not due to a fetch error already handled)
@@ -257,23 +260,22 @@ export const RestaurantList: React.FC<RestaurantListProps> = ({ filter }) => {
     return <p>Aucun restaurant disponible pour le moment.</p>;
   }
 
-  // Default Render: Display the filtered list
-  // The `processedRestaurants` state ensures we have *some* list (sorted or default)
-  // `filteredRestaurants` applies the text filter on top of that.
+  // Main render: Grid of restaurants
   return (
-    <ul className="list-none p-0">
-      {filteredRestaurants.map((restaurant) => (
-        <RestaurantItem
-          key={restaurant.id}
-          restaurant={restaurant}
-          // Show distance only if location is available and wasn't timed out
-          distance={
-            location && !locationTimedOut
-              ? restaurant.distanceFromUser
-              : undefined
-          }
-        />
-      ))}
-    </ul>
+    <div className="w-full px-4 py-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {filteredRestaurants.map((restaurant) => (
+          <div
+            key={restaurant.id}
+            className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden"
+          >
+            <RestaurantItem 
+              restaurant={restaurant} 
+              distance={restaurant.distanceFromUser}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
   );
 };

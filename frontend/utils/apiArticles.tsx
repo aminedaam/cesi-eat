@@ -1,8 +1,16 @@
 import { Article } from "@/types/Articles";
 import axios from "axios";
 import { serverURL } from "./serverURL";
+import { RestaurantCategory } from "@/types/RestaurantCategory";
+import { Menu } from "@/types/Menu";
+
 const apiArticle = axios.create({
   baseURL: serverURL + "/articles",
+  timeout: 5000,
+});
+
+const apiMenu = axios.create({
+  baseURL: serverURL + "/menus",
   timeout: 5000,
 });
 
@@ -163,11 +171,47 @@ export const getArticlesByRestaurantName = async (
 };
 
 export const getArticlesByRestaurantId = async (
-  restaurantId: number
+  restaurantId: number,
+  token: string
 ): Promise<Article[]> => {
   try {
-    const response = await apiArticle.get(`/restaurantId/${restaurantId}`);
+    const response = await apiArticle.get(`/restaurantId/${restaurantId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
     const articles: Article[] = response.data;
+    console.log("Données des articles récupérées:", response.data);
+    for (let i = 0; i < response.data.length; i++) {
+      if (!response.data[i].menu) {
+        articles[i].menuId = null; // ou une autre valeur par défaut
+      } else {
+        articles[i].menuId = response.data[i].menu.id;
+      }
+
+      // Ajouter la propriété restaurant à chaque article
+      if (!articles[i].restaurant) {
+        articles[i].restaurant = {
+          id: restaurantId,
+          name: "",
+          categorie: RestaurantCategory.BURGER,
+          address: "",
+          codePostal: "",
+          country: "",
+          city: "",
+          latitude: 0,
+          longitude: 0,
+          imagePath: "",
+          description: "",
+          delevryCost: 0,
+          email: "",
+          closingTime: "",
+          phoneNumber: "",
+          averageRate: 0,
+          nbRate: 0,
+          createdAt: new Date(),
+        };
+      }
+    }
+
     console.log("Articles récupérés par ID de restaurant:", articles);
     return articles;
   } catch (error) {
@@ -187,11 +231,16 @@ export const getArticlesByRestaurantId = async (
 };
 
 export const getArticlesByMenuId = async (
-  menuId: number
+  menuId: number,
+  token: string
 ): Promise<Article[]> => {
   try {
-    const response = await apiArticle.get(`/menu/${menuId}`);
+    const response = await apiArticle.get(`/menu/${menuId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    console.log("Articles for menu id : ", response.data);
     const articles: Article[] = response.data;
+
     console.log("Articles récupérés par ID de menu:", articles);
     return articles;
   } catch (error) {

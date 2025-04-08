@@ -23,11 +23,6 @@ export default function CartLayout({ children }: CartLayoutProps) {
         </div>
       </header>
       <main className="mt-16 pb-20">{children}</main>
-      <div className="fixed bottom-0 left-0 w-full bg-white shadow-2xl p-3">
-        <button className="w-full bg-black text-white py-3 rounded-lg font-semibold mt-2">
-          Commander
-        </button>
-      </div>
     </div>
   );
 }

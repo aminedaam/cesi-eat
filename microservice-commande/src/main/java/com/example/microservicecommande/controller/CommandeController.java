@@ -56,5 +56,10 @@ public class CommandeController {
         return ResponseEntity.ok(commandes);
     }
 
+    @GetMapping("/getCommandesByStatus/{status}")
+    public ResponseEntity<List<Commande>> getCommandesByStatus(@PathVariable String status) throws CommandeNotFoundException {
+        List<Commande> commandes = commandeService.getCommandeByStatus(status);
+        return ResponseEntity.ok(commandes);
+    }
 
 }

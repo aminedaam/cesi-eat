@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useCartStore, ArticleCartItem, MenuCartItem } from "@/store/cartStore";
 import { useEffect, useState, useMemo } from "react"; // Added useMemo
 import { useRouter, useParams } from "next/navigation";
-import { Minus, Plus, Trash } from "lucide-react";
+import { Minus, Plus, Trash, ArrowLeft, ShoppingCart, CreditCard, PlusCircle } from "lucide-react";
 import Link from "next/link";
 import { CustomButton } from "@/components/helper-components/CustomButton";
 import Modal from "react-modal";
@@ -15,6 +15,7 @@ import { Restaurant } from "@/types/Restaurants";
 import { Article } from "@/types/Articles"; // Keep Article type
 import { Menu } from "@/types/Menu"; // Keep Menu type
 import { useAuthStore } from "@/store/authStore";
+import { Building2 } from "lucide-react";
 
 // Helper Type Guard
 function isArticleCartItem(
@@ -72,7 +73,7 @@ const RestaurantCartPage = () => {
       }
     }
     fetchRestaurant();
-  }, [restaurantId]);
+  }, [restaurantId, accessToken]);
   // -----------------------------
 
   // --- Get items for *this* restaurant ---
@@ -141,151 +142,177 @@ const RestaurantCartPage = () => {
   // -------------------
 
   if (isLoadingRestaurant) {
-    return <div className="p-6 text-center">Chargement du panier...</div>; // Simple loading state
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="bg-white rounded-2xl shadow-md p-8 flex flex-col items-center">
+          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4 animate-pulse">
+            <ShoppingCart className="h-8 w-8 text-gray-400" />
+          </div>
+          <p className="text-gray-600 font-medium">Chargement du panier...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
-      {" "}
-      {/* Added padding */}
-      <div className="max-w-md mx-auto bg-white rounded-2xl shadow p-6">
-        {" "}
-        {/* Adjusted padding */}
-        <h1 className="font-semibold text-xl mb-6">
-          {" "}
-          {/* Added margin */}
-          Panier pour: {restaurant?.name ?? `Restaurant ${restaurantId}`}
-        </h1>
-        {/* --- Iterate over combined items --- */}
-        <div className="space-y-4">
-          {restaurantItems.map((cartItem) => {
-            // --- Determine item details based on type ---
-            const isArticle = isArticleCartItem(cartItem);
-            const item = cartItem.item; // Reference the nested item
-            const id = item.id;
-            const name = item.name;
-            const price = isArticle
-              ? (item as Article).price
-              : (item as Menu).priceMenu;
-            // Get imagePath if it exists on both types, otherwise use fallback
-            const imagePath =
-              (item as Article).imagePath ??
-              (item as Menu).imagePath ??
-              "/burger.png"; // Provide a fallback image
-            const type = isArticle ? "article" : "menu";
-
-            // Basic check for valid ID
-            if (typeof id === "undefined") {
-              console.warn("Cart item missing ID:", cartItem);
-              return null; // Skip rendering items without ID
-            }
-            // -------------------------------------------
-
-            return (
-              <div
-                key={`${type}-${id}`} // Use combined key for potential ID clashes between articles/menus
-                className="flex items-center justify-between gap-3" // Added gap
-              >
-                {/* --- Display Item --- */}
-                <Image
-                  src={imagePath} // Use extracted imagePath
-                  alt={name}
-                  width={64} // Slightly smaller image?
-                  height={64}
-                  className="rounded-md object-cover flex-shrink-0"
-                />
-                <div className="flex-1 min-w-0">
-                  {" "}
-                  {/* Added min-w-0 for text truncation */}
-                  <p className="font-medium truncate">{name}</p>{" "}
-                  {/* Added truncate */}
-                  <p className="text-sm text-gray-500">
-                    {price.toFixed(2)}€ {/* Standardize currency */}
-                  </p>
-                  {/* Optional: Add description if available and needed */}
-                  {/* <p className="text-xs text-gray-400 truncate">{item.description ?? ''}</p> */}
+      <div className="max-w-2xl mx-auto px-4 sm:px-6">
+        
+        <div className="bg-white rounded-2xl shadow-md overflow-hidden">
+          <div className="p-6 border-b border-gray-100">
+            <div className="flex items-center">
+              {restaurant?.imagePath ? (
+                <div className="relative w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 mr-4">
+                  <Image
+                    src={restaurant.imagePath}
+                    alt={restaurant?.name || `Restaurant ${restaurantId}`}
+                    fill
+                    className="object-cover"
+                  />
                 </div>
-                {/* -------------------- */}
-
-                {/* --- Quantity Controls --- */}
-                <div className="flex items-center space-x-2 px-2 py-1 bg-gray-100 rounded-full flex-shrink-0">
-                  {cartItem.quantity > 1 ? (
-                    // --- Call removeItem with type ---
-                    <button
-                      title="Réduire la quantité"
-                      onClick={() => removeItem(id, type)}
-                      className="p-1 text-gray-600 hover:text-black"
-                    >
-                      <Minus className="w-4 h-4" />
-                    </button>
-                  ) : (
-                    // -------------------------------
-                    // --- Call openDeleteModal with type ---
-                    <button
-                      title="Supprimer l'article"
-                      onClick={() => openDeleteModal({ id, name, type })}
-                      className="p-1 text-red-600 hover:text-red-800"
-                    >
-                      <Trash className="w-4 h-4" />
-                    </button>
-                    // -------------------------------------
-                  )}
-                  <span className="font-medium text-sm w-4 text-center">
-                    {cartItem.quantity}
-                  </span>
-                  {/* --- Call addArticle/addMenu --- */}
-                  <button
-                    title="Augmenter la quantité"
-                    onClick={() =>
-                      isArticle
-                        ? addArticle(item as Article)
-                        : addMenu(item as Menu)
-                    }
-                    className="p-1 text-gray-600 hover:text-black"
-                  >
-                    <Plus className="w-4 h-4" />
-                  </button>
-                  {/* --------------------------- */}
+              ) : (
+                <div className="w-16 h-16 rounded-xl bg-gray-200 flex-shrink-0 mr-4 flex items-center justify-center">
+                  <Building2 className="h-8 w-8 text-gray-400" />
                 </div>
-                {/* ----------------------- */}
+              )}
+              <div>
+                <h1 className="font-bold text-xl text-gray-900">
+                  {restaurant?.name ?? `Restaurant ${restaurantId}`}
+                </h1>
+                <p className="text-sm text-gray-500 mt-1">
+                  {restaurantItems.length} article{restaurantItems.length > 1 ? "s" : ""} dans votre panier
+                </p>
               </div>
-            );
-          })}
-        </div>
-        {/* ---------------------------------- */}
-        {/* --- Add More Items Button --- */}
-        <div className="w-full flex justify-center mt-6">
-          <Link href={`/restaurants/${restaurantId}`}>
-            <button className="flex items-center justify-center bg-gray-100 rounded-full py-2 px-4 text-sm font-medium text-gray-700 hover:bg-gray-200 transition-colors">
-              <Plus className="w-4 h-4 mr-2" />
-              Ajouter d&apos;autres articles
-            </button>
-          </Link>
-        </div>
-        {/* --------------------------- */}
-        {/* --- Remarks / Promo Code (Optional - No changes needed) --- */}
-        {/* <div className="border-t border-gray-200 mt-6 pt-4">
-             <button className="w-full text-left py-2 border-b border-gray-200 text-sm text-gray-500 hover:text-black"> Ajouter une remarque </button>
-             <button className="w-full text-left py-2 text-sm text-gray-500 hover:text-black"> Ajouter un code promo </button>
-           </div> */}
-        {/* ------------------------------------------------------- */}
-        {/* --- Subtotal Display --- */}
-        <div className="border-t border-gray-200 mt-6 pt-4">
-          <div className="mt-4 flex justify-between items-center">
-            <p className="font-semibold">Sous-total</p>
-            {/* --- Use calculated restaurantTotalPrice --- */}
-            <p className="font-semibold">{restaurantTotalPrice.toFixed(2)} €</p>
-            {/* ----------------------------------------- */}
+            </div>
           </div>
-          {/* --- Checkout Button --- */}
-          <Link href={`/checkout/${restaurantId}`} className="mt-4 block">
-            <button className="w-full bg-black text-white rounded-lg py-3 font-medium hover:bg-gray-800 transition-colors">
-              Procéder au paiement
-            </button>
-          </Link>
-          {/* --------------------- */}
+          
+          <div className="p-6">
+            <div className="space-y-5">
+              {restaurantItems.map((cartItem) => {
+                // --- Determine item details based on type ---
+                const isArticle = isArticleCartItem(cartItem);
+                const item = cartItem.item; // Reference the nested item
+                const id = item.id;
+                const name = item.name;
+                const price = isArticle
+                  ? (item as Article).price
+                  : (item as Menu).priceMenu;
+                // Get imagePath if it exists on both types, otherwise use fallback
+                const imagePath = (item as Article).imagePath ?? "/burger.png"; // Provide a fallback image
+                const type = isArticle ? "article" : "menu";
+
+                // Basic check for valid ID
+                if (typeof id === "undefined") {
+                  console.warn("Cart item missing ID:", cartItem);
+                  return null; // Skip rendering items without ID
+                }
+                // -------------------------------------------
+
+                return (
+                  <div
+                    key={`${type}-${id}`} // Use combined key for potential ID clashes between articles/menus
+                    className="flex items-center justify-between gap-4 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors duration-200"
+                  >
+                    {/* --- Display Item --- */}
+                    <div className="relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
+                      <Image
+                        src={imagePath} // Use extracted imagePath
+                        alt={name}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-gray-900 truncate">{name}</p>
+                      <p className="text-sm text-gray-500 mt-1">
+                        {price.toFixed(2)}€
+                      </p>
+                      {item.description && (
+                        <p className="text-xs text-gray-400 truncate mt-1 max-w-xs">
+                          {item.description}
+                        </p>
+                      )}
+                    </div>
+                    {/* -------------------- */}
+
+                    {/* --- Quantity Controls --- */}
+                    <div className="flex items-center space-x-2 px-3 py-1.5 bg-white rounded-full flex-shrink-0 shadow-sm">
+                      {cartItem.quantity > 1 ? (
+                        // --- Call removeItem with type ---
+                        <button
+                          title="Réduire la quantité"
+                          onClick={() => removeItem(id, type)}
+                          className="p-1.5 text-gray-600 hover:text-black hover:bg-gray-100 rounded-full transition-colors"
+                        >
+                          <Minus className="w-4 h-4" />
+                        </button>
+                      ) : (
+                        // -------------------------------
+                        // --- Call openDeleteModal with type ---
+                        <button
+                          title="Supprimer l'article"
+                          onClick={() => openDeleteModal({ id, name, type })}
+                          className="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full transition-colors"
+                        >
+                          <Trash className="w-4 h-4" />
+                        </button>
+                        // -------------------------------------
+                      )}
+                      <span className="font-medium text-sm w-6 text-center">
+                        {cartItem.quantity}
+                      </span>
+                      {/* --- Call addArticle/addMenu --- */}
+                      <button
+                        title="Augmenter la quantité"
+                        onClick={() =>
+                          isArticle
+                            ? addArticle(item as Article)
+                            : addMenu(item as Menu)
+                        }
+                        className="p-1.5 text-gray-600 hover:text-black hover:bg-gray-100 rounded-full transition-colors"
+                      >
+                        <Plus className="w-4 h-4" />
+                      </button>
+                      {/* --------------------------- */}
+                    </div>
+                    {/* ----------------------- */}
+                  </div>
+                );
+              })}
+            </div>
+            
+            {/* --- Add More Items Button --- */}
+            <div className="w-full flex justify-center mt-8">
+              <Link href={`/restaurants/${restaurantId}`}>
+                <button className="flex items-center justify-center bg-gray-100 rounded-full py-3 px-6 text-sm font-medium text-gray-700 hover:bg-gray-200 transition-colors shadow-sm hover:shadow-md">
+                  <PlusCircle className="w-5 h-5 mr-2" />
+                  Ajouter d&apos;autres articles
+                </button>
+              </Link>
+            </div>
+            {/* --------------------------- */}
+            
+            {/* --- Subtotal Display --- */}
+            <div className="border-t border-gray-200 mt-8 pt-6">
+              <div className="flex justify-between items-center mb-4">
+                <p className="font-semibold text-gray-700">Sous-total</p>
+                {/* --- Use calculated restaurantTotalPrice --- */}
+                <p className="font-bold text-xl text-gray-900">{restaurantTotalPrice.toFixed(2)} €</p>
+                {/* ----------------------------------------- */}
+              </div>
+              {/* --- Checkout Button --- */}
+              <Link href={`/checkout/${restaurantId}`} className="mt-4 block">
+                <button className="w-full bg-black text-white rounded-xl py-3.5 font-medium hover:bg-gray-800 transition-colors flex items-center justify-center shadow-md hover:shadow-lg">
+                  <CreditCard className="w-5 h-5 mr-2" />
+                  Procéder au paiement
+                </button>
+              </Link>
+              {/* --------------------- */}
+            </div>
+          </div>
         </div>
       </div>
+      
       {/* --- Modal Update --- */}
       <Modal
         isOpen={isDeleteModalOpen}
@@ -293,25 +320,28 @@ const RestaurantCartPage = () => {
         style={customModalStyles}
         contentLabel="Confirm Item Deletion" // Updated label
       >
-        <div className="flex flex-col space-y-4 p-2">
-          <h2 className="text-xl font-semibold text-gray-900">
+        <div className="flex flex-col space-y-6 p-6">
+          <div className="flex items-center justify-center w-16 h-16 bg-red-50 rounded-full mx-auto mb-2">
+            <Trash className="h-8 w-8 text-red-500" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 text-center">
             Confirmer la suppression
           </h2>
-          <p className="text-gray-700">
+          <p className="text-gray-700 text-center">
             {/* --- Use itemToDelete info --- */}
-            Enlever <span className="font-medium">{itemToDelete?.name}</span> du
-            panier ?{/* ------------------------- */}
+            Voulez-vous vraiment enlever <span className="font-semibold">{itemToDelete?.name}</span> du panier ?
+            {/* ------------------------- */}
           </p>
-          <div className="flex justify-end space-x-3 pt-2">
+          <div className="flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-4 pt-4">
             <CustomButton
               onClick={closeDeleteModal}
-              className="py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="py-3 px-6 border border-gray-300 rounded-xl shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200"
             >
               Annuler
             </CustomButton>
             <CustomButton
               onClick={confirmItemDeletion} // Use updated function name
-              className="py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500" // Style as destructive action
+              className="py-3 px-6 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200" // Style as destructive action
             >
               Supprimer {/* Changed button text */}
             </CustomButton>

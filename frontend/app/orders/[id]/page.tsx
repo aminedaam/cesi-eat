@@ -4,7 +4,18 @@ import { useParams, useRouter } from "next/navigation";
 import { getCommandeById } from "@/utils/apiCommandes";
 import { Commande } from "@/types/Commandes";
 import { useAuthStore } from "@/store/authStore";
-import { ShoppingBag, Clock, CheckCircle, XCircle, Loader2, ArrowLeft, MapPin, Phone, Mail, ExternalLink } from "lucide-react";
+import {
+  ShoppingBag,
+  Clock,
+  CheckCircle,
+  XCircle,
+  Loader2,
+  ArrowLeft,
+  MapPin,
+  Phone,
+  Mail,
+  ExternalLink,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -30,7 +41,9 @@ export default function OrderDetailPage() {
         setLoading(false);
       } catch (err) {
         console.error("Erreur lors de la récupération de la commande:", err);
-        setError("Impossible de charger les détails de la commande. Veuillez réessayer plus tard.");
+        setError(
+          "Impossible de charger les détails de la commande. Veuillez réessayer plus tard."
+        );
         setLoading(false);
       }
     };
@@ -72,14 +85,15 @@ export default function OrderDetailPage() {
     if (!dateString) return "Date inconnue";
     try {
       const date = new Date(dateString);
-      return date.toLocaleDateString('fr-FR', {
-        day: '2-digit',
-        month: 'long',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
+      return date.toLocaleDateString("fr-FR", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
       });
     } catch (error) {
+      console.error("Erreur lors du formatage de la date:", error);
       return "Date invalide";
     }
   };
@@ -88,7 +102,9 @@ export default function OrderDetailPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-4">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
-        <p className="text-lg text-gray-600">Chargement des détails de la commande...</p>
+        <p className="text-lg text-gray-600">
+          Chargement des détails de la commande...
+        </p>
       </div>
     );
   }
@@ -96,15 +112,21 @@ export default function OrderDetailPage() {
   if (error || !commande) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <button 
-          onClick={() => router.back()} 
+        <button
+          onClick={() => router.back()}
           className="flex items-center text-blue-600 hover:text-blue-800 mb-6"
         >
           <ArrowLeft className="mr-2" /> Retour aux commandes
         </button>
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative max-w-md mx-auto" role="alert">
+        <div
+          className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative max-w-md mx-auto"
+          role="alert"
+        >
           <strong className="font-bold">Erreur!</strong>
-          <span className="block sm:inline"> {error || "Commande non trouvée"}</span>
+          <span className="block sm:inline">
+            {" "}
+            {error || "Commande non trouvée"}
+          </span>
         </div>
       </div>
     );
@@ -112,8 +134,8 @@ export default function OrderDetailPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <button 
-        onClick={() => router.back()} 
+      <button
+        onClick={() => router.back()}
         className="flex items-center text-blue-600 hover:text-blue-800 mb-6"
       >
         <ArrowLeft className="mr-2" /> Retour aux commandes
@@ -123,8 +145,8 @@ export default function OrderDetailPage() {
         {/* En-tête avec image du restaurant et statut */}
         <div className="relative h-64 w-full">
           {commande.restaurant.imagePath ? (
-            <Image 
-              src={commande.restaurant.imagePath} 
+            <Image
+              src={commande.restaurant.imagePath}
               alt={commande.restaurant.name}
               fill
               className="object-cover"
@@ -151,7 +173,9 @@ export default function OrderDetailPage() {
           {/* Informations de la commande */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <div>
-              <h2 className="text-xl font-semibold mb-4">Détails de la commande</h2>
+              <h2 className="text-xl font-semibold mb-4">
+                Détails de la commande
+              </h2>
               <div className="space-y-2">
                 <p className="flex items-center">
                   <Clock className="mr-2 text-gray-500" />
@@ -169,11 +193,16 @@ export default function OrderDetailPage() {
             </div>
 
             <div>
-              <h2 className="text-xl font-semibold mb-4">Informations du restaurant</h2>
+              <h2 className="text-xl font-semibold mb-4">
+                Informations du restaurant
+              </h2>
               <div className="space-y-2">
                 <p className="flex items-center">
                   <MapPin className="mr-2 text-gray-500" />
-                  <span>{commande.restaurant.address}, {commande.restaurant.codePostal} {commande.restaurant.city}</span>
+                  <span>
+                    {commande.restaurant.address},{" "}
+                    {commande.restaurant.codePostal} {commande.restaurant.city}
+                  </span>
                 </p>
                 <p className="flex items-center">
                   <Phone className="mr-2 text-gray-500" />
@@ -181,9 +210,11 @@ export default function OrderDetailPage() {
                 </p>
                 <p className="flex items-center">
                   <Mail className="mr-2 text-gray-500" />
-                  <span>{commande.restaurant.email ?? "Email non disponible"}</span>
+                  <span>
+                    {commande.restaurant.email ?? "Email non disponible"}
+                  </span>
                 </p>
-                <Link 
+                <Link
                   href={`/restaurants/${commande.restaurant.id}`}
                   className="inline-flex items-center text-blue-600 hover:text-blue-800 mt-2"
                 >
@@ -196,7 +227,7 @@ export default function OrderDetailPage() {
           {/* Articles commandés */}
           <div className="border-t border-gray-200 pt-6">
             <h2 className="text-xl font-semibold mb-4">Articles commandés</h2>
-            
+
             {commande.article.length > 0 && (
               <div className="mb-6">
                 <h3 className="text-lg font-medium mb-2">Articles</h3>
@@ -206,19 +237,47 @@ export default function OrderDetailPage() {
                       <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-100">
                           <tr>
-                            <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Article</th>
-                            <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Qté</th>
-                            <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prix</th>
-                            <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                            <th
+                              scope="col"
+                              className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
+                              Article
+                            </th>
+                            <th
+                              scope="col"
+                              className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
+                              Qté
+                            </th>
+                            <th
+                              scope="col"
+                              className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
+                              Prix
+                            </th>
+                            <th
+                              scope="col"
+                              className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
+                              Total
+                            </th>
                           </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
                           {commande.article.map((item, index) => (
                             <tr key={index} className="hover:bg-gray-50">
-                              <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{item.name}</td>
-                              <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{item.quantity}</td>
-                              <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{item.price.toFixed(2)} €</td>
-                              <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{(item.price * item.quantity).toFixed(2)} €</td>
+                              <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                                {item.name}
+                              </td>
+                              <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                                {item.quantity}
+                              </td>
+                              <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                                {item.price.toFixed(2)} €
+                              </td>
+                              <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+                                {(item.price * item.quantity).toFixed(2)} €
+                              </td>
                             </tr>
                           ))}
                         </tbody>
@@ -238,19 +297,50 @@ export default function OrderDetailPage() {
                       <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-100">
                           <tr>
-                            <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Menu</th>
-                            <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Qté</th>
-                            <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prix</th>
-                            <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                            <th
+                              scope="col"
+                              className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
+                              Menu
+                            </th>
+                            <th
+                              scope="col"
+                              className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
+                              Qté
+                            </th>
+                            <th
+                              scope="col"
+                              className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
+                              Prix
+                            </th>
+                            <th
+                              scope="col"
+                              className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
+                              Total
+                            </th>
                           </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
                           {commande.menu.map((item, index) => (
-                            <tr key={`menu-${index}`} className="hover:bg-gray-50">
-                              <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{item.name}</td>
-                              <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{item.quantity}</td>
-                              <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{item.price.toFixed(2)} €</td>
-                              <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{(item.price * item.quantity).toFixed(2)} €</td>
+                            <tr
+                              key={`menu-${index}`}
+                              className="hover:bg-gray-50"
+                            >
+                              <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                                {item.name}
+                              </td>
+                              <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                                {item.quantity}
+                              </td>
+                              <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                                {item.price.toFixed(2)} €
+                              </td>
+                              <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+                                {(item.price * item.quantity).toFixed(2)} €
+                              </td>
                             </tr>
                           ))}
                         </tbody>
@@ -265,4 +355,4 @@ export default function OrderDetailPage() {
       </div>
     </div>
   );
-} 
+}

@@ -10,28 +10,16 @@ import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { createRestaurant } from "@/utils/apiRestaurant";
 // Importer le type et potentiellement les valeurs si elles sont exportées séparément
-import RestaurantCategoryType from "@/types/RestaurantCategory"; // Supposons que le type est exporté comme ça
 import { Restaurant } from "@/types/Restaurants";
 import LoadingSpinner from "@/components/helper-components/LoadingSpinner";
-import RestaurantCategory from "@/types/RestaurantCategory";
 import useCoordinates from "@/hooks/useCoordinates";
-
-// 1. Définir explicitement le tableau des catégories basé sur le type
-const restaurantCategories: RestaurantCategoryType[] = [
-  "PIZZA",
-  "BURGER",
-  "TACOS",
-  "HALAL",
-  "VEGETARIEN",
-  "JAPONAIS",
-  "THAI",
-];
+import { RestaurantCategory } from "@/types/RestaurantCategory";
 
 // Zod schema for validation
 const restaurantSchema = z.object({
   name: z.string().min(1, "Veuillez renseigner ce champ"),
-  categorie: z.enum(restaurantCategories, {
-    errorMap: () => ({ message: "Veuillez sélectionner une catégorie valide" }),
+  categorie: z.nativeEnum(RestaurantCategory, {
+    errorMap: () => ({ message: "Veuillez sélectionner un type valide" }),
   }),
   address: z.string().min(1, "Veuillez renseigner ce champ"),
 
@@ -84,7 +72,7 @@ const CreateRestaurantPage: React.FC = () => {
     initialValues: {
       name: "",
       // La valeur initiale doit être une des chaînes valides du type/tableau
-      categorie: "PIZZA", // Ou une autre valeur par défaut valide comme restaurantCategories[0]
+      categorie: RestaurantCategory.PIZZA, // Ou une autre valeur par défaut valide comme restaurantCategories[0]
       address: "",
       postalCode: "",
       country: "",
@@ -130,7 +118,7 @@ const CreateRestaurantPage: React.FC = () => {
           name: values.name,
           categorie: values.categorie as RestaurantCategory, // Directement la chaîne validée par Zod
           address: values.address,
-          postalCode: values.postalCode,
+          codePostal: values.postalCode,
           country: values.country,
           city: values.city,
           imagePath: values.imagePath,
@@ -139,6 +127,8 @@ const CreateRestaurantPage: React.FC = () => {
           email: values.email,
           closingTime: values.closingTime,
           phoneNumber: values.phoneNumber,
+          creatorEmail: user?.email ?? "",
+          createdAt: new Date(),
           // Champs par défaut
           id: null,
           latitude: 0,
@@ -151,14 +141,13 @@ const CreateRestaurantPage: React.FC = () => {
                 longitude: coordinates.longitude,
               }
             : {}),
-          createdAt: new Date(),
         };
 
         await createRestaurant(restaurantData as Restaurant, accessToken);
 
         toast.success("Restaurant créé avec succès !");
         formik.resetForm(); // Reset the form after successful submission
-        router.push("/restaurants/my-restaurants");
+        router.push("/restaurants/my-restaurants/all");
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
         console.error("Error creating restaurant:", error);
@@ -274,10 +263,10 @@ const CreateRestaurantPage: React.FC = () => {
                 {/* Optionnel: une option placeholder si aucune valeur initiale n'est définie */}
                 {/* <option value="" disabled>-- Sélectionnez --</option> */}
                 {/* 3. Mapper le tableau des catégories */}
-                {restaurantCategories.map((categoryValue) => (
+                {Object.values(RestaurantCategory).map((categoryValue) => (
                   <option key={categoryValue} value={categoryValue}>
                     {/* Afficher la valeur en format lisible (ex: Title Case) */}
-                    {categoryValue.charAt(0) +
+                    {categoryValue.charAt(0).toUpperCase() +
                       categoryValue.slice(1).toLowerCase()}
                   </option>
                 ))}

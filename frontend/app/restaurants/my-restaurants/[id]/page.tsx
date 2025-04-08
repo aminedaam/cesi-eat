@@ -7,7 +7,7 @@ import { useParams, useRouter } from "next/navigation";
 import { deleteRestaurant, getRestaurantById } from "@/utils/apiRestaurant";
 import { Restaurant } from "@/types/Restaurants";
 import Link from "next/link";
-import { ChevronDown, Edit, Star, Trash } from "lucide-react";
+import { ChevronDown, Edit, Star, Trash, PlusCircle, Utensils } from "lucide-react";
 import LoadingSpinner from "@/components/helper-components/LoadingSpinner";
 import { useAuthStore } from "@/store/authStore";
 import { CustomButton } from "@/components/helper-components/CustomButton";
@@ -82,8 +82,16 @@ function RestaurantPage() {
         setError(null);
       } catch (error) {
         console.error("Error fetching articles:", error);
-        setError("Failed to fetch articles data.");
-        setLoading(false);
+        if (error && typeof error === 'object' && 'response' in error && 
+            error.response && typeof error.response === 'object' && 
+            'status' in error.response && error.response.status === 404) {
+          setArticles([]);
+          setLoading(false);
+          setError(null);
+        } else {
+          setError("Failed to fetch articles data.");
+          setLoading(false);
+        }
       }
     }
     fetchArticles();
@@ -99,8 +107,15 @@ function RestaurantPage() {
         setLoading(false);
       } catch (error) {
         console.error("Error fetching menus:", error);
-        setError("Failed to fetch menus data.");
-        setLoading(false);
+        if (error && typeof error === 'object' && 'response' in error && 
+            error.response && typeof error.response === 'object' && 
+            'status' in error.response && error.response.status === 404) {
+          setMenus([]);
+          setLoading(false);
+        } else {
+          setError("Failed to fetch menus data.");
+          setLoading(false);
+        }
       }
     }
     fetchMenus();
@@ -119,6 +134,13 @@ function RestaurantPage() {
             `Error fetching articles for menu ID ${menu.id}:`,
             error
           );
+          if (error && typeof error === 'object' && 'response' in error && 
+              error.response && typeof error.response === 'object' && 
+              'status' in error.response && error.response.status === 404) {
+            map[menu.id!] = [];
+          } else {
+            map[menu.id!] = [];
+          }
         }
       }
       setMenuArticlesMap(map);
@@ -435,10 +457,30 @@ function RestaurantPage() {
         {/* Message si aucun menu ou article */}
         {(!menus || menus.length === 0) &&
           (!articlesWithoutMenus || articlesWithoutMenus.length === 0) && (
-            <div className="text-center py-12">
-              <p className="text-gray-500">
-                Aucun menu ou article disponible pour ce restaurant.
-              </p>
+            <div className="text-center py-12 bg-white rounded-xl shadow-sm p-8">
+              <div className="flex flex-col items-center justify-center space-y-4">
+                <div className="bg-gray-100 p-4 rounded-full">
+                  <Utensils className="h-12 w-12 text-gray-400" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-700">Aucun menu ou article disponible</h3>
+                <p className="text-gray-500 max-w-md">
+                  Ce restaurant n'a pas encore de menus ou d'articles. Vous pouvez en ajouter en utilisant les boutons ci-dessus.
+                </p>
+                <div className="flex flex-wrap gap-3 mt-4">
+                  <Link href={`/restaurants/${restaurantId}/menus/create`}>
+                    <CustomButton className="bg-primary-50 hover:bg-primary-100 text-primary-900 px-4 py-2 rounded-lg flex items-center space-x-2">
+                      <PlusCircle className="h-5 w-5" />
+                      <span>Ajouter un menu</span>
+                    </CustomButton>
+                  </Link>
+                  <Link href={`/restaurants/${restaurantId}/articles/create`}>
+                    <CustomButton className="bg-primary-50 hover:bg-primary-100 text-primary-900 px-4 py-2 rounded-lg flex items-center space-x-2">
+                      <PlusCircle className="h-5 w-5" />
+                      <span>Ajouter un article</span>
+                    </CustomButton>
+                  </Link>
+                </div>
+              </div>
             </div>
           )}
       </div>
@@ -456,7 +498,7 @@ function RestaurantPage() {
             {deleteType === "Restaurant" &&
               "Êtes-vous sûr de vouloir supprimer ce restaurant ? Cette action est irréversible."}
             {deleteType === "Menu" &&
-              "Êtes-vous sûr de vouloir supprimer ce menu et tous les articles associés ? Cette action est irréversible."}
+              "Êtes-vous sûr de vouloir supprimer ce menu et tous les articles associés ? Cette action est irréversible."}
             {deleteType === "Article" &&
               "Êtes-vous sûr de vouloir supprimer cet article ? Cette action est irréversible."}
           </p>

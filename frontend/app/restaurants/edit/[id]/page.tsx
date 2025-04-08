@@ -9,26 +9,15 @@ import { CustomButton } from "@/components/helper-components/CustomButton";
 import { toast } from "react-toastify";
 import { useParams, useRouter } from "next/navigation";
 import { getRestaurantById, updateRestaurant } from "@/utils/apiRestaurant";
-import RestaurantCategoryType from "@/types/RestaurantCategory";
+import { RestaurantCategory } from "@/types/RestaurantCategory";
 import { Restaurant } from "@/types/Restaurants";
 import LoadingSpinner from "@/components/helper-components/LoadingSpinner";
 import useCoordinates from "@/hooks/useCoordinates";
 
-// Define restaurant categories
-const restaurantCategories: RestaurantCategoryType[] = [
-  "PIZZA",
-  "BURGER",
-  "TACOS",
-  "HALAL",
-  "VEGETARIEN",
-  "JAPONAIS",
-  "THAI",
-];
-
 // Zod schema for validation
 const restaurantSchema = z.object({
   name: z.string().min(1, "Veuillez renseigner ce champ"),
-  categorie: z.enum(restaurantCategories, {
+  categorie: z.nativeEnum(RestaurantCategory, {
     errorMap: () => ({ message: "Veuillez sélectionner une catégorie valide" }),
   }),
   address: z.string().min(1, "Veuillez renseigner ce champ"),
@@ -112,7 +101,7 @@ const EditRestaurantPage: React.FC = () => {
   const formik = useFormik<RestaurantFormValues>({
     initialValues: initialValues || {
       name: "",
-      categorie: "PIZZA",
+      categorie: RestaurantCategory.PIZZA,
       address: "",
       codePostal: "",
       country: "",
@@ -150,7 +139,7 @@ const EditRestaurantPage: React.FC = () => {
       try {
         const restaurantData: Partial<Restaurant> = {
           ...values,
-          categorie: values.categorie as RestaurantCategoryType,
+          categorie: values.categorie as RestaurantCategory,
           delevryCost: Number(values.deliveryCost),
         };
 
@@ -168,6 +157,7 @@ const EditRestaurantPage: React.FC = () => {
 
         toast.success("Restaurant mis à jour avec succès !");
         router.replace(`/restaurants/my-restaurants/${restaurantId}`);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
         console.error("Error updating restaurant:", error);
         setSubmitError(
@@ -189,7 +179,7 @@ const EditRestaurantPage: React.FC = () => {
     isLoading: isLoadingCoordinates,
   } = useCoordinates(
     formik.values.address,
-    formik.values.postalCode,
+    formik.values.codePostal,
     formik.values.country
   );
 
@@ -234,7 +224,7 @@ const EditRestaurantPage: React.FC = () => {
           {coordinatesError &&
             !isLoadingCoordinates &&
             formik.values.address &&
-            formik.values.postalCode &&
+            formik.values.codePostal &&
             formik.values.country && (
               <div className="p-3 bg-yellow-100 text-yellow-700 border border-yellow-300 rounded-md w-full text-center text-sm">
                 Attention : {coordinatesError} (Vérifiez votre adresse)
@@ -278,7 +268,7 @@ const EditRestaurantPage: React.FC = () => {
                 onBlur={formik.handleBlur}
                 className={getInputClass("categorie")}
               >
-                {restaurantCategories.map((categoryValue) => (
+                {Object.values(RestaurantCategory).map((categoryValue) => (
                   <option key={categoryValue} value={categoryValue}>
                     {categoryValue.charAt(0) +
                       categoryValue.slice(1).toLowerCase()}

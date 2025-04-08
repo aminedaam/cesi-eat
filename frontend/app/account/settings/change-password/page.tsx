@@ -37,7 +37,7 @@ const ChangePasswordPage: React.FC = () => {
     setIsUpdating(true);
     try {
       await updatePassword(
-        user?.id!,
+        user!.id!,
         currentPassword,
         newPassword,
         accessToken

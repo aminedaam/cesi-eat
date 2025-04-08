@@ -27,6 +27,13 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }
 
+    @ExceptionHandler(CodeParrainnageAlreadyUsedException.class)
+    public ResponseEntity<ErrorResponse> handleCodeParrainnageAlreadyUsed(CodeParrainnageAlreadyUsedException ex) {
+        ErrorResponse error = new ErrorResponse(HttpStatus.CONFLICT.value(), ex.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+
+
     // Handler pour toutes les autres exceptions non spécifiques
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneralException(Exception ex) {

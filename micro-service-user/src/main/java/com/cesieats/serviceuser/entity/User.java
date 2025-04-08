@@ -1,6 +1,7 @@
 package com.cesieats.serviceuser.entity;
 
 import com.cesieats.serviceuser.enums.Role;
+import com.cesieats.serviceuser.enums.Status;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -54,6 +55,12 @@ public class User {
     @Column(nullable = false)
     private String createdAt;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Status status;
 
+
+    @Column(nullable = false, unique = true)
+    private String codeParrainage;
 
 }

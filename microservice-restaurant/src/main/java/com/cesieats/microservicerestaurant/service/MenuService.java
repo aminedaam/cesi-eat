@@ -1,6 +1,7 @@
 package com.cesieats.microservicerestaurant.service;
 
 import com.cesieats.microservicerestaurant.entity.Menu;
+import com.cesieats.microservicerestaurant.error.ArticleNotFoundException;
 import com.cesieats.microservicerestaurant.error.MenuNotFoundException;
 
 import java.util.List;
@@ -17,7 +18,7 @@ public interface MenuService {
 
     Menu createMenu(Menu menu);
 
-    void deleteMenu(Long id) throws MenuNotFoundException;
+    void deleteMenu(Long id) throws MenuNotFoundException, ArticleNotFoundException;
 
     Menu updateMenu(Long id, Menu menu) throws MenuNotFoundException;
 }

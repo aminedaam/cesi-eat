@@ -3,6 +3,7 @@ package com.cesieats.microservicerestaurant.controller;
 
 import com.cesieats.microservicerestaurant.config.JwtUtil;
 import com.cesieats.microservicerestaurant.entity.Menu;
+import com.cesieats.microservicerestaurant.error.ArticleNotFoundException;
 import com.cesieats.microservicerestaurant.error.MenuNotFoundException;
 import com.cesieats.microservicerestaurant.service.MenuService;
 import jakarta.validation.Valid;
@@ -47,7 +48,7 @@ public class MenuController {
 
     @DeleteMapping("delete/{id}")
     @PreAuthorize("hasAuthority('RESTAURATEUR')")
-    public ResponseEntity<Void> deleteMenu(@RequestHeader("Authorization") String token, @PathVariable Long id) throws MenuNotFoundException {
+    public ResponseEntity<Void> deleteMenu(@RequestHeader("Authorization") String token, @PathVariable Long id) throws MenuNotFoundException, ArticleNotFoundException {
         String email = jwtUtil.extractEmail(token.substring(7));
         if(!menuService.findMenuById(id).getRestaurant().getCreatorEmail().equals(email)){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();

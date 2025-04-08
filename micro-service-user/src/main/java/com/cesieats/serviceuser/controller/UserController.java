@@ -3,6 +3,8 @@ package com.cesieats.serviceuser.controller;
 import com.cesieats.serviceuser.config.JwtUtil;
 import com.cesieats.serviceuser.dto.*;
 import com.cesieats.serviceuser.entity.User;
+import com.cesieats.serviceuser.enums.Role;
+import com.cesieats.serviceuser.exception.CodeParrainnageAlreadyUsedException;
 import com.cesieats.serviceuser.exception.InvalidPasswordException;
 import com.cesieats.serviceuser.exception.UserEmailUsedException;
 import com.cesieats.serviceuser.exception.UserNotFoundException;
@@ -13,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -65,7 +68,7 @@ public class UserController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<User> register(@Valid @RequestBody User user){
+    public ResponseEntity<User> register(@Valid @RequestBody User user) throws UserEmailUsedException, CodeParrainnageAlreadyUsedException {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(userService.saveUser(user));
     }
@@ -84,7 +87,7 @@ public class UserController {
     @PutMapping("/update-profil/{id}")
     public ResponseEntity<String> update(@PathVariable Long id, @Valid @RequestBody UserDTO userUpdated) throws UserNotFoundException, UserEmailUsedException { // http://localhost:port/user/update/125
         User userModifier = userService.updateUser(id, userUpdated);
-        return ResponseEntity.ok("Utilisateur mis à jour avec succès + token:" + jwtUtil.generateToken(userModifier));
+        return ResponseEntity.ok(jwtUtil.generateToken(userModifier));
     }
 
 
@@ -104,13 +107,28 @@ public class UserController {
     }
 
     @DeleteMapping("/delete/{email}")
-    public String delete(@RequestHeader("Authorization") String token,  @PathVariable String email) throws UserNotFoundException {
+    public ResponseEntity delete(@RequestHeader("Authorization") String token,  @PathVariable String email) throws UserNotFoundException {
         String emailUser = jwtUtil.extractEmail(token.substring(7));
-        if(!emailUser.equals(email)){
-            return "vous ne pouvez pas supprimer un autre utilisateur que vous même";
+        String role = jwtUtil.extractRole(token.substring(7));
+        User user = userService.getUserByEmail(email).get();
+
+        if(role.equals(Role.SERVICE_COMMERCIAL.toString()) || role.equals(Role.ADMIN.toString())){
+            if(user.getRole() == Role.CLIENT){
+                userService.deleteUserByEmail(email);
+                return ResponseEntity.ok()
+                        .body("Utilisateur supprimé avec succès");
+            }else{
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("vous ne pouvez pas supprimer un utilisateur avec un autre rôle que CLIENT");
+            }
+        }else if(!emailUser.equals(email)){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("vous ne pouvez pas supprimer un autre utilisateur que vous même");
+        }else{
+            userService.deleteUserByEmail(email);
+            return ResponseEntity.ok()
+                    .body("Utilisateur supprimé avec succès");
         }
-        userService.deleteUserByEmail(email);
-        return "Utilisateur supprimé";
     }
 
 }

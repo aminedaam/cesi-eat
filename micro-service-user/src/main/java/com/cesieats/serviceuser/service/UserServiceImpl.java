@@ -4,6 +4,8 @@ import com.cesieats.serviceuser.dto.UserDTO;
 import com.cesieats.serviceuser.dto.UserRoleUpdateDTO;
 import com.cesieats.serviceuser.dto.UserUpdatePasswordDTO;
 import com.cesieats.serviceuser.entity.User;
+import com.cesieats.serviceuser.enums.Status;
+import com.cesieats.serviceuser.exception.CodeParrainnageAlreadyUsedException;
 import com.cesieats.serviceuser.exception.InvalidPasswordException;
 import com.cesieats.serviceuser.exception.UserEmailUsedException;
 import com.cesieats.serviceuser.exception.UserNotFoundException;
@@ -37,10 +39,31 @@ public class UserServiceImpl implements UserService{
         return userRepository.findById(id);
     }
 
+    public String generateCodeParrainage() {
+        StringBuilder code = new StringBuilder();
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        for (int i = 0; i < 6; i++) {
+            int index = (int) (Math.random() * characters.length());
+            code.append(characters.charAt(index));
+        }
+        if(userRepository.findByCodeParrainage(code.toString()) != null) {
+            return generateCodeParrainage();
+        }
+        return code.toString();
+    }
     @Override
-    public User saveUser(User user) {
+    public User saveUser(User user) throws CodeParrainnageAlreadyUsedException,UserEmailUsedException {
         // Hash du mot de passe avant enregistrement
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setCodeParrainage(generateCodeParrainage());
+        user.setStatus(Status.ACTIVE);
+        if(user.getCodeParrainage() == null || user.getCodeParrainage().isEmpty()
+                || userRepository.findByCodeParrainage(user.getCodeParrainage()) != null) {
+            throw new CodeParrainnageAlreadyUsedException("Le code de parrainage est déjà utilisé");
+        }
+        if(user.getEmail() == null || user.getEmail().isEmpty() || userRepository.findByEmail(user.getEmail()).isPresent()) {
+            throw new UserEmailUsedException("L'email est déjà incorrecte ou déjà utilisé");
+        }
         return userRepository.save(user);
     }
 

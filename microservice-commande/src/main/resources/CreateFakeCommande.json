@@ -39,6 +39,8 @@
     "city": "Paris",
     "postalCode": "75008",
     "country": "France",
+    "email": "restaurantTest@gmail.com",
+    "imagePath": "https://example.com/image.jpg",
     "phoneNumber": "+33 1 23 45 67 89",
     "longitude": 2.2945,
     "latitude": 48.8738

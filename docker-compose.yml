@@ -6,11 +6,21 @@ services:
     container_name: user-service
     ports:
       - "4001:4001"
+  user-service2:
+    build: ./micro-service-user
+    container_name: user-service2
+    ports:
+      - "6001:4001"
   service-restaurant:
     build: ./microservice-restaurant
     container_name: service-restaurant
     ports:
       - "4002:4002"
+  service-commande:
+    build: ./microservice-commande
+    container_name: service-commande
+    ports:
+      - "4003:4003"
   frontend:
     build: ./frontend
     container_name: frontend
@@ -19,3 +29,4 @@ services:
     depends_on:
       - user-service
       - service-restaurant
+      - service-commande

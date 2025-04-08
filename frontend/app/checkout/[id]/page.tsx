@@ -11,6 +11,15 @@ import {
   Phone,
   Tag,
   Clock,
+  ArrowLeft,
+  CreditCard,
+  ShoppingBag,
+  Building2,
+  Truck,
+  Receipt,
+  AlertCircle,
+  CheckCircle2,
+  Loader2
 } from "lucide-react";
 // Import useMemo
 import { useEffect, useState, useRef, useCallback, useMemo } from "react";
@@ -35,6 +44,7 @@ import {
 } from "@/utils/convertCartItemToCommandeItem";
 import { createCommande } from "@/utils/apiCommandes";
 import { toast } from "react-toastify";
+import Link from "next/link";
 
 // Helper Type Guard
 function isArticleCartItem(
@@ -300,256 +310,311 @@ const CheckoutPage = () => {
   // ----------------------------------------------------
 
   return (
-    <div className="max-w-lg mx-auto px-4 py-8 bg-gray-50">
-      <h1 className="font-semibold text-xl mb-6">Paiement</h1>
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6">
 
-      {/* Map Section */}
-      <div className="rounded-lg overflow-hidden shadow-md mb-6">
-        {isLoadingCoordinates || !lookupCoords ? (
-          <div className="relative w-full h-48 flex flex-col justify-center items-center bg-gray-100">
-            <LoadingSpinner />{" "}
-            <span className="text-gray-500 italic text-sm mt-2">
-              Chargement de la carte...
-            </span>
-          </div>
-        ) : (
-          <div ref={mapRef} style={{ height: "200px", width: "100%" }} />
-        )}
-      </div>
 
-      {/* Delivery Details */}
-      <div className="bg-white rounded-xl shadow p-4 space-y-4 mb-6">
-        {/* Address, Phone, Delivery Time sections remain the same as previous version */}
-        {/* Address */}
-        <div className="flex items-center justify-between">
-          {" "}
-          <MapPin className="text-gray-500 flex-shrink-0" />{" "}
-          <div className="flex-1 ml-3 min-w-0">
-            {" "}
-            {loadingUserData ||
-            isLoadingCoordinates ||
-            loadingAddress ||
-            !lookupCoords ? (
-              <p className="text-gray-500 italic text-sm">
-                Chargement de l&apos;adresse...
-              </p>
-            ) : (
-              <div>
-                {" "}
-                <p className="font-semibold truncate">
-                  {address?.address ??
-                    user?.address ??
-                    "Adresse non disponible"}
-                </p>{" "}
-                <p className="text-sm text-gray-400 truncate">
-                  {address?.postalCode ?? user?.postalCode ?? ""}{" "}
-                  {address?.city ?? user?.city ?? ""}
-                </p>{" "}
+        {/* Restaurant Info Card */}
+        <div className="bg-white rounded-2xl shadow-md overflow-hidden mb-6">
+          <div className="p-4 flex items-center">
+            {restaurant?.imagePath ? (
+              <div className="relative w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 mr-4">
+                <Image
+                  src={restaurant.imagePath}
+                  alt={restaurant?.name || `Restaurant ${restaurantId}`}
+                  fill
+                  className="object-cover"
+                />
               </div>
-            )}{" "}
-          </div>{" "}
-          <ChevronRight className="text-gray-400 flex-shrink-0" />{" "}
-        </div>
-        {/* Phone */}
-        <div className="flex items-center justify-between">
-          {" "}
-          <Phone className="text-gray-500 flex-shrink-0" />{" "}
-          <div className="flex-1 ml-3 min-w-0">
-            {" "}
-            {loadingUserData ? (
-              <p className="text-gray-500 italic text-sm">Chargement...</p>
             ) : (
-              <p className="font-semibold truncate">
-                {user?.phoneNumber ?? "Non spécifié"}
-              </p>
-            )}{" "}
-          </div>{" "}
-          <ChevronRight className="text-gray-400 flex-shrink-0" />{" "}
-        </div>
-        {/* Delivery Time */}
-        <div className="flex items-center justify-between">
-          {" "}
-          <Clock className="text-gray-500 flex-shrink-0" />{" "}
-          <div className="flex-1 ml-3 min-w-0">
-            {" "}
-            <p className="font-semibold">Délai de livraison</p>{" "}
-            {loadingDuration ? (
-              <p className="text-gray-500 italic text-sm">Calcul en cours...</p>
-            ) : duration === null ? (
-              <p className="text-sm text-gray-500">Non disponible</p>
-            ) : (
-              (() => {
-                const prepTimeMinutes = 10;
-                const deliveryMinutes = durationInMinutes;
-                if (deliveryMinutes === null)
-                  return (
-                    <p className="text-sm text-red-500">Erreur de calcul</p>
-                  );
-                const estimatedMin = prepTimeMinutes + deliveryMinutes;
-                const estimatedMax = estimatedMin + 20;
-                return (
-                  <p className="text-sm truncate">
-                    {estimatedMin} - {estimatedMax} minutes
-                  </p>
-                );
-              })()
-            )}{" "}
-          </div>{" "}
-          <div className="border rounded-lg px-2 py-1 text-xs font-semibold text-gray-700 cursor-pointer hover:bg-gray-100 flex-shrink-0">
-            Planifier
-          </div>{" "}
-        </div>
-      </div>
-
-      {/* Order Summary */}
-      <div className="bg-white rounded-xl shadow p-4 mt-4 mb-6">
-        <div
-          className="flex items-center justify-between mb-2 cursor-pointer"
-          onClick={() => setShowItems(!showItems)}
-        >
-          <div className="flex items-center">
-            {" "}
-            <Image
-              src={restaurant?.imagePath ?? "/burger.png"}
-              width={40}
-              height={40}
-              alt={restaurant?.name || "Restaurant"}
-              className="rounded-full object-cover"
-            />{" "}
-            <div className="ml-3">
-              {" "}
-              <h2 className="font-semibold">
-                {restaurant?.name ?? "Votre commande"}
-              </h2>{" "}
+              <div className="w-16 h-16 rounded-xl bg-gray-200 flex-shrink-0 mr-4 flex items-center justify-center">
+                <Building2 className="h-8 w-8 text-gray-400" />
+              </div>
+            )}
+            <div>
+              <h2 className="font-bold text-lg text-gray-900">
+                {restaurant?.name ?? `Restaurant ${restaurantId}`}
+              </h2>
               <p className="text-sm text-gray-500">
                 {getTotalItemsByRestaurantId(restaurantId)} article
-                {getTotalItemsByRestaurantId(restaurantId) > 1 ? "s" : ""}
-              </p>{" "}
-            </div>{" "}
-          </div>{" "}
-          {showItems ? <ChevronDown /> : <ChevronRight />}
-        </div>
-        {showItems && (
-          <div className="border-t pt-2 mt-2">
-            {" "}
-            {restaurantItems.map((cartItem) => {
-              const isArticle = isArticleCartItem(cartItem);
-              const item = cartItem.item;
-              const id = item.id;
-              const name = item.name;
-              const price = isArticle
-                ? (item as Article).price
-                : (item as Menu).priceMenu;
-              const type = isArticle ? "article" : "menu";
-              if (typeof id === "undefined") return null;
-              return (
-                <div
-                  key={`${type}-${id}`}
-                  className="flex justify-between py-1 text-sm"
-                >
-                  {" "}
-                  <span className="font-medium text-gray-800 mr-2">
-                    {cartItem.quantity} x {name}
-                  </span>{" "}
-                  <span className="text-gray-600">
-                    {(
-                      (typeof price === "number" ? price : 0) *
-                      cartItem.quantity
-                    ).toFixed(2)}{" "}
-                    €
-                  </span>{" "}
-                </div>
-              );
-            })}{" "}
+                {getTotalItemsByRestaurantId(restaurantId) > 1 ? "s" : ""} dans votre commande
+              </p>
+            </div>
           </div>
-        )}
-        <div className="flex items-center justify-between py-2 border-t mt-2 cursor-pointer">
-          {" "}
-          <Tag className="text-gray-500" />{" "}
-          <p className="flex-1 ml-3 font-semibold text-sm">
-            Ajouter une promotion
-          </p>{" "}
-          <ChevronRight className="text-gray-400" />{" "}
-        </div>
-      </div>
-
-      {/* --- Price Breakdown with Loading State --- */}
-      <div className="bg-white rounded-xl shadow p-4 mt-4 text-sm space-y-1">
-        <div className="flex justify-between">
-          <span>Sous-total</span>
-          <span>{sousTotal.toFixed(2)} €</span>
         </div>
 
-        {/* Service Fee */}
-        <div className="flex justify-between text-gray-500">
-          <span>Frais de service</span>
-          <span>
-            {/* No specific loading needed if sousTotal is always available */}
-            {fraisServiceValue.toFixed(2)} €
-          </span>
+        {/* Map Section */}
+        <div className="bg-white rounded-2xl shadow-md overflow-hidden mb-6">
+          <div className="p-4 border-b border-gray-100">
+            <h3 className="font-semibold text-gray-800 flex items-center">
+              <MapPin className="h-5 w-5 mr-2 text-gray-600" />
+              Adresse de livraison
+            </h3>
+          </div>
+          {isLoadingCoordinates || !lookupCoords ? (
+            <div className="relative w-full h-48 flex flex-col justify-center items-center bg-gray-50">
+              <Loader2 className="h-8 w-8 text-gray-400 animate-spin" />
+              <span className="text-gray-500 text-sm mt-2">
+                Chargement de la carte...
+              </span>
+            </div>
+          ) : (
+            <div ref={mapRef} style={{ height: "200px", width: "100%" }} />
+          )}
         </div>
 
-        {/* Delivery Fee */}
-        <div className="flex justify-between text-gray-500">
-          <span>Frais de livraison</span>
-          <span>
-            {/* Show loading if duration or restaurant data is loading */}
-            {isPriceDataLoading || fraisLivraisonValue === null ? (
-              <span className="italic">Calcul en cours...</span>
-            ) : (
-              `${fraisLivraisonValue.toFixed(2)} €`
+        {/* Delivery Details */}
+        <div className="bg-white rounded-2xl shadow-md overflow-hidden mb-6">
+          <div className="p-4 border-b border-gray-100">
+            <h3 className="font-semibold text-gray-800 flex items-center">
+              <Truck className="h-5 w-5 mr-2 text-gray-600" />
+              Détails de livraison
+            </h3>
+          </div>
+          <div className="p-4 space-y-4">
+            {/* Address */}
+            <div className="flex items-start">
+              <MapPin className="text-gray-500 h-5 w-5 mt-0.5 flex-shrink-0" />
+              <div className="ml-3 flex-1 min-w-0">
+                <p className="text-xs text-gray-500 mb-1">Adresse de livraison</p>
+                {loadingUserData ||
+                isLoadingCoordinates ||
+                loadingAddress ||
+                !lookupCoords ? (
+                  <div className="flex items-center">
+                    <Loader2 className="h-4 w-4 text-gray-400 animate-spin mr-2" />
+                    <p className="text-gray-500 text-sm">
+                      Chargement de l&apos;adresse...
+                    </p>
+                  </div>
+                ) : (
+                  <div>
+                    <p className="font-medium text-gray-900">
+                      {address?.address ??
+                        user?.address ??
+                        "Adresse non disponible"}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      {address?.postalCode ?? user?.postalCode ?? ""}{" "}
+                      {address?.city ?? user?.city ?? ""}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            {/* Phone */}
+            <div className="flex items-start">
+              <Phone className="text-gray-500 h-5 w-5 mt-0.5 flex-shrink-0" />
+              <div className="ml-3 flex-1 min-w-0">
+                <p className="text-xs text-gray-500 mb-1">Téléphone</p>
+                {loadingUserData ? (
+                  <div className="flex items-center">
+                    <Loader2 className="h-4 w-4 text-gray-400 animate-spin mr-2" />
+                    <p className="text-gray-500 text-sm">Chargement...</p>
+                  </div>
+                ) : (
+                  <p className="font-medium text-gray-900">
+                    {user?.phoneNumber ?? "Non spécifié"}
+                  </p>
+                )}
+              </div>
+            </div>
+            
+            {/* Delivery Time */}
+            <div className="flex items-start">
+              <Clock className="text-gray-500 h-5 w-5 mt-0.5 flex-shrink-0" />
+              <div className="ml-3 flex-1 min-w-0">
+                <p className="text-xs text-gray-500 mb-1">Délai de livraison</p>
+                {loadingDuration ? (
+                  <div className="flex items-center">
+                    <Loader2 className="h-4 w-4 text-gray-400 animate-spin mr-2" />
+                    <p className="text-gray-500 text-sm">Calcul en cours...</p>
+                  </div>
+                ) : duration === null ? (
+                  <p className="text-sm text-gray-500">Non disponible</p>
+                ) : (
+                  (() => {
+                    const prepTimeMinutes = 10;
+                    const deliveryMinutes = durationInMinutes;
+                    if (deliveryMinutes === null)
+                      return (
+                        <p className="text-sm text-red-500">Erreur de calcul</p>
+                      );
+                    const estimatedMin = prepTimeMinutes + deliveryMinutes;
+                    const estimatedMax = estimatedMin + 20;
+                    return (
+                      <p className="text-sm font-medium text-gray-900">
+                        {estimatedMin} - {estimatedMax} minutes
+                      </p>
+                    );
+                  })()
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Order Summary */}
+        <div className="bg-white rounded-2xl shadow-md overflow-hidden mb-6">
+          <div className="p-4 border-b border-gray-100">
+            <h3 className="font-semibold text-gray-800 flex items-center">
+              <Receipt className="h-5 w-5 mr-2 text-gray-600" />
+              Récapitulatif de la commande
+            </h3>
+          </div>
+          <div className="p-4">
+            <div
+              className="flex items-center justify-between cursor-pointer"
+              onClick={() => setShowItems(!showItems)}
+            >
+              <div className="flex items-center">
+                <ShoppingBag className="h-5 w-5 text-gray-500 mr-2" />
+                <span className="font-medium text-gray-700">
+                  {getTotalItemsByRestaurantId(restaurantId)} article
+                  {getTotalItemsByRestaurantId(restaurantId) > 1 ? "s" : ""}
+                </span>
+              </div>
+              {showItems ? <ChevronDown className="h-5 w-5 text-gray-500" /> : <ChevronRight className="h-5 w-5 text-gray-500" />}
+            </div>
+            
+            {showItems && (
+              <div className="mt-3 space-y-2 border-t pt-3">
+                {restaurantItems.map((cartItem) => {
+                  const isArticle = isArticleCartItem(cartItem);
+                  const item = cartItem.item;
+                  const id = item.id;
+                  const name = item.name;
+                  const price = isArticle
+                    ? (item as Article).price
+                    : (item as Menu).priceMenu;
+                  const type = isArticle ? "article" : "menu";
+                  if (typeof id === "undefined") return null;
+                  return (
+                    <div
+                      key={`${type}-${id}`}
+                      className="flex justify-between py-1 text-sm"
+                    >
+                      <span className="font-medium text-gray-800">
+                        {cartItem.quantity} x {name}
+                      </span>
+                      <span className="text-gray-600">
+                        {(
+                          (typeof price === "number" ? price : 0) *
+                          cartItem.quantity
+                        ).toFixed(2)}{" "}
+                        €
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
             )}
-          </span>
+          </div>
         </div>
 
-        {/* Total */}
-        <div className="flex justify-between font-semibold text-base mt-2 pt-2 border-t">
-          <span>Total</span>
-          <span>
-            {/* Show loading if price data is loading or total couldn't be calculated */}
-            {isPriceDataLoading || totalValue === null ? (
-              <span className="italic">Calcul en cours...</span>
-            ) : (
-              `${totalValue.toFixed(2)} €`
-            )}
-          </span>
-        </div>
-      </div>
-      {/* ---------------------------------------- */}
-      <CreditCardForm onValidityChange={handleCardFormValidityChange} />
+        {/* Price Breakdown */}
+        <div className="bg-white rounded-2xl shadow-md overflow-hidden mb-6">
+          <div className="p-4 border-b border-gray-100">
+            <h3 className="font-semibold text-gray-800 flex items-center">
+              <CreditCard className="h-5 w-5 mr-2 text-gray-600" />
+              Détails du paiement
+            </h3>
+          </div>
+          <div className="p-4 space-y-3">
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600">Sous-total</span>
+              <span className="font-medium">{sousTotal.toFixed(2)} €</span>
+            </div>
 
-      {/* --- Payment Button with Loading State --- */}
-      <div className="mt-6">
-        <button
-          className="w-full bg-black text-white rounded-lg py-3 font-medium hover:bg-gray-800 transition-colors disabled:opacity-50"
-          // --- Mettre à jour la condition disabled ---
-          disabled={
-            isPageLoading || // Désactivé si la page charge encore
-            restaurantItems.length === 0 || // Désactivé si le panier est vide
-            totalValue === null || // Désactivé si le total n'est pas calculé
-            !isCardFormValid // <<<< Désactivé si le formulaire de carte n'est pas valide
-          }
-          // --- Ajouter un onClick pour la logique de paiement réelle (à implémenter) ---
-          onClick={() => {
-            if (isCardFormValid) {
-              handlePayment(); // Appeler la fonction de paiement si le formulaire est valide
-            } else {
-              alert(
-                "Veuillez remplir correctement les informations de paiement."
-              );
+            {/* Service Fee */}
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600">Frais de service</span>
+              <span className="font-medium">{fraisServiceValue.toFixed(2)} €</span>
+            </div>
+
+            {/* Delivery Fee */}
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600">Frais de livraison</span>
+              <span className="font-medium">
+                {isPriceDataLoading || fraisLivraisonValue === null ? (
+                  <div className="flex items-center">
+                    <Loader2 className="h-3 w-3 text-gray-400 animate-spin mr-1" />
+                    <span className="text-gray-500">Calcul en cours...</span>
+                  </div>
+                ) : (
+                  `${fraisLivraisonValue.toFixed(2)} €`
+                )}
+              </span>
+            </div>
+
+            {/* Total */}
+            <div className="flex justify-between font-semibold text-base pt-3 border-t mt-2">
+              <span>Total</span>
+              <span>
+                {isPriceDataLoading || totalValue === null ? (
+                  <div className="flex items-center">
+                    <Loader2 className="h-4 w-4 text-gray-400 animate-spin mr-1" />
+                    <span className="text-gray-500">Calcul en cours...</span>
+                  </div>
+                ) : (
+                  `${totalValue.toFixed(2)} €`
+                )}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Payment Form */}
+        <div className="bg-white rounded-2xl shadow-md overflow-hidden mb-6">
+          <div className="p-4 border-b border-gray-100">
+            <h3 className="font-semibold text-gray-800 flex items-center">
+              <CreditCard className="h-5 w-5 mr-2 text-gray-600" />
+              Informations de paiement
+            </h3>
+          </div>
+          <div className="p-4">
+            <CreditCardForm onValidityChange={handleCardFormValidityChange} />
+          </div>
+        </div>
+
+        {/* Payment Button */}
+        <div className="mt-6">
+          <button
+            className="w-full bg-black text-white rounded-xl py-4 font-medium hover:bg-gray-800 transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+            disabled={
+              isPageLoading || // Désactivé si la page charge encore
+              restaurantItems.length === 0 || // Désactivé si le panier est vide
+              totalValue === null || // Désactivé si le total n'est pas calculé
+              !isCardFormValid // Désactivé si le formulaire de carte n'est pas valide
             }
-          }}
-          // --------------------------------------------------------------------------
-        >
-          {isPriceDataLoading || totalValue === null
-            ? "Calcul des frais..."
-            : // Indique si le formulaire de carte est le bloqueur
-            !isCardFormValid
-            ? "Complétez les informations de paiement"
-            : `Payer ${totalValue.toFixed(2)} €`}
-        </button>
+            onClick={() => {
+              if (isCardFormValid) {
+                handlePayment(); // Appeler la fonction de paiement si le formulaire est valide
+              } else {
+                toast.error("Veuillez remplir correctement les informations de paiement.");
+              }
+            }}
+          >
+            {isPriceDataLoading || totalValue === null ? (
+              <>
+                <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                Calcul des frais...
+              </>
+            ) : !isCardFormValid ? (
+              <>
+                <AlertCircle className="h-5 w-5 mr-2" />
+                Complétez les informations de paiement
+              </>
+            ) : (
+              <>
+                <CheckCircle2 className="h-5 w-5 mr-2" />
+                Payer {totalValue.toFixed(2)} €
+              </>
+            )}
+          </button>
+        </div>
       </div>
-      {/* --------------------------------------- */}
     </div>
   );
 };

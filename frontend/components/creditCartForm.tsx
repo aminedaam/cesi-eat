@@ -3,7 +3,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react"; // Import useEffect
-import { CustomButton } from "@/components/helper-components/CustomButton"; // Ajustez le chemin
 import { CreditCard } from "lucide-react";
 
 // --- Interface pour les props ---
@@ -22,7 +21,6 @@ const CreditCardForm: React.FC<CreditCardFormProps> = ({
   const [expiryDate, setExpiryDate] = useState("");
   const [cvc, setCvc] = useState("");
   const [cardName, setCardName] = useState("");
-  const [isProcessing, setIsProcessing] = useState(false);
 
   // --- Calcul et communication de la validité ---
   useEffect(() => {
@@ -72,7 +70,6 @@ const CreditCardForm: React.FC<CreditCardFormProps> = ({
       return;
     }
 
-    setIsProcessing(true);
     console.log("Tentative de paiement (FAUX) avec les données:", {
       cardNumber,
       expiryDate,
@@ -81,7 +78,6 @@ const CreditCardForm: React.FC<CreditCardFormProps> = ({
     });
 
     setTimeout(() => {
-      setIsProcessing(false);
       alert("Traitement du paiement simulé terminé !");
     }, 2000);
   };

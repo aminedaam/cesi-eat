@@ -108,7 +108,6 @@ const EditArticlePage: React.FC = () => {
           setAvailableMenus(menus);
         } catch (error) {
           console.error("Error fetching menus:", error);
-          toast.error("Erreur lors de la récupération des menus.");
         }
       };
       fetchMenus();

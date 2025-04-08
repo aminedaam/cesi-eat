@@ -5,8 +5,8 @@ import SearchBar from "@/components/helper-components/SearchBar";
 import { useMe } from "@/hooks/useMe";
 import { useAuthStore } from "@/store/authStore";
 import { Restaurant } from "@/types/Restaurants";
-import { getAllRestaurants } from "@/utils/apiRestaurant";
-import { Bell, Plus, Search } from "lucide-react";
+import { getAllRestaurants, getMyRestaurants } from "@/utils/apiRestaurant";
+import { Bell, Plus, Search, MapPin, Utensils } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
@@ -28,7 +28,7 @@ const MyRestaurantsPage: React.FC = () => {
     const fetchRestaurants = async () => {
       try {
         setIsLoading(true);
-        const restaurantsList = await getAllRestaurants();
+        const restaurantsList = await getMyRestaurants(accessToken ?? "");
         setRestaurants(restaurantsList);
       } catch (error) {
         console.error(error);
@@ -55,15 +55,14 @@ const MyRestaurantsPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 mt-16">
       <BaseHeader>
         <div className="flex-1 mx-4">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
             <SearchBar
               searchTerm={searchTerm}
               setSearchTerm={setSearchTerm}
-              className="text-black placeholder-gray-500 py-2 pl-10 pr-4 rounded-xl w-full border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all"
+              className="text-black placeholder-gray-500 py-2 rounded-xl w-full focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all"
               placeHolder="Rechercher dans mes restaurants..."
             />
           </div>
@@ -84,7 +83,7 @@ const MyRestaurantsPage: React.FC = () => {
             </p>
           </div>
           <Link href="/restaurants/create" className="mt-4 md:mt-0">
-            <CustomButton className="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
+            <CustomButton className="bg-primary-500 hover:bg-primary-600 text-black px-5 py-2.5 border border-gray-200 rounded-lg flex items-center space-x-2 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
               <Plus className="h-5 w-5" />
               <span>Ajouter un restaurant</span>
             </CustomButton>
@@ -121,25 +120,7 @@ const MyRestaurantsPage: React.FC = () => {
                       {restaurant.description}
                     </p>
                     <div className="flex items-center text-sm text-gray-500">
-                      <svg
-                        className="h-4 w-4 mr-1"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                        />
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                        />
-                      </svg>
+                      <MapPin className="h-4 w-4 mr-1" />
                       <span className="line-clamp-1">{restaurant.address}</span>
                     </div>
                   </div>
@@ -148,38 +129,26 @@ const MyRestaurantsPage: React.FC = () => {
             ))}
           </div>
         ) : (
-          <div className="text-center py-12 bg-white rounded-xl shadow-sm">
-            <div className="max-w-md mx-auto">
-              <svg
-                className="mx-auto h-12 w-12 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                />
-              </svg>
-              <h3 className="mt-2 text-lg font-medium text-gray-900">
-                Aucun restaurant trouvé
+          <div className="text-center py-16 bg-white rounded-xl shadow-sm border border-gray-100">
+            <div className="max-w-md mx-auto px-4">
+              <div className="bg-primary-50 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
+                <Utensils className="h-10 w-10 text-primary-500" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                {searchTerm ? "Aucun restaurant trouvé" : "Aucun restaurant"}
               </h3>
-              <p className="mt-1 text-gray-500">
+              <p className="text-gray-600 mb-8">
                 {searchTerm
                   ? "Aucun restaurant ne correspond à votre recherche."
-                  : "Vous n'avez pas encore créé de restaurant."}
+                  : "Vous n'avez pas encore créé de restaurant. Commencez par en ajouter un !"}
               </p>
               {!searchTerm && (
-                <div className="mt-6">
-                  <Link href="/restaurants/create">
-                    <CustomButton className="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg inline-flex items-center space-x-2">
-                      <Plus className="h-5 w-5" />
-                      <span>Créer votre premier restaurant</span>
-                    </CustomButton>
-                  </Link>
-                </div>
+                <Link href="/restaurants/create">
+                  <CustomButton className="bg-primary-500 hover:bg-primary-600 text-white px-6 py-3 rounded-lg inline-flex items-center space-x-2 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                    <Plus className="h-5 w-5" />
+                    <span>Créer votre premier restaurant</span>
+                  </CustomButton>
+                </Link>
               )}
             </div>
           </div>

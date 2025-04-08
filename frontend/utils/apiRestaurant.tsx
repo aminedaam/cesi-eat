@@ -62,6 +62,8 @@ export const createRestaurant = async (
   token: string
 ): Promise<Restaurant> => {
   try {
+    console.log("Restaurant : ", restaurant);
+
     const response = await apiRestaurant.post("/create", restaurant, {
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -141,3 +143,28 @@ export const deleteRestaurant = async (
     throw error;
   }
 };
+
+
+// ajoute cette route myRestaurants
+export const getMyRestaurants = async (token: string): Promise<Restaurant[]> => {
+  try {
+    const response = await apiRestaurant.get("/myRestaurants", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        "Erreur API lors de la récupération de mes restaurants:",
+        error.response?.data || error.message
+      );
+    } else {
+      console.error(
+        "Erreur inattendue lors de la récupération de mes restaurants:",
+        error
+      );
+    }
+    throw error;
+  }
+};
+

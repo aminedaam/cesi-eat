@@ -24,6 +24,7 @@ const Input: React.FC<InputProps> = ({
   name,
   onChange,
   onBlur,
+  className,
   ...props
 }) => {
   return (
@@ -37,7 +38,7 @@ const Input: React.FC<InputProps> = ({
         </label>
       ) : null}
       <input
-        className="shadow-2xl w-full appearance-none border rounded-xl py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+        className={className || "shadow-2xl w-full appearance-none border rounded-xl py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"}
         id={id}
         type={type}
         placeholder={placeholder}

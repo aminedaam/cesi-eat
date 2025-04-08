@@ -19,5 +19,6 @@ export interface Restaurant {
   averageRate: number;
   nbRate: number;
   createdAt: Date;
+  creatorEmail: string;
   distanceFromUser?: number; // Optional property to store distance from user
 }

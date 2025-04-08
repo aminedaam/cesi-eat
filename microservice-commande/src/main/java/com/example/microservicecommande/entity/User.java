@@ -9,11 +9,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class User {
 
-    private String userId;
+    private long id;
+    private String lastName;
     private String name;
     private String phoneNumber;
     private String address;
     private String city;
     private String postalCode;
     private String country;
+    private String longitude;
+    private String latitude;
 }

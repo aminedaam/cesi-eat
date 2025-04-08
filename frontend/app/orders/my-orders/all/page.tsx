@@ -10,9 +10,13 @@ import {
   CheckCircle,
   XCircle,
   Loader2,
+  Bell,
+  ShoppingCart,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import BaseHeader from "@/components/header_footers/BaseHeader";
+import SearchBar from "@/components/helper-components/SearchBar";
 
 export default function OrderListPage() {
   const { user } = useUserStore();
@@ -20,6 +24,7 @@ export default function OrderListPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const token = useAuthStore((state) => state.accessToken);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const fetchCommandes = async () => {
@@ -144,109 +149,129 @@ export default function OrderListPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8 text-center">Mes commandes</h1>
-
-      {commandes.length === 0 ? (
-        <div className="flex flex-col items-center justify-center p-8 bg-gray-50 rounded-lg shadow-sm">
-          <ShoppingBag className="text-gray-400 w-16 h-16 mb-4" />
-          <p className="text-xl text-gray-600">
-            Vous n&apos;avez pas encore passé de commande
-          </p>
-          <p className="text-gray-500 mt-2">
-            Explorez nos restaurants et commencez à commander!
-          </p>
+    <div className="min-h-screen bg-gray-50 mt-16">
+      <BaseHeader>
+        <div className="flex flex-row space-x-3">
+          <Bell />
+          <Link href={"/cart"}>
+            <ShoppingCart />
+          </Link>
         </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {commandes.map((commande) => (
-            <Link
-              href={`/orders/${commande.id}`}
-              key={commande.id}
-              className="block"
-            >
-              <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col h-full">
-                <div className="relative h-48 w-full">
-                  {commande.restaurant.imagePath ? (
-                    <Image
-                      src={commande.restaurant.imagePath}
-                      alt={commande.restaurant.name}
-                      fill
-                      className="object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                      <ShoppingBag className="text-gray-400 w-12 h-12" />
+      </BaseHeader>
+
+      <main className="flex flex-col mt-16 max-w-7xl mx-auto px-4 py-8">
+        <div className="w-full flex flex-row items-center justify-between">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+              Mes commandes
+            </h1>
+            <h4 className="text-gray-500 text-base">
+              Consultez l'historique de vos commandes
+            </h4>
+          </div>
+        </div>
+
+        {commandes.length === 0 ? (
+          <div className="flex flex-col items-center justify-center p-8 bg-gray-50 rounded-lg shadow-sm mt-6">
+            <ShoppingBag className="text-gray-400 w-16 h-16 mb-4" />
+            <p className="text-xl text-gray-600">
+              Vous n&apos;avez pas encore passé de commande
+            </p>
+            <p className="text-gray-500 mt-2">
+              Explorez nos restaurants et commencez à commander!
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+            {commandes.map((commande) => (
+              <Link
+                href={`/orders/${commande.id}`}
+                key={commande.id}
+                className="block"
+              >
+                <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col h-full">
+                  <div className="relative h-48 w-full">
+                    {commande.restaurant.imagePath ? (
+                      <Image
+                        src={commande.restaurant.imagePath}
+                        alt={commande.restaurant.name}
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                        <ShoppingBag className="text-gray-400 w-12 h-12" />
+                      </div>
+                    )}
+                    <div className="absolute top-2 right-2 bg-white rounded-full p-1 shadow-md">
+                      {getStatusIcon(commande.status)}
                     </div>
-                  )}
-                  <div className="absolute top-2 right-2 bg-white rounded-full p-1 shadow-md">
-                    {getStatusIcon(commande.status)}
+                  </div>
+
+                  <div className="p-6 flex-grow flex flex-col">
+                    <div className="mb-4">
+                      <h2 className="text-xl font-semibold text-gray-800">
+                        {commande.restaurant.name}
+                      </h2>
+                      <p className="text-sm text-gray-500">
+                        {formatDate(commande.createdAt)}
+                      </p>
+                      <div className="mt-2 flex items-center">
+                        <span className="text-sm font-medium">
+                          {getStatusText(commande.status)}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="border-t border-gray-200 pt-4 mt-auto">
+                      <div className="flex justify-between mb-2">
+                        <span className="text-gray-600">Total</span>
+                        <span className="font-semibold">
+                          {commande.prixTotal.toFixed(2)} €
+                        </span>
+                      </div>
+
+                      <div className="mt-4">
+                        <h3 className="text-sm font-medium text-gray-700 mb-2">
+                          Articles commandés:
+                        </h3>
+                        <ul className="space-y-1 max-h-40 overflow-y-auto">
+                          {commande.article.map((item, index) => (
+                            <li
+                              key={index}
+                              className="text-sm text-gray-600 flex justify-between"
+                            >
+                              <span>
+                                {item.quantity}x {item.name}
+                              </span>
+                              <span>
+                                {(item.price * item.quantity).toFixed(2)} €
+                              </span>
+                            </li>
+                          ))}
+                          {commande.menu.map((item, index) => (
+                            <li
+                              key={`menu-${index}`}
+                              className="text-sm text-gray-600 flex justify-between"
+                            >
+                              <span>
+                                {item.quantity}x {item.name}
+                              </span>
+                              <span>
+                                {(item.price * item.quantity).toFixed(2)} €
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
                   </div>
                 </div>
-
-                <div className="p-6 flex-grow flex flex-col">
-                  <div className="mb-4">
-                    <h2 className="text-xl font-semibold text-gray-800">
-                      {commande.restaurant.name}
-                    </h2>
-                    <p className="text-sm text-gray-500">
-                      {formatDate(commande.createdAt)}
-                    </p>
-                    <div className="mt-2 flex items-center">
-                      <span className="text-sm font-medium">
-                        {getStatusText(commande.status)}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="border-t border-gray-200 pt-4 mt-auto">
-                    <div className="flex justify-between mb-2">
-                      <span className="text-gray-600">Total</span>
-                      <span className="font-semibold">
-                        {commande.prixTotal.toFixed(2)} €
-                      </span>
-                    </div>
-
-                    <div className="mt-4">
-                      <h3 className="text-sm font-medium text-gray-700 mb-2">
-                        Articles commandés:
-                      </h3>
-                      <ul className="space-y-1 max-h-40 overflow-y-auto">
-                        {commande.article.map((item, index) => (
-                          <li
-                            key={index}
-                            className="text-sm text-gray-600 flex justify-between"
-                          >
-                            <span>
-                              {item.quantity}x {item.name}
-                            </span>
-                            <span>
-                              {(item.price * item.quantity).toFixed(2)} €
-                            </span>
-                          </li>
-                        ))}
-                        {commande.menu.map((item, index) => (
-                          <li
-                            key={`menu-${index}`}
-                            className="text-sm text-gray-600 flex justify-between"
-                          >
-                            <span>
-                              {item.quantity}x {item.name}
-                            </span>
-                            <span>
-                              {(item.price * item.quantity).toFixed(2)} €
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-      )}
+              </Link>
+            ))}
+          </div>
+        )}
+      </main>
     </div>
   );
 }

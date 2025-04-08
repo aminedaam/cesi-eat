@@ -198,3 +198,30 @@ export const getAllCommandesByClientId = async (
     throw error;
   }
 };
+
+export const getCommandesByStatus = async (
+  status: string,
+  token: string
+): Promise<Commande[]> => {
+  try {
+    const response = await apiCommandes.get(`/getCommandesByStatus/${status}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const commandes: Commande[] = response.data;
+    console.log("Commandes par statut récupérées avec succès:", commandes);
+    return commandes;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        "Erreur API lors de la récupération des commandes par statut:",
+        error.response?.data || error.message
+      );
+    } else {
+      console.error(
+        "Erreur inattendue lors de la récupération des commandes par statut :",
+        error
+      );
+    }
+    throw error;
+  }
+};

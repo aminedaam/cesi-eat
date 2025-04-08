@@ -12,8 +12,6 @@ export default function AccountLayout({
 }) {
   const accessToken = useAuthStore((state) => state.accessToken);
   const { user } = useMe(accessToken ?? "");
-  console.log("User in AccountLayout:", user);
-  console.log("User role in AccountLayout:", user?.role);
   switch (user?.role) {
     case "RESTAURATEUR":
       return (

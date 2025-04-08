@@ -5,7 +5,7 @@ export interface Commande {
   id?: number;
   createdAt?: string;
   prixTotal: number;
-  status: "PENDING" | "IN_PROGRESS" | "DELIVERED" | "CANCELLED";
+  status: "PENDING" | "CONFIRMED" | "IN_PROGRESS" | "DELIVERED" | "CANCELLED";
   client: User;
   article: CommandeArticle[];
   menu: CommandeMenu[];

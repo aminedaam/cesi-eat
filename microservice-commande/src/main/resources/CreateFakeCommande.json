@@ -1,0 +1,51 @@
+{
+  "id": "123456789",
+  "createdAt": "2023-10-01T12:00:00Z",
+  "prixTotal": 25.00,
+  "status": "PENDING",
+  "client": {
+    "id": "987654321",
+    "lastName": "Dupont",
+    "name": "Jean",
+    "address": "123 Rue de Paris",
+    "city": "Paris",
+    "postalCode": "75001",
+    "country": "France",
+    "phoneNumber": "+33 1 23 45 67 89",
+    "longitude": 2.3522,
+    "latitude": 48.8566
+  },
+  "article": [
+    {
+      "id": "7",
+      "name": "Burger",
+      "description": "Burger au tenders de poulet",
+      "price": 10.00,
+      "quantity": 2,
+      "restaurantId": "123456789",
+      "typeProd": "PLAT"
+    }
+  ],
+  "menu": [
+    {
+      "id": "1",
+      "name": "Menu 1",
+      "description": "Menu avec frites et boisson",
+      "priceMenu": 15.00,
+      "quantity": 1,
+      "restaurantId": "123456789"
+    }
+  ],
+  "restaurant": {
+    "id": "123456789",
+    "name": "Restaurant Test",
+    "address": "456 Avenue des Champs-Élysées",
+    "city": "Paris",
+    "postalCode": "75008",
+    "country": "France",
+    "phoneNumber": "+33 1 23 45 67 89",
+    "longitude": 2.2945,
+    "latitude": 48.8738,
+    "creatorEmail": "restaurateur1@gmail.com"
+  }
+}

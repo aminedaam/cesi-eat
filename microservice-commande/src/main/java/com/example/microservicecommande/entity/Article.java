@@ -10,14 +10,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Article {
 
-    private String articleId;
+    private String Id;
     private String name;
     private String description;
     private double price;
     private String imageUrl;
     private String typeProd;
     private String restaurantId;
-    private String categoryId;
     private int quantity;
 
 }

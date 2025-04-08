@@ -46,12 +46,12 @@ public class CommandeController {
         return ResponseEntity.ok(commandes);
     }
     @GetMapping("/getAllByRestaurantId/{restaurantId}")
-    public ResponseEntity<List<Commande>> getAllCommandesByRestaurantId(@PathVariable String restaurantId) {
+    public ResponseEntity<List<Commande>> getAllCommandesByRestaurantId(@PathVariable Long restaurantId) {
         List<Commande> commandes = commandeService.getAllCommandesByRestaurantId(restaurantId);
         return ResponseEntity.ok(commandes);
     }
     @GetMapping("/getAllByClientId/{clientId}")
-    public ResponseEntity<List<Commande>> getAllCommandesByClientId(@PathVariable String clientId) {
+    public ResponseEntity<List<Commande>> getAllCommandesByClientId(@PathVariable Long clientId) {
         List<Commande> commandes = commandeService.getAllCommandesByClientId(clientId);
         return ResponseEntity.ok(commandes);
     }

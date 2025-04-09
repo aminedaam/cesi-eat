@@ -3,6 +3,7 @@ package com.example.microservicecommande.entity;
 import com.example.microservicecommande.enums.Status;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
 import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -15,7 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Commande {
-
+    @Id
     private String id;
 
     private Restaurant restaurant;

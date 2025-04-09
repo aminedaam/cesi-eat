@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useCartStore, ArticleCartItem, MenuCartItem } from "@/store/cartStore";
 import { useEffect, useState, useMemo } from "react"; // Added useMemo
 import { useRouter, useParams } from "next/navigation";
-import { Minus, Plus, Trash, ArrowLeft, ShoppingCart, CreditCard, PlusCircle } from "lucide-react";
+import { Minus, Plus, Trash, ShoppingCart, CreditCard, PlusCircle } from "lucide-react";
 import Link from "next/link";
 import { CustomButton } from "@/components/helper-components/CustomButton";
 import Modal from "react-modal";

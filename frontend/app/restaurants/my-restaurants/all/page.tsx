@@ -5,8 +5,8 @@ import SearchBar from "@/components/helper-components/SearchBar";
 import { useMe } from "@/hooks/useMe";
 import { useAuthStore } from "@/store/authStore";
 import { Restaurant } from "@/types/Restaurants";
-import { getAllRestaurants, getMyRestaurants } from "@/utils/apiRestaurant";
-import { Bell, Plus, Search, MapPin, Utensils } from "lucide-react";
+import { getMyRestaurants } from "@/utils/apiRestaurant";
+import { Bell, Plus, MapPin, Utensils } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
@@ -37,7 +37,7 @@ const MyRestaurantsPage: React.FC = () => {
       }
     };
     fetchRestaurants();
-  }, []);
+  }, [accessToken]);
 
   if (role !== "RESTAURATEUR") {
     return (

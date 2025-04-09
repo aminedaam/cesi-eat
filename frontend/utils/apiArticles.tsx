@@ -201,6 +201,7 @@ export const getArticlesByRestaurantId = async (
           phoneNumber: "",
           averageRate: 0,
           nbRate: 0,
+          creatorEmail:"",
           createdAt: new Date(),
         };
       }

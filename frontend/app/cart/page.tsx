@@ -4,7 +4,7 @@ import Image from "next/image";
 // Import specific types from store if needed, or rely on inference
 import { useCartStore, ArticleCartItem, MenuCartItem } from "@/store/cartStore";
 import { useRouter } from "next/navigation";
-import { Trash, ShoppingBag, Building2, MapPin, X, ShoppingCart } from "lucide-react";
+import { Trash, ShoppingBag, Building2, MapPin, ShoppingCart } from "lucide-react";
 // --- Import useMemo ---
 import { useState, useEffect, useMemo } from "react";
 // ----------------------

@@ -464,8 +464,7 @@ function RestaurantPage() {
                 </div>
                 <h3 className="text-xl font-semibold text-gray-700">Aucun menu ou article disponible</h3>
                 <p className="text-gray-500 max-w-md">
-                  Ce restaurant n'a pas encore de menus ou d'articles. Vous pouvez en ajouter en utilisant les boutons ci-dessus.
-                </p>
+                Ce restaurant n&apos;a pas encore de menus ou d&apos;articles. Vous pouvez en ajouter en utilisant les boutons ci-dessus.                </p>
                 <div className="flex flex-wrap gap-3 mt-4">
                   <Link href={`/restaurants/${restaurantId}/menus/create`}>
                     <CustomButton className="bg-primary-50 hover:bg-primary-100 text-primary-900 px-4 py-2 rounded-lg flex items-center space-x-2">

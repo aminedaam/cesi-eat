@@ -9,9 +9,7 @@ import {
   ChevronDown,
   MapPin,
   Phone,
-  Tag,
   Clock,
-  ArrowLeft,
   CreditCard,
   ShoppingBag,
   Building2,
@@ -29,7 +27,6 @@ import "leaflet/dist/leaflet.css";
 import L, { Map as LeafletMap, Marker as LeafletMarker } from "leaflet";
 import useAddressFromCoordinates from "@/hooks/useAddressFromCoordinates";
 import { Position } from "@/types/Position";
-import LoadingSpinner from "@/components/helper-components/LoadingSpinner";
 import useTravelTime from "@/hooks/useTravelTime";
 import { getRestaurantById } from "@/utils/apiRestaurant";
 import { Restaurant } from "@/types/Restaurants";
@@ -44,7 +41,6 @@ import {
 } from "@/utils/convertCartItemToCommandeItem";
 import { createCommande } from "@/utils/apiCommandes";
 import { toast } from "react-toastify";
-import Link from "next/link";
 
 // Helper Type Guard
 function isArticleCartItem(

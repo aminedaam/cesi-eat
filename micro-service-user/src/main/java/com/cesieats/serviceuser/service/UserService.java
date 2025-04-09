@@ -28,5 +28,6 @@ public interface UserService {
 
     void deleteUserByEmail(String email) throws UserNotFoundException;
 
+    void updateStatus(Long id, String status) throws UserNotFoundException;
 
 }

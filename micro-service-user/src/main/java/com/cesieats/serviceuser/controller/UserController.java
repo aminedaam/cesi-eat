@@ -4,6 +4,7 @@ import com.cesieats.serviceuser.config.JwtUtil;
 import com.cesieats.serviceuser.dto.*;
 import com.cesieats.serviceuser.entity.User;
 import com.cesieats.serviceuser.enums.Role;
+import com.cesieats.serviceuser.enums.Status;
 import com.cesieats.serviceuser.exception.CodeParrainageAlreadyUsedException;
 import com.cesieats.serviceuser.exception.InvalidPasswordException;
 import com.cesieats.serviceuser.exception.UserEmailUsedException;
@@ -40,7 +41,9 @@ public class UserController {
 
         if (userOptional.isPresent()) {
             User user = userOptional.get();
-
+            if(userOptional.get().getStatus().toString().equals(Status.SUSPENDED)){
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new AuthResponse("Utilisateur suspendu"));
+            }
             // Vérification avec le passwordEncoder
             if (passwordEncoder.matches(authRequest.getPassword(), user.getPassword())) {
                 String token = jwtUtil.generateToken(user);

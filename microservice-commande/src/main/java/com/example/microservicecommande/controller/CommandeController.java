@@ -1,7 +1,6 @@
 package com.example.microservicecommande.controller;
 
 import com.example.microservicecommande.entity.Commande;
-import com.example.microservicecommande.enums.Status;
 import com.example.microservicecommande.exception.CommandeNotFoundException;
 import com.example.microservicecommande.services.CommandeService;
 import jakarta.validation.Valid;
@@ -29,11 +28,11 @@ public class CommandeController {
         commandeService.updateCommande(commandeId,updated);
         return ResponseEntity.ok("Commande updated successfully");
     }
-        @PutMapping("/update-status/{commandeId}")
-        public ResponseEntity<String> updateCommandeStatus(@PathVariable String commandeId, @RequestBody Status status) throws CommandeNotFoundException {
-            commandeService.updateCommandeStatus(commandeId, status);
-            return ResponseEntity.ok("Commande status updated successfully");
-        }
+    @PutMapping("/update-status/{commandeId}")
+    public ResponseEntity<String> updateCommandeStatus(@PathVariable String commandeId, @RequestBody String status) throws CommandeNotFoundException {
+        commandeService.updateCommandeStatus(commandeId, status);
+        return ResponseEntity.ok("Commande status updated successfully");
+    }
 
     @DeleteMapping("/delete/{commandeId}")
     public ResponseEntity<String> deleteCommande(@PathVariable String commandeId) throws CommandeNotFoundException {

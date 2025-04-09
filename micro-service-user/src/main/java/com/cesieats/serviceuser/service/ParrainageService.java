@@ -1,9 +1,13 @@
 package com.cesieats.serviceuser.service;
 
 import com.cesieats.serviceuser.entity.Parrainage;
+import com.cesieats.serviceuser.exception.CodeParrainageAlreadyUsedException;
+
+import java.util.List;
 
 public interface ParrainageService {
-    String generateCodeParrainage(String email);
-    void saveParrainage(Parrainage parrainage);
-    boolean isCodeParrainageUsed(String codeParrainage);
+    Parrainage createParrainage(Parrainage parrainage) throws CodeParrainageAlreadyUsedException;
+
+
+    List<Parrainage> getAllParrainages();
 }

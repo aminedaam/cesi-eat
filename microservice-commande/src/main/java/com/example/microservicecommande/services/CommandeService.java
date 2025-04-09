@@ -1,6 +1,5 @@
 package com.example.microservicecommande.services;
 
-import com.example.microservicecommande.enums.Status;
 import com.example.microservicecommande.exception.CommandeNotFoundException;
 import com.example.microservicecommande.repository.CommandeRepository;
 import lombok.AllArgsConstructor;

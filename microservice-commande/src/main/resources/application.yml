@@ -1,7 +1,7 @@
 spring:
   data:
     mongodb:
-      uri: mongodb://localhost:27017/Commandes
+      uri: mongodb://172.16.10.12:27017/Commandes
       database: Commandes
   application:
     name: microservice-commande

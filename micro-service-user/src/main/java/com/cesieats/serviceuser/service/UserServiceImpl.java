@@ -127,4 +127,11 @@ public class UserServiceImpl implements UserService{
     }
 
 
+    @Override
+    public void updateStatus(Long id, String status) throws UserNotFoundException {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("Utilisateur non trouvé"));
+        user.setStatus(Status.valueOf(status));
+        userRepository.save(user);
+    }
 }

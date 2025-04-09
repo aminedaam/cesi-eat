@@ -1,6 +1,8 @@
 package com.example.microservicecommande.entity;
 
 import com.example.microservicecommande.enums.Status;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -29,5 +31,6 @@ public class Commande {
 
     private String createdAt;
 
+    @Enumerated(EnumType.STRING)
     private Status status;
 }

@@ -5,6 +5,7 @@ import com.example.microservicecommande.exception.CommandeNotFoundException;
 import com.example.microservicecommande.services.CommandeService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -62,9 +63,14 @@ public class CommandeController {
     }
 
     @GetMapping("/getCommandesByStatus/{status}")
-    public ResponseEntity<List<Commande>> getCommandesByStatus(@PathVariable String status) throws CommandeNotFoundException {
+    public ResponseEntity<?> getCommandesByStatus(@PathVariable String status) throws CommandeNotFoundException {
+
         List<Commande> commandes = commandeService.getCommandeByStatus(status);
+        if (commandes.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Aucune commande trouvée avec le statut : " + status);
+        }
         return ResponseEntity.ok(commandes);
+
     }
 
 }

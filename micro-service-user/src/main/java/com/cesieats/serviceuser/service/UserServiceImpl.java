@@ -134,4 +134,14 @@ public class UserServiceImpl implements UserService{
         user.setStatus(Status.valueOf(status));
         userRepository.save(user);
     }
+    @Override
+    public List<User> getUserByRole(String role) throws UserNotFoundException {
+        List<User> users = userRepository.findAll();
+        if(users.isEmpty()) {
+            throw new UserNotFoundException("Aucun utilisateur trouvé");
+        }
+        return users.stream()
+                .filter(user -> user.getRole().toString().equals(role))
+                .toList();
+    }
 }

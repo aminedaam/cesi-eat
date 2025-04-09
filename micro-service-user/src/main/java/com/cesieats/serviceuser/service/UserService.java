@@ -30,4 +30,5 @@ public interface UserService {
 
     void updateStatus(Long id, String status) throws UserNotFoundException;
 
+    List<User> getUserByRole(String role) throws UserNotFoundException;
 }

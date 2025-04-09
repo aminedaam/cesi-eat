@@ -44,6 +44,8 @@
     "phoneNumber": "+33 1 23 45 67 89",
     "longitude": 2.2945,
     "latitude": 48.8738
-  }
-
+  },
+  "servicesFees": 2.50,
+  "deliveryCosts": 5.00,
+  "promotion": true
 }

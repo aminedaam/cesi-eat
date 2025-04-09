@@ -33,7 +33,7 @@ public class CommandeService {
             commandeRepository.save(commande);
         }
     }
-    public void updateCommandeStatus(String commandeId, Status status) throws CommandeNotFoundException {
+    public void updateCommandeStatus(String commandeId, String status) throws CommandeNotFoundException {
         Commande commande = commandeRepository.findById(commandeId).orElseThrow(
                 () -> new CommandeNotFoundException("Commande non trouvée avec l'id :" + commandeId));
         if (commande != null) {

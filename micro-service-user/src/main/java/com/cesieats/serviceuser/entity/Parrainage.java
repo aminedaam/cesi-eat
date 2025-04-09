@@ -28,6 +28,6 @@ public class Parrainage {
 
     // Indique si la réduction a été utilisée
     @Column(nullable = false)
-    private boolean reductionUtilisee = false;
+    private boolean reductionUtilisee = true;
 
 }

@@ -1,8 +1,5 @@
 package com.example.microservicecommande.entity;
 
-import com.example.microservicecommande.enums.Status;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -27,11 +24,16 @@ public class Commande {
 
     private List<Menu> menu;
 
-
     private double prixTotal;
 
     private String createdAt;
 
-    @Enumerated(EnumType.STRING)
-    private Status status;
+    private String status;
+
+    private double deliveryCosts;
+
+    private double servicesFees;
+
+    private boolean promotion;
+
 }

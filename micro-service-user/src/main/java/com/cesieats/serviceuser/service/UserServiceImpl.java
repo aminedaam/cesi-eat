@@ -62,7 +62,7 @@ public class UserServiceImpl implements UserService{
             throw new CodeParrainageAlreadyUsedException("Le code de parrainage est déjà utilisé");
         }
         if(user.getEmail() == null || user.getEmail().isEmpty() || userRepository.findByEmail(user.getEmail()).isPresent()) {
-            throw new UserEmailUsedException("L'email est déjà incorrecte ou déjà utilisé");
+            throw new UserEmailUsedException("L'email est incorrecte ou déjà utilisé");
         }
         return userRepository.save(user);
     }

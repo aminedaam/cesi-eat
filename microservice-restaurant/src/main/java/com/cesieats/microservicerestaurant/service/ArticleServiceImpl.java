@@ -31,6 +31,7 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
 
+
     @Override
     public List<Article> findArticleByName(String name) throws ArticleNotFoundException {
         return articleRepository.findByName(name);
@@ -119,4 +120,5 @@ public class ArticleServiceImpl implements ArticleService {
         }
         return articles;
     }
+
 }

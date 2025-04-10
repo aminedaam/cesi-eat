@@ -16,4 +16,5 @@ public interface ParrainageService {
 
     Parrainage findByParrainneId(Long idParrainne) throws UserNotFoundException;
 
+    Parrainage findByIdParrainnee(Long idParrainnee) throws UserNotFoundException;
 }

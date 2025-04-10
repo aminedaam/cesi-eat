@@ -3,7 +3,7 @@ package com.cesieats.serviceuser.service;
 import com.cesieats.serviceuser.entity.Parrainage;
 //import com.cesieats.serviceuser.exception.UserNotFoundException;
 //import com.example.microservicecommande.entity.Commande;
-import com.example.microservicecommande.entity.User;
+//import com.example.microservicecommande.entity.User;
 import lombok.AllArgsConstructor;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;

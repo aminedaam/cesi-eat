@@ -1,6 +1,8 @@
 package com.example.microservicecommande.services;
 
 import com.example.microservicecommande.dto.CommandeCreatedEvent;
+import com.example.microservicecommande.entity.Article;
+import com.example.microservicecommande.entity.Menu;
 import com.example.microservicecommande.exception.CommandeNotFoundException;
 import com.example.microservicecommande.repository.CommandeRepository;
 import lombok.AllArgsConstructor;
@@ -10,7 +12,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import com.example.microservicecommande.entity.Commande;
 import com.example.microservicecommande.config.RabbitMqConfig;
+
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class CommandeService {
@@ -103,4 +110,98 @@ public class CommandeService {
                 .toList();
         return commandes;
     }
+
+    public int countCommandeByRestaurandId(Long restaurantId) {
+        return (int) commandeRepository.findAll().stream()
+                .filter(commande -> commande.getRestaurant().getId() == restaurantId)
+                .filter(commande -> commande.getStatus().equals("DELIVERED"))
+                .count();
+    }
+
+    public double getTotalPriceByRestaurantId(Long restaurantId) {
+        return commandeRepository.findAll().stream()
+                .filter(commande -> commande.getRestaurant().getId() == restaurantId)
+                .filter(commande -> commande.getStatus().equals("DELIVERED"))
+                .mapToDouble(Commande::getPrixTotal)
+                .sum() * 0.1;
+    }
+    public Article bestArticleByRestaurantId(Long restaurantId) {
+        Map<Article, Integer> articleQuantities = new HashMap<>();
+
+        for (Commande commande : commandeRepository.findAll()) {
+            if (commande.getRestaurant().getId() == restaurantId &&
+                    commande.getStatus().equals("DELIVERED")) {
+
+                for (Article article : commande.getArticle()) {
+                    articleQuantities.merge(article, article.getQuantity(), Integer::sum);
+                }
+            }
+        }
+        return articleQuantities.entrySet().stream()
+                .max(Comparator
+                        .comparingInt(Map.Entry<Article, Integer>::getValue)
+                        .thenComparing(e -> e.getKey().getPrice()))
+                .map(Map.Entry::getKey)
+                .orElseThrow(() -> new IllegalArgumentException("Aucun article trouvé"));
+    }
+
+    public Menu bestMenuByRestaurantId(Long restaurantId) {
+        Map<Menu, Integer> menuQuantites = new HashMap<>();
+
+        for (Commande commande : commandeRepository.findAll()) {
+            if (commande.getRestaurant().getId() == restaurantId &&
+                    commande.getStatus().equals("DELIVERED")) {
+
+                for (Menu menu : commande.getMenu()) {
+                    menuQuantites.merge(menu, menu.getQuantity(), Integer::sum);
+                }
+            }
+        }
+        return menuQuantites.entrySet().stream()
+                .max(Comparator
+                        .comparingInt(Map.Entry<Menu, Integer>::getValue)
+                        .thenComparing(e -> e.getKey().getPrice()))
+                .map(Map.Entry::getKey)
+                .orElseThrow(() -> new IllegalArgumentException("Aucun article trouvé"));
+    }
+
+    public Menu worstMenuByRestaurantId(Long restaurantId) {
+        Map<Menu, Integer> menuQuantites = new HashMap<>();
+
+        for (Commande commande : commandeRepository.findAll()) {
+            if (commande.getRestaurant().getId() == restaurantId &&
+                    commande.getStatus().equals("DELIVERED")) {
+
+                for (Menu menu : commande.getMenu()) {
+                    menuQuantites.merge(menu, menu.getQuantity(), Integer::sum);
+                }
+            }
+        }
+        return menuQuantites.entrySet().stream()
+                .min(Comparator
+                        .comparingInt(Map.Entry<Menu, Integer>::getValue)
+                        .thenComparing(e -> e.getKey().getPrice()))
+                .map(Map.Entry::getKey)
+                .orElseThrow(() -> new IllegalArgumentException("Aucun article trouvé"));
+    }
+
+    public Article worstArticleByRestaurantId(Long restaurantId) {
+        Map<Article, Integer> articleQuantities = new HashMap<>();
+        for (Commande commande : commandeRepository.findAll()) {
+            if (commande.getRestaurant().getId() == restaurantId &&
+                    commande.getStatus().equals("DELIVERED")) {
+
+                for (Article article : commande.getArticle()) {
+                    articleQuantities.merge(article, article.getQuantity(), Integer::sum);
+                }
+            }
+        }
+        return articleQuantities.entrySet().stream()
+                .min(Comparator
+                        .comparingInt(Map.Entry<Article, Integer>::getValue)
+                        .thenComparing(e -> e.getKey().getPrice()))
+                .map(Map.Entry::getKey)
+                .orElseThrow(() -> new IllegalArgumentException("Aucun article trouvé"));
+    }
+
 }

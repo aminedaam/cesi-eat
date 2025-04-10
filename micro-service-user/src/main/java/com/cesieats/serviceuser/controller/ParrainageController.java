@@ -29,7 +29,7 @@ public class ParrainageController {
     @PostMapping("/create")
     @Operation(summary = "Créer un parrainage", description = "Crée une relation entre un utilisateur parrainé et son parrain."
     , security = @io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "Bearer Authentication"))
-    public ResponseEntity<Parrainage> createParrainage(@Valid @RequestBody ParrainageDto parrainage) throws CodeParrainageAlreadyUsedException, UserNotFoundException {
+    public ResponseEntity<Parrainage> createParrainage(@RequestBody ParrainageDto parrainage) throws CodeParrainageAlreadyUsedException, UserNotFoundException {
         Parrainage saved = parrainageService.createParrainage(parrainage);
         return ResponseEntity.ok(saved);
     }
@@ -41,5 +41,10 @@ public class ParrainageController {
         return ResponseEntity.ok(parrainages);
     }
 
-
+    @GetMapping("/parrainne/{idParrainne}")
+    @Operation(summary = "Récupérer un parrainage par Id du parrainne", description = "Récupère un parrainage en fonction de l'ID du parrainne.")
+    public ResponseEntity<Parrainage> getParrainageByIdParrainne(@PathVariable Long idParrainne) throws UserNotFoundException {
+        Parrainage parrainage = parrainageService.findByParrainneId(idParrainne);
+        return ResponseEntity.ok(parrainage);
+    }
 }

@@ -32,4 +32,5 @@ public interface ArticleService {
 
     List<Article> findArticlesByMenuId(Long menuId) throws ArticleNotFoundException;
 
+
 }

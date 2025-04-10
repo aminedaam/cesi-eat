@@ -14,4 +14,5 @@ public class ParrainageDto {
 
     private long idParrainne;
     private String codeParrainage;
+
 }

@@ -7,7 +7,7 @@ import com.example.microservicecommande.exception.CommandeNotFoundException;
 import com.example.microservicecommande.repository.CommandeRepository;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
+//import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import com.example.microservicecommande.entity.Commande;
@@ -25,33 +25,33 @@ public class CommandeService {
 
     private final CommandeRepository commandeRepository;
 
-    private final RabbitTemplate rabbitTemplate;
+    //private final RabbitTemplate rabbitTemplate;
 
-    @Value("${spring.application.name:DefaultServiceName}")
-    private String serviceName;
+    //@Value("${spring.application.name:DefaultServiceName}")
+    //private String serviceName;
 
-    public CommandeService(CommandeRepository commandeRepository, RabbitTemplate rabbitTemplate) {
+    public CommandeService(CommandeRepository commandeRepository) {
         this.commandeRepository = commandeRepository;
-        this.rabbitTemplate = rabbitTemplate;
+        //this.rabbitTemplate = rabbitTemplate;
     }
     public void createCommande(Commande commande) {
         // on créer la commande dans la base de données
         Commande savedCommande = commandeRepository.save(commande);
 
-        CommandeCreatedEvent commandeCreatedEvent = new CommandeCreatedEvent(
-                savedCommande.getId(),
-                savedCommande.getClient().getId(),
-                savedCommande.getRestaurant().getId(),
-                savedCommande.isPromotion(),
-                savedCommande.getStatus()
-        );
+//        CommandeCreatedEvent commandeCreatedEvent = new CommandeCreatedEvent(
+//                savedCommande.getId(),
+//                savedCommande.getClient().getId(),
+//                savedCommande.getRestaurant().getId(),
+//                savedCommande.isPromotion(),
+//                savedCommande.getStatus()
+//        );
 
         // puis on publie l'événement "created" dans RabbitMQ
-        rabbitTemplate.convertAndSend(
-                RabbitMqConfig.EXCHANGE_COMMANDE_EVENTS,      // Nom de l'exchange
-                RabbitMqConfig.ROUTING_KEY_CREATED,           // Routing key
-                commandeCreatedEvent                          // Le message (peut être un objet)
-        );
+        //rabbitTemplate.convertAndSend(
+        //        RabbitMqConfig.EXCHANGE_COMMANDE_EVENTS,      // Nom de l'exchange
+        //        RabbitMqConfig.ROUTING_KEY_CREATED,           // Routing key
+        //        commandeCreatedEvent                          // Le message (peut être un objet)
+        //);
     }
 
     public void updateCommande(String commandeId, Commande commandeUpdated) throws CommandeNotFoundException {

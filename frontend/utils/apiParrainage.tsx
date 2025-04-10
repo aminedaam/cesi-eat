@@ -47,6 +47,33 @@ export const createParrainage = async (
   }
 };
 
+export const getParrainageByParrainneId = async (
+  idParrainne: number,
+  token: string
+) => {
+  try {
+    const response = await apiParrainage.get(`parrainne/${idParrainne}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        "Erreur API lors de la récupération du parrainage:",
+        error.response?.data || error.message
+      );
+    } else {
+      console.error(
+        "Erreur inattendue lors de la récupération du parrainage:",
+        error
+      );
+    }
+    throw error;
+  }
+};
+
 export const getAllParrainages = async (token: string) => {
   try {
     const response = await apiParrainage.get("all", {

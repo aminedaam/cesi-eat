@@ -2,7 +2,7 @@ import { Restaurant } from "./Restaurants";
 import { User } from "./User";
 
 export interface Commande {
-  id?: number;
+  id?: string;
   createdAt?: string;
   prixTotal: number;
   status: "PENDING" | "CONFIRMED" | "IN_PROGRESS" | "DELIVERED" | "CANCELLED";
@@ -10,6 +10,9 @@ export interface Commande {
   article: CommandeArticle[];
   menu: CommandeMenu[];
   restaurant: Restaurant;
+  deliveryCosts: number;
+  servicesFees: number;
+  promotion: boolean;
 }
 
 export interface CommandeArticle {

@@ -43,6 +43,7 @@ import {
 import { createCommande } from "@/utils/apiCommandes";
 import { toast } from "react-toastify";
 import { Parrainage } from "@/types/Parrainage";
+import { getParrainageByParrainneId } from "@/utils/apiParrainage";
 
 // Helper Type Guard
 function isArticleCartItem(
@@ -91,8 +92,21 @@ const CheckoutPage = () => {
   const { id } = useParams();
   const restaurantId = Number(id);
   const accessToken = useAuthStore((state) => state.accessToken);
+  const { user } = useMe(accessToken ?? "");
 
   const [isCardFormValid, setIsCardFormValid] = useState(false);
+  const [showItems, setShowItems] = useState<boolean>(false);
+  const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
+  const [isLoadingRestaurant, setIsLoadingRestaurant] = useState(true);
+  const [promotionAlreadyBeenUsed, setPromotionAlreadyBeenUsed] =
+    useState<boolean>(false);
+  const [isLoadingPromotion, setIsLoadingPromotion] = useState<boolean>(true);
+  const [parrainage, setParrainage] = useState<Parrainage | null>(null);
+  const [isLoadingParrainage, setIsLoadingParrainage] = useState<boolean>(true);
+
+  const mapRef = useRef<HTMLDivElement | null>(null);
+  const leafletMapRef = useRef<LeafletMap | null>(null);
+  const markerRef = useRef<LeafletMarker | null>(null);
 
   const handleCardFormValidityChange = useCallback((isValid: boolean) => {
     // console.log("Card form validity changed:", isValid); // Debugging log
@@ -105,18 +119,7 @@ const CheckoutPage = () => {
     clearCartForRestaurant,
   } = useCartStore();
 
-  const [showItems, setShowItems] = useState<boolean>(false);
-  const mapRef = useRef<HTMLDivElement | null>(null);
-  const leafletMapRef = useRef<LeafletMap | null>(null);
-  const markerRef = useRef<LeafletMarker | null>(null);
-
   const restaurantItems = getItemsByRestaurant(restaurantId);
-
-  const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
-  const [isLoadingRestaurant, setIsLoadingRestaurant] = useState(true);
-
-  const [hasPromotion, setHasPromotion] = useState<boolean>(false);
-  const [isLoadingPromotion, setIsLoadingPromotion] = useState<boolean>(true);
 
   const handlePayment = async () => {
     if (
@@ -155,11 +158,12 @@ const CheckoutPage = () => {
         prixTotal: totalValue,
         status: "PENDING",
         createdAt: new Date().toISOString(),
+        deliveryCosts: fraisLivraisonValue ?? 0,
+        servicesFees: fraisServiceValue ?? 0,
+        promotion: !promotionAlreadyBeenUsed, // La commande a une promotion si la promotion n'a jamais été utilisée
       };
 
-      
       // Prepare order item
-
       const newOrder = await createCommande(commande, accessToken);
 
       console.log("Order created:", newOrder);
@@ -194,6 +198,30 @@ const CheckoutPage = () => {
     fetchRestaurant();
   }, [restaurantId, accessToken]);
 
+  // Fetch Parrainage Data
+  useEffect(() => {
+    async function fetchParrainage() {
+      if (!accessToken || !user?.id) return;
+      setIsLoadingParrainage(true);
+      try {
+        const fetchedParrainage = await getParrainageByParrainneId(
+          user.id,
+          accessToken
+        );
+        setParrainage(fetchedParrainage);
+        console.log("Parrainage:", fetchedParrainage);
+        setPromotionAlreadyBeenUsed(fetchedParrainage?.promotion ?? true);
+      } catch (error) {
+        console.error("Erreur lors de la récupération du parrainage:", error);
+        setPromotionAlreadyBeenUsed(true);
+      } finally {
+        setIsLoadingParrainage(false);
+        setIsLoadingPromotion(false);
+      }
+    }
+    fetchParrainage();
+  }, [accessToken, user?.id]);
+
   // Calculate Subtotal
   const sousTotal = useMemo(() => {
     return restaurantItems.reduce((acc, cartItem) => {
@@ -207,7 +235,6 @@ const CheckoutPage = () => {
   }, [restaurantItems]);
 
   // User/Coordinates/Address/Time Hooks
-  const { user, loading: loadingUserData } = useMe(accessToken ?? "");
   const { coordinates, isLoading: isLoadingCoordinates } = useCoordinates(
     user?.address ?? "",
     user?.postalCode ?? "",
@@ -283,7 +310,7 @@ const CheckoutPage = () => {
   // Include loading states relevant for fee calculation
   const isPriceDataLoading =
     isLoadingRestaurant || loadingDuration || isLoadingCoordinates;
-  const isPageLoading = isPriceDataLoading || loadingUserData || loadingAddress; // Overall page loading
+  const isPageLoading = isPriceDataLoading || loadingAddress; // Overall page loading
 
   // ----------------------------
 
@@ -303,64 +330,12 @@ const CheckoutPage = () => {
     // Returns null if durationInMinutes is null
   }, [durationInMinutes, restaurant?.delevryCost]);
 
-  // Simuler la vérification de promotion
-  useEffect(() => {
-    const checkPromotion = async () => {
-      if (!user?.id || !accessToken) {
-        setIsLoadingPromotion(false);
-        return;
-      }
-
-      try {
-        // Simulation d'une requête API pour vérifier si l'utilisateur a une promotion
-        // Dans un cas réel, nous utiliserions une API comme getAllParrainages
-        // et filtrerions pour trouver le parrainage de l'utilisateur actuel
-
-        // Simulons un délai de chargement
-        await new Promise((resolve) => setTimeout(resolve, 500));
-
-        // Simulation de la réponse API
-        // Dans un cas réel, nous utiliserions la réponse de l'API
-        const mockParrainage: Parrainage = {
-          id: 1,
-          utilisateurParraine: user,
-          parrain: {
-            id: 2,
-            firstName: "John",
-            lastName: "Doe",
-            email: "john@example.com",
-            phoneNumber: "0123456789",
-            address: "123 Rue Example",
-            city: "Paris",
-            postalCode: "75001",
-            country: "France",
-            password: "hashedPassword",
-            role: "CLIENT",
-            status: "ACTIVE",
-            createdAt: new Date(),
-          },
-          promotion: true, // L'utilisateur a une promotion disponible
-        };
-
-        // Vérifier si l'utilisateur a une promotion disponible
-        setHasPromotion(mockParrainage.promotion);
-      } catch (error) {
-        console.error("Erreur lors de la vérification de la promotion:", error);
-        setHasPromotion(false);
-      } finally {
-        setIsLoadingPromotion(false);
-      }
-    };
-
-    checkPromotion();
-  }, [user?.id, accessToken]);
-
   // Calculer la réduction de promotion
   const reductionPromotion = useMemo(() => {
-    if (!hasPromotion) return 0;
+    if (promotionAlreadyBeenUsed) return 0;
     // Appliquer une réduction de 10% sur le sous-total
     return sousTotal * 0.1;
-  }, [sousTotal, hasPromotion]);
+  }, [sousTotal, promotionAlreadyBeenUsed]);
 
   const totalValue = useMemo(() => {
     // Only calculate total if all components are available
@@ -442,10 +417,7 @@ const CheckoutPage = () => {
                 <p className="text-xs text-gray-500 mb-1">
                   Adresse de livraison
                 </p>
-                {loadingUserData ||
-                isLoadingCoordinates ||
-                loadingAddress ||
-                !lookupCoords ? (
+                {loadingAddress || !lookupCoords ? (
                   <div className="flex items-center">
                     <Loader2 className="h-4 w-4 text-gray-400 animate-spin mr-2" />
                     <p className="text-gray-500 text-sm">
@@ -473,7 +445,7 @@ const CheckoutPage = () => {
               <Phone className="text-gray-500 h-5 w-5 mt-0.5 flex-shrink-0" />
               <div className="ml-3 flex-1 min-w-0">
                 <p className="text-xs text-gray-500 mb-1">Téléphone</p>
-                {loadingUserData ? (
+                {loadingAddress ? (
                   <div className="flex items-center">
                     <Loader2 className="h-4 w-4 text-gray-400 animate-spin mr-2" />
                     <p className="text-gray-500 text-sm">Chargement...</p>
@@ -628,7 +600,7 @@ const CheckoutPage = () => {
                   <span className="text-gray-500">Vérification...</span>
                 </div>
               </div>
-            ) : hasPromotion ? (
+            ) : !promotionAlreadyBeenUsed ? (
               <div className="flex justify-between text-sm">
                 <span className="text-green-600 flex items-center">
                   <Gift className="h-4 w-4 mr-1" />

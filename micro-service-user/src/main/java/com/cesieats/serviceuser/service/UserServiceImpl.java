@@ -68,6 +68,7 @@ public class UserServiceImpl implements UserService{
     }
 
 
+
     @Override
     public User updateUser(Long id, UserDTO userUpdated) throws UserNotFoundException, UserEmailUsedException {
         User user = userRepository.findById(id)

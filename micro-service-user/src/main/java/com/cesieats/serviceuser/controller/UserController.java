@@ -41,7 +41,7 @@ public class UserController {
 
         if (userOptional.isPresent()) {
             User user = userOptional.get();
-            if(userOptional.get().getStatus().toString().equals(Status.SUSPENDED)){
+            if(userOptional.get().getStatus().toString().equals(Status.SUSPENDED.toString())){
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new AuthResponse("Utilisateur suspendu"));
             }
             // Vérification avec le passwordEncoder

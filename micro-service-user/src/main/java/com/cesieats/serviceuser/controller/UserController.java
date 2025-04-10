@@ -10,6 +10,8 @@ import com.cesieats.serviceuser.exception.InvalidPasswordException;
 import com.cesieats.serviceuser.exception.UserEmailUsedException;
 import com.cesieats.serviceuser.exception.UserNotFoundException;
 import com.cesieats.serviceuser.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -29,6 +31,7 @@ import java.util.Optional;
 // )
 @RequestMapping("/api/users")
 @AllArgsConstructor
+@Tag(name ="User", description = "Opérations de gestion des utilisateurs")
 public class UserController {
 
     private final UserService userService;
@@ -36,6 +39,12 @@ public class UserController {
 
     private final JwtUtil jwtUtil;
     @PostMapping("/login")
+    @Operation(summary = "Connexion utilisateur", description = "Permet à un utilisateur de se connecter en fournissant son email et mot de passe.",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Identifiants de connexion de l'utilisateur",
+                    required = true
+            )
+    )
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest authRequest) throws UserNotFoundException {
         Optional<User> userOptional = userService.getUserByEmail(authRequest.getEmail());
 
@@ -56,6 +65,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new AuthResponse("Utilisateur ou mot de passe incorrect"));
     }
     @GetMapping("/me")
+    @Operation(summary = "Récupérer les informations de l'utilisateur connecté", description = "Récupère les informations de l'utilisateur connecté à partir du token JWT.")
     public ResponseEntity<?> getUser(@RequestHeader("Authorization") String token) throws UserNotFoundException {
         // Extraire l'email du token
         String email = jwtUtil.extractEmail(token.substring(7));// pour supprimer le Bearer
@@ -70,17 +80,20 @@ public class UserController {
     }
 
     @PostMapping("/create")
+    @Operation(summary = "Créer un nouvel utilisateur", description = "Enregistre un nouvel utilisateur dans le système.")
     public ResponseEntity<User> register(@Valid @RequestBody User user) throws UserEmailUsedException, CodeParrainageAlreadyUsedException {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(userService.saveUser(user));
     }
 
     @GetMapping("/all")
+    @Operation(summary = "Récupérer tous les utilisateurs", description = "Récupère la liste de tous les utilisateurs.")
     public List<User> getAllUsers(){
         return userService.getAllUsers();
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Récupérer un utilisateur par ID", description = "Récupère les informations d'un utilisateur en fonction de son ID.")
     public User getUserById(@PathVariable Long id) throws UserNotFoundException {
         return userService.getUserById(id)
                 .orElseThrow(() -> new UserNotFoundException("Utilisateur non trouvé"));
@@ -91,6 +104,12 @@ public class UserController {
         return userService.getUserByRole(role);
     }
     @PutMapping("/update-profil/{id}")
+    @Operation(summary = "Mettre à jour le profil utilisateur", description = "Met à jour les informations du profil d'un utilisateur.",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Informations mises à jour de l'utilisateur",
+                    required = true
+            )
+    )
     public ResponseEntity<String> update(@PathVariable Long id, @Valid @RequestBody UserDTO userUpdated) throws UserNotFoundException, UserEmailUsedException { // http://localhost:port/user/update/125
         User userModifier = userService.updateUser(id, userUpdated);
         return ResponseEntity.ok(jwtUtil.generateToken(userModifier));
@@ -100,6 +119,12 @@ public class UserController {
 
 
     @PutMapping("/update-password/{id}")
+    @Operation(summary = "Mettre à jour le mot de passe utilisateur", description = "Met à jour le mot de passe d'un utilisateur.",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Nouveau mot de passe de l'utilisateur",
+                    required = true
+            )
+    )
     public ResponseEntity<String> updatePassword(@PathVariable Long id, @Valid @RequestBody UserUpdatePasswordDTO userUpdatedPassword) throws UserNotFoundException, InvalidPasswordException {
         // Dans la requete il faut que tu mettre newPassword et pas password si tu fais un appel API sur postman
         // Car on prend le newPassword dans le DTO !!!!!!
@@ -109,6 +134,12 @@ public class UserController {
 
     @PutMapping("/update-role/{id}")
     @PreAuthorize("hasAuthority('ADMIN')") // Vérifie que l’utilisateur est bien ADMIN
+    @Operation(summary = "Mettre à jour le rôle utilisateur", description = "Met à jour le rôle d'un utilisateur.",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Nouveau rôle de l'utilisateur",
+                    required = true
+            )
+    )
     public String updateUserRole(@PathVariable Long id, @Valid @RequestBody UserRoleUpdateDTO roleUpdateDTO) throws UserNotFoundException {
         userService.updateUserRole(id, roleUpdateDTO);
         return "Rôle mis à jour avec succès";
@@ -116,6 +147,12 @@ public class UserController {
 
 
     @DeleteMapping("/delete/{email}")
+    @Operation(summary = "Supprimer un utilisateur", description = "Supprime un utilisateur en fonction de son adresse email.",
+    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Adresse email de l'utilisateur à supprimer",
+            required = true
+        )
+    )
     public ResponseEntity delete(@RequestHeader("Authorization") String token,  @PathVariable String email) throws UserNotFoundException {
         String emailUser = jwtUtil.extractEmail(token.substring(7));
         String role = jwtUtil.extractRole(token.substring(7));
@@ -142,6 +179,12 @@ public class UserController {
 
     @PutMapping("/update-status/{id}")
     @PreAuthorize("hasAuthority('SERVICE_COMMERCIAL')") // Vérifie que l’utilisateur est bien ADMIN
+    @Operation(summary = "Mettre à jour le statut utilisateur", description = "Met à jour le statut d'un utilisateur.",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Nouveau statut de l'utilisateur",
+                    required = true
+            )
+    )
     public ResponseEntity<String> updateStatus(@PathVariable Long id, @RequestBody String status) throws UserNotFoundException {
         userService.updateStatus(id, status);
         return ResponseEntity.ok("Statut mis à jour avec succès");

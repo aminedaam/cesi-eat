@@ -26,8 +26,9 @@ public class ParrainageController {
 
     private final ParrainageService parrainageService;
 
-    @PostMapping("/create/{codeParrainage}")
-    @Operation(summary = "Créer un parrainage", description = "Crée une relation entre un utilisateur parrainé et son parrain.")
+    @PostMapping("/create")
+    @Operation(summary = "Créer un parrainage", description = "Crée une relation entre un utilisateur parrainé et son parrain."
+    , security = @io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "Bearer Authentication"))
     public ResponseEntity<Parrainage> createParrainage(@Valid @RequestBody ParrainageDto parrainage) throws CodeParrainageAlreadyUsedException, UserNotFoundException {
         Parrainage saved = parrainageService.createParrainage(parrainage);
         return ResponseEntity.ok(saved);

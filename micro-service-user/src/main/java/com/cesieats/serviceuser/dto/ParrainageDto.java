@@ -12,7 +12,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ParrainageDto {
 
-    private long idParrain;
     private long idParrainne;
     private String codeParrainage;
 }

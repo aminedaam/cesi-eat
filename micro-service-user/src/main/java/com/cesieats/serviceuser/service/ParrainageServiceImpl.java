@@ -49,17 +49,19 @@ public class ParrainageServiceImpl implements ParrainageService {
 
         User parrainne = userRepository.findById(parrainage.getIdParrainne())
                 .orElseThrow(() -> new UserNotFoundException("L'utilisateur parrainé n'existe pas"));
-        if (parrainage.getIdParrain() == parrainage.getIdParrainne()) {
+
+        User parrain = userRepository.findByCodeParrainage(parrainage.getCodeParrainage());
+
+        if (parrain.getId() == parrainage.getIdParrainne()) {
             throw new IllegalArgumentException("L'utilisateur ne peut pas se parrainer lui-même.");
         }
-        Optional<User> parrain = userRepository.findById(parrainage.getIdParrain());
-        if(!parrain.isPresent()){
+        if(parrain == null ){
             throw new UserNotFoundException("Le parrain n'existe pas");
         }
-        if(!parrainage.getCodeParrainage().equals(parrain.get().getCodeParrainage())){
+        if(!parrainage.getCodeParrainage().equals(parrain.getCodeParrainage())){
             throw new CodeParrainageAlreadyUsedException("Erreur sur le code de parrainage");
         }
-        Parrainage createParrainage = new Parrainage(parrainne, parrain.get(), false);
+        Parrainage createParrainage = new Parrainage(parrainne, parrain, false);
 
         return parrainageRepository.save(createParrainage);
     }

@@ -27,7 +27,7 @@ import java.util.Optional;
 //         allowedHeaders = {"Content-Type", "Authorization"}, // Autorise ces en-têtes
 //         methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS}
 // )
-@RequestMapping("/users")
+@RequestMapping("/api/users")
 @AllArgsConstructor
 public class UserController {
 

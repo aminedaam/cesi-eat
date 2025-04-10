@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/parrainages")
+@RequestMapping("/api/parrainages")
 @AllArgsConstructor
 public class ParrainageController {
 

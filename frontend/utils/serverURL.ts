@@ -1,1 +1,1 @@
-export const serverURL = "http://172.16.10.12:4000";
+export const serverURL = "https://cesieat.ovh:443/api";

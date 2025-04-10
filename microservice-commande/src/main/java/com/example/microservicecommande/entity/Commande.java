@@ -26,6 +26,8 @@ public class Commande {
 
     private double prixTotal;
 
+    private double sousTotal;
+
     private String createdAt;
 
     private String status;
@@ -35,5 +37,8 @@ public class Commande {
     private double servicesFees;
 
     private boolean promotion;
+
+    private Livreur livreur;
+
 
 }

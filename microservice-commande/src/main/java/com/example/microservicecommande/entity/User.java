@@ -19,4 +19,5 @@ public class User {
     private String country;
     private String longitude;
     private String latitude;
+    private boolean reductionUtilisee;
 }

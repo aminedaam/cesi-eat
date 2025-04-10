@@ -32,6 +32,14 @@ public class CommandeService {
             commandeRepository.save(commande);
         }
     }
+    public void updateCommandeStatus(String commandeId, String status) throws CommandeNotFoundException {
+        Commande commande = commandeRepository.findById(commandeId).orElseThrow(
+                () -> new CommandeNotFoundException("Commande non trouvée avec l'id :" + commandeId));
+        if (commande != null) {
+            commande.setStatus(status);
+            commandeRepository.save(commande);
+        }
+    }
     public Commande getCommandeById(String commandeId) throws CommandeNotFoundException {
         return commandeRepository.findById(commandeId).orElseThrow(
                 () -> new CommandeNotFoundException("Commande non trouvée avec l'id :" + commandeId));
@@ -61,13 +69,10 @@ public class CommandeService {
         }
     }
 
-    public List<Commande> getCommandeByStatus(String status) throws CommandeNotFoundException {
+    public List<Commande> getCommandeByStatus(String status) {
         List<Commande> commandes = commandeRepository.findAll().stream()
                 .filter(commande -> commande.getStatus().toString().equals(status))
                 .toList();
-        if(commandes.isEmpty()){
-            throw new CommandeNotFoundException("Commande non trouvée avec le status :" + status);
-        }
         return commandes;
     }
 }

@@ -3,7 +3,7 @@
   "createdAt": "2023-10-01T12:00:00Z",
   "prixTotal": 25.00,
   "status": "PENDING",
-  "client":[{
+  "client":{
     "id": "987654321",
     "lastName": "Dupont",
     "name": "Jean",
@@ -14,7 +14,7 @@
     "phoneNumber": "+33 1 23 45 67 89",
     "longitude": 2.3522,
     "latitude": 48.8566
-  }],
+  },
   "article":[{
     "id": "7",
     "name": "Burger",
@@ -39,9 +39,13 @@
     "city": "Paris",
     "postalCode": "75008",
     "country": "France",
+    "email": "restaurantTest@gmail.com",
+    "imagePath": "https://example.com/image.jpg",
     "phoneNumber": "+33 1 23 45 67 89",
     "longitude": 2.2945,
     "latitude": 48.8738
-  }
-
+  },
+  "servicesFees": 2.50,
+  "deliveryCosts": 5.00,
+  "promotion": true
 }

@@ -1,4 +1,9 @@
 spring:
+  jpa:
+    database-platform: org.hibernate.dialect.SQLServerDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
   main:
     allow-circular-references: true
   cloud:
@@ -15,11 +20,7 @@ spring:
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
 
 
-jpa:
-  database-platform: org.hibernate.dialect.SQLServerDialect
-  hibernate:
-    ddl-auto: update
-  show-sql: true
+
 
 server:
   port: 4001

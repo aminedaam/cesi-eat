@@ -21,6 +21,18 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Ajout des configurations pour la production
+  output: 'standalone',
+  poweredByHeader: false,
+  // Configuration pour gérer les routes dynamiques
+  async rewrites() {
+    return [
+      {
+        source: '/restaurants/:id',
+        destination: '/restaurants/[id]',
+      },
+    ];
+  },
 };
 
 export default nextConfig;

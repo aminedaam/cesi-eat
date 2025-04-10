@@ -18,4 +18,6 @@ public class Restaurant {
     private String country;
     private String longitude;
     private String latitude;
+    private String email;
+    private String imagePath;
 }

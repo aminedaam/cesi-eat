@@ -37,7 +37,7 @@ const MyRestaurantsPage: React.FC = () => {
       }
     };
     fetchRestaurants();
-  }, []);
+  }, [accessToken]);
 
   if (role !== "RESTAURATEUR") {
     return (

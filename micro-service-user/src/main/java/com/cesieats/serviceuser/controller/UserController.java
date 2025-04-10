@@ -3,6 +3,9 @@ package com.cesieats.serviceuser.controller;
 import com.cesieats.serviceuser.config.JwtUtil;
 import com.cesieats.serviceuser.dto.*;
 import com.cesieats.serviceuser.entity.User;
+import com.cesieats.serviceuser.enums.Role;
+import com.cesieats.serviceuser.enums.Status;
+import com.cesieats.serviceuser.exception.CodeParrainageAlreadyUsedException;
 import com.cesieats.serviceuser.exception.InvalidPasswordException;
 import com.cesieats.serviceuser.exception.UserEmailUsedException;
 import com.cesieats.serviceuser.exception.UserNotFoundException;
@@ -38,7 +41,9 @@ public class UserController {
 
         if (userOptional.isPresent()) {
             User user = userOptional.get();
-
+            if(userOptional.get().getStatus().toString().equals(Status.SUSPENDED)){
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new AuthResponse("Utilisateur suspendu"));
+            }
             // Vérification avec le passwordEncoder
             if (passwordEncoder.matches(authRequest.getPassword(), user.getPassword())) {
                 String token = jwtUtil.generateToken(user);
@@ -65,7 +70,7 @@ public class UserController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<User> register(@Valid @RequestBody User user){
+    public ResponseEntity<User> register(@Valid @RequestBody User user) throws UserEmailUsedException, CodeParrainageAlreadyUsedException {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(userService.saveUser(user));
     }
@@ -81,11 +86,17 @@ public class UserController {
                 .orElseThrow(() -> new UserNotFoundException("Utilisateur non trouvé"));
     }
 
+    @GetMapping("/getByRole/{role}")
+    public List<User> getUserByRole(@PathVariable String role) throws UserNotFoundException {
+        return userService.getUserByRole(role);
+    }
     @PutMapping("/update-profil/{id}")
     public ResponseEntity<String> update(@PathVariable Long id, @Valid @RequestBody UserDTO userUpdated) throws UserNotFoundException, UserEmailUsedException { // http://localhost:port/user/update/125
         User userModifier = userService.updateUser(id, userUpdated);
-        return ResponseEntity.ok("Utilisateur mis à jour avec succès + token:" + jwtUtil.generateToken(userModifier));
+        return ResponseEntity.ok(jwtUtil.generateToken(userModifier));
     }
+
+
 
 
     @PutMapping("/update-password/{id}")
@@ -103,14 +114,36 @@ public class UserController {
         return "Rôle mis à jour avec succès";
     }
 
+
     @DeleteMapping("/delete/{email}")
-    public String delete(@RequestHeader("Authorization") String token,  @PathVariable String email) throws UserNotFoundException {
+    public ResponseEntity delete(@RequestHeader("Authorization") String token,  @PathVariable String email) throws UserNotFoundException {
         String emailUser = jwtUtil.extractEmail(token.substring(7));
-        if(!emailUser.equals(email)){
-            return "vous ne pouvez pas supprimer un autre utilisateur que vous même";
+        String role = jwtUtil.extractRole(token.substring(7));
+        User user = userService.getUserByEmail(email).get();
+
+        if(role.equals(Role.SERVICE_COMMERCIAL.toString()) || role.equals(Role.ADMIN.toString())){
+            if(user.getRole() == Role.CLIENT){
+                userService.deleteUserByEmail(email);
+                return ResponseEntity.ok()
+                        .body("Utilisateur supprimé avec succès");
+            }else{
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("vous ne pouvez pas supprimer un utilisateur avec un autre rôle que CLIENT");
+            }
+        }else if(!emailUser.equals(email)){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("vous ne pouvez pas supprimer un autre utilisateur que vous même");
+        }else{
+            userService.deleteUserByEmail(email);
+            return ResponseEntity.ok()
+                    .body("Utilisateur supprimé avec succès");
         }
-        userService.deleteUserByEmail(email);
-        return "Utilisateur supprimé";
     }
 
+    @PutMapping("/update-status/{id}")
+    @PreAuthorize("hasAuthority('SERVICE_COMMERCIAL')") // Vérifie que l’utilisateur est bien ADMIN
+    public ResponseEntity<String> updateStatus(@PathVariable Long id, @RequestBody String status) throws UserNotFoundException {
+        userService.updateStatus(id, status);
+        return ResponseEntity.ok("Statut mis à jour avec succès");
+    }
 }

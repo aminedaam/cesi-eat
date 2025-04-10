@@ -86,11 +86,17 @@ public class UserController {
                 .orElseThrow(() -> new UserNotFoundException("Utilisateur non trouvé"));
     }
 
+    @GetMapping("/getByRole/{role}")
+    public List<User> getUserByRole(@PathVariable String role) throws UserNotFoundException {
+        return userService.getUserByRole(role);
+    }
     @PutMapping("/update-profil/{id}")
     public ResponseEntity<String> update(@PathVariable Long id, @Valid @RequestBody UserDTO userUpdated) throws UserNotFoundException, UserEmailUsedException { // http://localhost:port/user/update/125
         User userModifier = userService.updateUser(id, userUpdated);
         return ResponseEntity.ok(jwtUtil.generateToken(userModifier));
     }
+
+
 
 
     @PutMapping("/update-password/{id}")
@@ -107,6 +113,7 @@ public class UserController {
         userService.updateUserRole(id, roleUpdateDTO);
         return "Rôle mis à jour avec succès";
     }
+
 
     @DeleteMapping("/delete/{email}")
     public ResponseEntity delete(@RequestHeader("Authorization") String token,  @PathVariable String email) throws UserNotFoundException {
@@ -133,4 +140,10 @@ public class UserController {
         }
     }
 
+    @PutMapping("/update-status/{id}")
+    @PreAuthorize("hasAuthority('SERVICE_COMMERCIAL')") // Vérifie que l’utilisateur est bien ADMIN
+    public ResponseEntity<String> updateStatus(@PathVariable Long id, @RequestBody String status) throws UserNotFoundException {
+        userService.updateStatus(id, status);
+        return ResponseEntity.ok("Statut mis à jour avec succès");
+    }
 }

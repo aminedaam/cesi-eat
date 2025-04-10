@@ -159,7 +159,7 @@ public class UserController {
         User user = userService.getUserByEmail(email).get();
 
         if(role.equals(Role.SERVICE_COMMERCIAL.toString()) || role.equals(Role.ADMIN.toString())){
-            if(user.getRole() == Role.CLIENT){
+            if(user.getRole() == Role.CLIENT ||user.getRole() == Role.RESTAURATEUR || user.getRole() == Role.LIVREUR){
                 userService.deleteUserByEmail(email);
                 return ResponseEntity.ok()
                         .body("Utilisateur supprimé avec succès");

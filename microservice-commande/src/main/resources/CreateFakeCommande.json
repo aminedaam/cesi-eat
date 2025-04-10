@@ -47,5 +47,14 @@
   },
   "servicesFees": 2.50,
   "deliveryCosts": 5.00,
-  "promotion": true
+  "promotion": true,
+  "sousTotal": 20.00,
+  "livreur": {
+    "id": "654321987",
+    "phoneNumber": "+33 6 12 34 56 78",
+    "name": "Livraison Express",
+    "longitude": 2.3522,
+    "latitude": 48.8566
+  }
+
 }

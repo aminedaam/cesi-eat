@@ -1,7 +1,10 @@
 package com.cesieats.serviceuser.service;
 
+import com.cesieats.serviceuser.dto.ParrainageDto;
 import com.cesieats.serviceuser.entity.Parrainage;
+import com.cesieats.serviceuser.entity.User;
 import com.cesieats.serviceuser.exception.CodeParrainageAlreadyUsedException;
+import com.cesieats.serviceuser.exception.UserNotFoundException;
 import com.cesieats.serviceuser.repository.ParrainageRepository;
 import com.cesieats.serviceuser.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -10,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -23,16 +27,41 @@ public class ParrainageServiceImpl implements ParrainageService {
 
 
 
+//    @Override
+//    public boolean parrainer(Long idUser) {
+//        Parrainage parrainage = parrainageRepository.findById(idParrainage).orElseThrow(() -> new IllegalArgumentException("Parrainage non trouvé"));
+//        if (parrainage.getUtilisateurParraine() != null) {
+//            return false; // Le parrainage a déjà été utilisé
+//        }
+//        parrainage.setUtilisateurParraine(userRepository.findById(idUser).orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé")));
+//        parrainageRepository.save(parrainage);
+//        return true;
+//    }
     @Override
-    public Parrainage createParrainage(Parrainage parrainage) throws CodeParrainageAlreadyUsedException {
-        if (parrainage.getParrain() == null || parrainage.getUtilisateurParraine() == null) {
-            throw new CodeParrainageAlreadyUsedException("Le parrain et l'utilisateur parrainé ne peuvent pas être nuls");
-        }
+    public void updatePromotion(long idParrainage, boolean isUsed) {
+        Parrainage parrainage = parrainageRepository.findById(idParrainage).orElseThrow(() -> new IllegalArgumentException("Parrainage non trouvé"));
+        parrainage.setPromotion(isUsed);
+        parrainageRepository.save(parrainage);
+    }
+    @Override
+    public Parrainage createParrainage(ParrainageDto parrainage) throws CodeParrainageAlreadyUsedException, UserNotFoundException{
 
-        if (parrainage.getParrain().getId().equals(parrainage.getUtilisateurParraine().getId())) {
+
+        User parrainne = userRepository.findById(parrainage.getIdParrainne())
+                .orElseThrow(() -> new UserNotFoundException("L'utilisateur parrainé n'existe pas"));
+        if (parrainage.getIdParrain() == parrainage.getIdParrainne()) {
             throw new IllegalArgumentException("L'utilisateur ne peut pas se parrainer lui-même.");
         }
-        return parrainageRepository.save(parrainage);
+        Optional<User> parrain = userRepository.findById(parrainage.getIdParrain());
+        if(!parrain.isPresent()){
+            throw new UserNotFoundException("Le parrain n'existe pas");
+        }
+        if(!parrainage.getCodeParrainage().equals(parrain.get().getCodeParrainage())){
+            throw new CodeParrainageAlreadyUsedException("Erreur sur le code de parrainage");
+        }
+        Parrainage createParrainage = new Parrainage(parrainne, parrain.get(), false);
+
+        return parrainageRepository.save(createParrainage);
     }
 
 
@@ -40,6 +69,17 @@ public class ParrainageServiceImpl implements ParrainageService {
     public List<Parrainage> getAllParrainages() {
         return parrainageRepository.findAll();
     }
+
+    @Override
+    public Parrainage findByParrainneId(Long idParrainne) throws UserNotFoundException {
+        return parrainageRepository.findAll().stream()
+                .filter(parrainage -> parrainage.getUtilisateurParraine().getId().equals(idParrainne))
+                .findFirst()
+                .orElseThrow(() -> new UserNotFoundException("Aucun parrainage trouvé pour l'utilisateur avec l'ID : " + idParrainne));
+    }
+
+
+
 
 
 }

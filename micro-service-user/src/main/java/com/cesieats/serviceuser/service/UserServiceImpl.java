@@ -3,12 +3,14 @@ package com.cesieats.serviceuser.service;
 import com.cesieats.serviceuser.dto.UserDTO;
 import com.cesieats.serviceuser.dto.UserRoleUpdateDTO;
 import com.cesieats.serviceuser.dto.UserUpdatePasswordDTO;
+import com.cesieats.serviceuser.entity.Parrainage;
 import com.cesieats.serviceuser.entity.User;
 import com.cesieats.serviceuser.enums.Status;
 import com.cesieats.serviceuser.exception.CodeParrainageAlreadyUsedException;
 import com.cesieats.serviceuser.exception.InvalidPasswordException;
 import com.cesieats.serviceuser.exception.UserEmailUsedException;
 import com.cesieats.serviceuser.exception.UserNotFoundException;
+import com.cesieats.serviceuser.repository.ParrainageRepository;
 import com.cesieats.serviceuser.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,6 +25,8 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService{
 
     private final UserRepository userRepository ;
+
+    private final ParrainageRepository parrainageRepository;
 
     private final PasswordEncoder passwordEncoder;
     @Override
@@ -124,6 +128,19 @@ public class UserServiceImpl implements UserService{
     public void deleteUserByEmail(String email) throws UserNotFoundException {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("Utilisateur non trouvé"));
+
+        List<Parrainage> parraine = parrainageRepository.findAll().stream()
+                .filter(parrainage -> parrainage.getUtilisateurParraine().getId().equals(user.getId()))
+                .toList();
+
+        List<Parrainage> parrain = parrainageRepository.findAll().stream()
+                .filter(parrainage -> parrainage.getParrain().getId().equals(user.getId()))
+                .toList();
+
+        parraine.forEach(parrainageRepository::delete);
+        parrain.forEach(parrainageRepository::delete);
+
+
         userRepository.delete(user);
     }
 

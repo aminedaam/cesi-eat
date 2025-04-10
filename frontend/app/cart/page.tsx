@@ -4,7 +4,13 @@ import Image from "next/image";
 // Import specific types from store if needed, or rely on inference
 import { useCartStore, ArticleCartItem, MenuCartItem } from "@/store/cartStore";
 import { useRouter } from "next/navigation";
-import { Trash, ShoppingBag, Building2, MapPin, X, ShoppingCart } from "lucide-react";
+import {
+  Trash,
+  ShoppingBag,
+  Building2,
+  MapPin,
+  ShoppingCart,
+} from "lucide-react";
 // --- Import useMemo ---
 import { useState, useEffect, useMemo } from "react";
 // ----------------------
@@ -275,7 +281,8 @@ const CartPage = () => {
             Votre panier est vide
           </p>
           <p className="text-sm text-gray-500 mb-8 max-w-xs">
-            Une fois que vous aurez ajouté des plats d&apos;un restaurant, votre panier s&apos;affichera ici.
+            Une fois que vous aurez ajouté des plats d&apos;un restaurant, votre
+            panier s&apos;affichera ici.
           </p>
           <Link href="/home">
             <CustomButton className="button-primary-50 rounded-full px-8 py-3 shadow-md hover:shadow-lg transition-all duration-300 text-base">
@@ -324,7 +331,9 @@ const CartPage = () => {
                           <p className="text-sm text-gray-600 mt-1">
                             {restaurantData.quantity} article
                             {restaurantData.quantity > 1 ? "s" : ""} •{" "}
-                            <span className="font-semibold">{restaurantData.total.toFixed(2)} €</span>
+                            <span className="font-semibold">
+                              {restaurantData.total.toFixed(2)} €
+                            </span>
                           </p>
                           {userAddress && (
                             <p className="text-xs text-gray-500 mt-2 flex items-center">
@@ -337,9 +346,12 @@ const CartPage = () => {
                       <button
                         title="Vider le panier de ce restaurant"
                         onClick={() =>
-                          openDeleteModal({ id: restaurantId, name: details.name })
+                          openDeleteModal({
+                            id: restaurantId,
+                            name: details.name,
+                          })
                         }
-                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors duration-200"
+                        className="p-2 text-gray-400 cursor-pointer hover:text-red-500 hover:bg-red-50 rounded-full transition-colors duration-200"
                       >
                         <Trash className="w-5 h-5" />
                       </button>
@@ -347,15 +359,17 @@ const CartPage = () => {
 
                     <div className="mt-6 space-y-3">
                       <button
-                        className="w-full bg-black text-white py-3 rounded-xl font-semibold text-sm hover:bg-gray-800 transition duration-200 flex items-center justify-center"
+                        className="w-full bg-black cursor-pointer text-white py-3 rounded-xl font-semibold text-sm hover:bg-gray-800 transition duration-200 flex items-center justify-center"
                         onClick={() => router.push(`/cart/${restaurantId}`)}
                       >
                         <ShoppingCart className="h-5 w-5 mr-2" />
                         Voir le panier
                       </button>
                       <button
-                        className="w-full bg-gray-50 text-gray-800 py-3 rounded-xl font-semibold text-sm hover:bg-gray-100 transition duration-200 flex items-center justify-center"
-                        onClick={() => router.push(`/restaurants/${restaurantId}`)}
+                        className="w-full bg-gray-50 cursor-pointer text-gray-800 py-3 rounded-xl font-semibold text-sm hover:bg-gray-100 transition duration-200 flex items-center justify-center"
+                        onClick={() =>
+                          router.push(`/restaurants/${restaurantId}`)
+                        }
                       >
                         <Building2 className="h-5 w-5 mr-2" />
                         Afficher l&apos;établissement

@@ -145,7 +145,7 @@ const MyRestaurantsPage: React.FC = () => {
               </p>
               {!searchTerm && (
                 <Link href="/restaurants/create">
-                  <CustomButton className="bg-primary-500 hover:bg-primary-600 text-white px-6 py-3 rounded-lg inline-flex items-center space-x-2 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                  <CustomButton className="bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-lg inline-flex items-center space-x-2 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
                     <Plus className="h-5 w-5" />
                     <span>Créer votre premier restaurant</span>
                   </CustomButton>

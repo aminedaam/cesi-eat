@@ -20,7 +20,8 @@ import Image from "next/image";
 import Link from "next/link";
 
 export default function OrderDetailPage() {
-  const params = useParams();
+  const {id} = useParams()
+  const commandeId = id as string;
   const router = useRouter();
   const [commande, setCommande] = useState<Commande | null>(null);
   const [loading, setLoading] = useState(true);
@@ -29,16 +30,15 @@ export default function OrderDetailPage() {
 
   useEffect(() => {
     const fetchCommande = async () => {
-      if (!params.id || !token) {
+      if (!commandeId || !token) {
         setError("Données manquantes pour charger la commande");
         setLoading(false);
         return;
       }
 
       try {
-        const commandeData = await getCommandeById(params.id as string, token);
+        const commandeData = await getCommandeById(commandeId, token);
         setCommande(commandeData);
-        setLoading(false);
       } catch (err) {
         console.error("Erreur lors de la récupération de la commande:", err);
         setError(
@@ -49,7 +49,7 @@ export default function OrderDetailPage() {
     };
 
     fetchCommande();
-  }, [params.id, token]);
+  }, [commandeId, token]);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -114,7 +114,7 @@ export default function OrderDetailPage() {
       <div className="container mx-auto px-4 py-8">
         <button
           onClick={() => router.back()}
-          className="flex items-center text-blue-600 hover:text-blue-800 mb-6"
+          className="flex items-center cursor-pointer text-blue-600 hover:text-blue-800 mb-6"
         >
           <ArrowLeft className="mr-2" /> Retour aux commandes
         </button>
@@ -136,7 +136,7 @@ export default function OrderDetailPage() {
     <div className="container mx-auto px-4 py-8">
       <button
         onClick={() => router.back()}
-        className="flex items-center text-blue-600 hover:text-blue-800 mb-6"
+        className="flex items-center cursor-pointer text-blue-600 hover:text-blue-800 mb-6"
       >
         <ArrowLeft className="mr-2" /> Retour aux commandes
       </button>

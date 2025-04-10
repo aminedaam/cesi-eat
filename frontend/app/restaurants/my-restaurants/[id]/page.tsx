@@ -335,7 +335,7 @@ function RestaurantPage() {
                       menuArticlesMap[menu.id].length > 0 && (
                         <button
                           onClick={() => toggleMenuExpansion(menu.id!)}
-                          className="w-full flex items-center justify-between text-sm text-gray-500 hover:text-gray-700"
+                          className="w-full flex cursor-pointer items-center justify-between text-sm text-gray-500 hover:text-gray-700"
                         >
                           <span>Voir les articles</span>
                           <ChevronDown
@@ -464,7 +464,7 @@ function RestaurantPage() {
                 </div>
                 <h3 className="text-xl font-semibold text-gray-700">Aucun menu ou article disponible</h3>
                 <p className="text-gray-500 max-w-md">
-                  Ce restaurant n'a pas encore de menus ou d'articles. Vous pouvez en ajouter en utilisant les boutons ci-dessus.
+                  Ce restaurant n&apos;a pas encore de menus ou d&apos;articles. Vous pouvez en ajouter en utilisant les boutons ci-dessus.
                 </p>
                 <div className="flex flex-wrap gap-3 mt-4">
                   <Link href={`/restaurants/${restaurantId}/menus/create`}>

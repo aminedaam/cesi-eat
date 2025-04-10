@@ -5,13 +5,16 @@ import { RestaurantList } from "@/components/RestaurantList";
 import { CommandeList } from "@/components/CommandeList";
 import { useMe } from "@/hooks/useMe";
 import { useAuthStore } from "@/store/authStore";
-import { Bell, MapPin, ShoppingCart } from "lucide-react";
-import Image from "next/image";
+import { Bell, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Commande } from "@/types/Commandes";
-import { getAllCommandes, getAllCommandesByRestaurantId, getCommandesByStatus, updateCommande } from "@/utils/apiCommandes";
+import {
+  getAllCommandesByRestaurantId,
+  getCommandesByStatus,
+  updateCommandeStatus,
+} from "@/utils/apiCommandes";
 import LoadingSpinner from "@/components/helper-components/LoadingSpinner";
 import { toast } from "react-toastify";
 import { getMyRestaurants } from "@/utils/apiRestaurant";
@@ -23,8 +26,11 @@ const HomePage: React.FC = () => {
   const accessToken = useAuthStore((state) => state.accessToken);
   const { user, loading, error } = useMe(accessToken ?? "");
   const [commandes, setCommandes] = useState<Commande[]>([]);
+  const [commandesDisponibles, setCommandesDisponibles] = useState<Commande[]>([]);
   const [loadingCommandes, setLoadingCommandes] = useState(false);
+  const [loadingCommandesDisponibles, setLoadingCommandesDisponibles] = useState(false);
   const [errorCommandes, setErrorCommandes] = useState<string | null>(null);
+  const [errorCommandesDisponibles, setErrorCommandesDisponibles] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isLoggedIn) {
@@ -32,71 +38,98 @@ const HomePage: React.FC = () => {
     }
   }, [isLoggedIn, router]);
 
+  const handleError = useCallback((err: unknown, setError: (error: string | null) => void, setCommandes: (commandes: Commande[]) => void) => {
+    console.error("Erreur lors de la récupération des commandes:", err);
+    if (err instanceof Error) {
+      setCommandes([]);
+    } else {
+      setError("Impossible de charger les commandes. Veuillez réessayer plus tard.");
+    }
+  }, []);
+
+  // useEffect pour les commandes en cours de livraison (IN_PROGRESS)
   useEffect(() => {
-    const fetchCommandes = async () => {
-      if (!accessToken || !user) return;
-      
+    const fetchCommandesEnCours = async () => {
+      if (!accessToken || !user || user.role !== "LIVREUR") return;
+
       setLoadingCommandes(true);
       setErrorCommandes(null);
-      
+
       try {
-        if (user.role === "RESTAURATEUR") {
-          // Pour les restaurateurs, récupérer les commandes PENDING de leurs restaurants
-          const userRestaurants = await getMyRestaurants(accessToken);
-          const allCommandes = await Promise.all(
-            userRestaurants.map(async (restaurant) => {
-              const restaurantCommandes = await getAllCommandesByRestaurantId(restaurant.id!, accessToken);
-              return restaurantCommandes.filter(commande => commande.status === "PENDING");
-            })
-          ).then(commandesArrays => commandesArrays.flat());
-          const pendingCommandes = allCommandes.filter(
-            (commande) => commande.status === "PENDING"
-          );
-          setCommandes(pendingCommandes);
-        } else if (user.role === "LIVREUR") {
-          // Pour les livreurs, récupérer toutes les commandes CONFIRMED
-          const allCommandes = await getAllCommandes(accessToken);
-          console.log(allCommandes);
-          const confirmedCommandes = allCommandes.filter(
-            (commande) => commande.status === "IN_PROGRESS"
-          );
-          setCommandes(confirmedCommandes);
-          // getCommandesByStatus is not created yet
-          // const allConfirmedCommandes = await getCommandesByStatus("IN_PROGRESS", accessToken);
-          // setCommandes(allConfirmedCommandes);
-        }
+        const commandesEnCours = await getCommandesByStatus("IN_PROGRESS", accessToken);
+        setCommandes(commandesEnCours);
       } catch (err) {
-        console.error("Erreur lors de la récupération des commandes:", err);
-        setErrorCommandes("Impossible de charger les commandes. Veuillez réessayer plus tard.");
+        handleError(err, setErrorCommandes, setCommandes);
       } finally {
         setLoadingCommandes(false);
       }
     };
 
-    fetchCommandes();
-  }, [accessToken, user]);
+    fetchCommandesEnCours();
+  }, [accessToken, user, handleError]);
+
+  // useEffect pour les commandes disponibles (CONFIRMED)
+  useEffect(() => {
+    const fetchCommandesDisponibles = async () => {
+      if (!accessToken || !user || user.role !== "LIVREUR") return;
+
+      setLoadingCommandesDisponibles(true);
+      setErrorCommandesDisponibles(null);
+
+      try {
+        const commandesConfirmees = await getCommandesByStatus("CONFIRMED", accessToken);
+        setCommandesDisponibles(commandesConfirmees);
+      } catch (err) {
+        handleError(err, setErrorCommandesDisponibles, setCommandesDisponibles);
+      } finally {
+        setLoadingCommandesDisponibles(false);
+      }
+    };
+
+    fetchCommandesDisponibles();
+  }, [accessToken, user, handleError]);
+
+  // useEffect pour les commandes des restaurateurs
+  useEffect(() => {
+    const fetchCommandesRestaurateur = async () => {
+      if (!accessToken || !user || user.role !== "RESTAURATEUR") return;
+
+      setLoadingCommandes(true);
+      setErrorCommandes(null);
+
+      try {
+        const userRestaurants = await getMyRestaurants(accessToken);
+        const allCommandes = await Promise.all(
+          userRestaurants.map(async (restaurant) => {
+            const restaurantCommandes = await getAllCommandesByRestaurantId(
+              restaurant.id!,
+              accessToken
+            );
+            return restaurantCommandes.filter(
+              (commande) => commande.status === "PENDING"
+            );
+          })
+        ).then((commandesArrays) => commandesArrays.flat());
+        const pendingCommandes = allCommandes.filter(
+          (commande) => commande.status === "PENDING"
+        );
+        setCommandes(pendingCommandes);
+      } catch (err) {
+        handleError(err, setErrorCommandes, setCommandes);
+      } finally {
+        setLoadingCommandes(false);
+      }
+    };
+
+    fetchCommandesRestaurateur();
+  }, [accessToken, user, handleError]);
 
   const handleConfirmCommande = async (commandeId: number) => {
     if (!accessToken) return;
-    
+
     try {
-      // Trouver la commande à mettre à jour
-      const commandeToUpdate = commandes.find(c => c.id === commandeId);
-      if (!commandeToUpdate) return;
-      
-      // Mettre à jour le statut de la commande
-      const updatedCommande = {
-        ...commandeToUpdate,
-        status: "IN_PROGRESS" as const
-      };
-      console.log(updatedCommande);
-      
-      // Envoyer la mise à jour au serveur
-      await updateCommande(commandeId.toString(), updatedCommande, accessToken);
-      
-      // Mettre à jour l'état local
-      setCommandes(commandes.filter(c => c.id !== commandeId));
-      
+      await updateCommandeStatus(commandeId.toString(), "CONFIRMED", accessToken);
+      setCommandes(commandes.filter((c) => c.id !== commandeId));
       toast.success("Commande confirmée avec succès !");
     } catch (err) {
       console.error("Erreur lors de la confirmation de la commande:", err);
@@ -106,24 +139,12 @@ const HomePage: React.FC = () => {
 
   const handleAcceptLivraison = async (commandeId: number) => {
     if (!accessToken) return;
-    
+
     try {
-      // Trouver la commande à mettre à jour
-      const commandeToUpdate = commandes.find(c => c.id === commandeId);
-      if (!commandeToUpdate) return;
-      
-      // Mettre à jour le statut de la commande
-      const updatedCommande = {
-        ...commandeToUpdate,
-        status: "IN_PROGRESS" as const
-      };
-      
-      // Envoyer la mise à jour au serveur
-      await updateCommande(commandeId.toString(), updatedCommande, accessToken);
-      
-      // Mettre à jour l'état local
-      setCommandes(commandes.filter(c => c.id !== commandeId));
-      
+      await updateCommandeStatus(commandeId.toString(), "IN_PROGRESS", accessToken);
+      const updatedCommandes = await getCommandesByStatus("IN_PROGRESS", accessToken);
+      setCommandesDisponibles(commandesDisponibles.filter((c) => c.id !== commandeId));
+      setCommandes(updatedCommandes);
       toast.success("Livraison acceptée avec succès !");
     } catch (err) {
       console.error("Erreur lors de l'acceptation de la livraison:", err);
@@ -131,12 +152,23 @@ const HomePage: React.FC = () => {
     }
   };
 
-  // Si l'utilisateur n'est pas connecté, ne rien afficher (la redirection est gérée dans le useEffect)
+  const handleFinLivraison = async (commandeId: number) => {
+    if (!accessToken) return;
+
+    try {
+      await updateCommandeStatus(commandeId.toString(), "DELIVERED", accessToken);
+      setCommandes(commandes.filter((c) => c.id !== commandeId));
+      toast.success("Livraison terminée avec succès !");
+    } catch (err) {
+      console.error("Erreur lors de la fin de la livraison:", err);
+      toast.error("Impossible de terminer la livraison. Veuillez réessayer.");
+    }
+  };
+
   if (!isLoggedIn) {
     return null;
   }
 
-  // Si les données utilisateur sont en cours de chargement
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center">
@@ -146,27 +178,28 @@ const HomePage: React.FC = () => {
     );
   }
 
-  // Si une erreur s'est produite lors du chargement des données utilisateur
   if (error) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center">
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative max-w-md">
           <strong className="font-bold">Erreur!</strong>
-          <span className="block sm:inline"> Impossible de charger votre profil.</span>
+          <span className="block sm:inline">
+            {" "}
+            Impossible de charger votre profil.
+          </span>
         </div>
       </div>
     );
   }
 
-  // Affichage conditionnel selon le rôle de l'utilisateur
   return (
-    <div className="min-h-screen bg-gray-50 mt-16">
+    <div className="min-h-screen bg-gray-50 mt-16 mb-16">
       <BaseHeader>
         <div className="flex-1 mx-4">
           <SearchBar
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
-            className="text-black placeholder-neutral-800 py-1 rounded-xl "
+            className="text-black placeholder-neutral-800 py-1 rounded-xl"
             placeHolder="Rechercher dans CesiEat..."
           />
         </div>
@@ -194,19 +227,51 @@ const HomePage: React.FC = () => {
           </div>
         </div>
 
-        {/* Contenu spécifique au rôle */}
         {user?.role === "CLIENT" && <RestaurantList filter={searchTerm} />}
 
         {(user?.role === "RESTAURATEUR" || user?.role === "LIVREUR") && (
-          <div className="mt-6">
-            <CommandeList
-              commandes={commandes}
-              loading={loadingCommandes}
-              error={errorCommandes}
-              userRole={user.role}
-              onConfirmCommande={user.role === "RESTAURATEUR" ? handleConfirmCommande : undefined}
-              onAcceptLivraison={user.role === "LIVREUR" ? handleAcceptLivraison : undefined}
-            />
+          <div className="mt-6 space-y-6">
+            {user?.role === "LIVREUR" && (
+              <>
+                <CommandeList
+                  commandes={commandes}
+                  loading={loadingCommandes}
+                  error={errorCommandes}
+                  userRole={user.role}
+                  onConfirmCommande={undefined}
+                  onAcceptLivraison={undefined}
+                  onFinLivraison={handleFinLivraison}
+                  isCommandesDisponibles={false}
+                  title="Commandes en cours de livraison"
+                />
+                
+                <CommandeList
+                
+                  commandes={commandesDisponibles}
+                  loading={loadingCommandesDisponibles}
+                  error={errorCommandesDisponibles}
+                  userRole={user.role}
+                  onConfirmCommande={undefined}
+                  onAcceptLivraison={handleAcceptLivraison}
+                  onFinLivraison={handleFinLivraison}
+                  isCommandesDisponibles={true}
+                  title="Commandes disponibles"
+                />
+              </>
+            )}
+            
+            {user?.role === "RESTAURATEUR" && (
+              <CommandeList
+                commandes={commandes}
+                loading={loadingCommandes}
+                error={errorCommandes}
+                userRole={user.role}
+                onConfirmCommande={handleConfirmCommande}
+                onAcceptLivraison={undefined}
+                onFinLivraison={undefined}
+                title="Commandes en attente"
+              />
+            )}
           </div>
         )}
       </main>

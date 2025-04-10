@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useCartStore, ArticleCartItem, MenuCartItem } from "@/store/cartStore";
 import { useEffect, useState, useMemo } from "react"; // Added useMemo
 import { useRouter, useParams } from "next/navigation";
-import { Minus, Plus, Trash, ArrowLeft, ShoppingCart, CreditCard, PlusCircle } from "lucide-react";
+import { Minus, Plus, Trash, ShoppingCart, CreditCard, PlusCircle } from "lucide-react";
 import Link from "next/link";
 import { CustomButton } from "@/components/helper-components/CustomButton";
 import Modal from "react-modal";
@@ -242,7 +242,7 @@ const RestaurantCartPage = () => {
                         <button
                           title="Réduire la quantité"
                           onClick={() => removeItem(id, type)}
-                          className="p-1.5 text-gray-600 hover:text-black hover:bg-gray-100 rounded-full transition-colors"
+                          className="p-1.5 text-gray-600 cursor-pointer hover:text-black hover:bg-gray-100 rounded-full transition-colors"
                         >
                           <Minus className="w-4 h-4" />
                         </button>
@@ -269,7 +269,7 @@ const RestaurantCartPage = () => {
                             ? addArticle(item as Article)
                             : addMenu(item as Menu)
                         }
-                        className="p-1.5 text-gray-600 hover:text-black hover:bg-gray-100 rounded-full transition-colors"
+                        className="p-1.5 text-gray-600 cursor-pointer hover:text-black hover:bg-gray-100 rounded-full transition-colors"
                       >
                         <Plus className="w-4 h-4" />
                       </button>
@@ -284,7 +284,7 @@ const RestaurantCartPage = () => {
             {/* --- Add More Items Button --- */}
             <div className="w-full flex justify-center mt-8">
               <Link href={`/restaurants/${restaurantId}`}>
-                <button className="flex items-center justify-center bg-gray-100 rounded-full py-3 px-6 text-sm font-medium text-gray-700 hover:bg-gray-200 transition-colors shadow-sm hover:shadow-md">
+                <button className="flex items-center justify-center cursor-pointer bg-gray-100 rounded-full py-3 px-6 text-sm font-medium text-gray-700 hover:bg-gray-200 transition-colors shadow-sm hover:shadow-md">
                   <PlusCircle className="w-5 h-5 mr-2" />
                   Ajouter d&apos;autres articles
                 </button>
@@ -302,7 +302,7 @@ const RestaurantCartPage = () => {
               </div>
               {/* --- Checkout Button --- */}
               <Link href={`/checkout/${restaurantId}`} className="mt-4 block">
-                <button className="w-full bg-black text-white rounded-xl py-3.5 font-medium hover:bg-gray-800 transition-colors flex items-center justify-center shadow-md hover:shadow-lg">
+                <button className="w-full bg-black cursor-pointer text-white rounded-xl py-3.5 font-medium hover:bg-gray-800 transition-colors flex items-center justify-center shadow-md hover:shadow-lg">
                   <CreditCard className="w-5 h-5 mr-2" />
                   Procéder au paiement
                 </button>

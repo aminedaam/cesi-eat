@@ -15,7 +15,7 @@ export default function CartLayout({ children }: CartLayoutProps) {
         <div className="h-16 mx-auto px-4 flex items-center justify-between">
           <button
             onClick={() => router.back()}
-            className="focus:outline-none"
+            className="focus:outline-none cursor-pointer"
             aria-label="Retour"
           >
             <X className="w-6 h-6 text-gray-700" />

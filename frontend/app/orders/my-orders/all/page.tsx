@@ -16,7 +16,6 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import BaseHeader from "@/components/header_footers/BaseHeader";
-import SearchBar from "@/components/helper-components/SearchBar";
 
 export default function OrderListPage() {
   const { user } = useUserStore();
@@ -24,7 +23,6 @@ export default function OrderListPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const token = useAuthStore((state) => state.accessToken);
-  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const fetchCommandes = async () => {

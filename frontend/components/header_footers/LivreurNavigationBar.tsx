@@ -8,7 +8,7 @@ export const LivreurNavigationBar = ({ selectedPage }: { selectedPage?: string }
         <Home className={selectedPage === "home" ? "text-primary-50" : ""} />
         <span className={selectedPage === "home" ? "text-primary-50" : ""} style={{ fontSize: "14px" }}>Accueil</span>
       </Link>
-      <Link href="/deliveries" className="flex flex-col items-center w-1/4">
+      <Link href="/deliveries/my-deliveries/all" className="flex flex-col items-center w-1/4">
         <Truck className={selectedPage === "deliveries" ? "text-primary-50" : ""} />
           <span className={selectedPage === "deliveries" ? "text-primary-50" : ""} style={{ fontSize: "14px" }}>Livraisons</span>
       </Link>

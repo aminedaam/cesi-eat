@@ -22,6 +22,8 @@ import { getMenusByRestaurantId } from "@/utils/apiMenu";
 
 function RestaurantPage() {
   const { id } = useParams();
+  const params = useParams();
+  console.log(params);
   const restaurantId = Number(id);
 
   // --- Cart Store Interactions ---
@@ -48,6 +50,7 @@ function RestaurantPage() {
   // --- Data Fetching useEffects (No changes needed due to store refactor) ---
   useEffect(() => {
     async function fetchRestaurant() {
+      console.log(params);
       if (!restaurantId || !token) {
         setError("Informations manquantes pour charger le restaurant.");
         setIsLoading(false);
@@ -276,7 +279,7 @@ function RestaurantPage() {
                       menuArticlesMap[menu.id].length > 0 && (
                         <button
                           onClick={() => toggleMenuExpansion(menu.id!)}
-                          className="w-full flex items-center justify-between text-sm text-gray-500 hover:text-gray-700 mt-auto pt-4 border-t border-gray-100" // Style adjustments
+                          className="w-full flex items-center cursor-pointer justify-between text-sm text-gray-500 hover:text-gray-700 mt-auto pt-4 border-t border-gray-100" // Style adjustments
                         >
                           <span>
                             Voir les articles ({menuArticlesMap[menu.id].length}

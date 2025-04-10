@@ -1,0 +1,12 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://172.16.10.12:27017/Commandes
+      database: Commandes
+  application:
+    name: microservice-commande
+
+
+
+server:
+  port: 4003

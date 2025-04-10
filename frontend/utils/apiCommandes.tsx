@@ -225,3 +225,41 @@ export const getCommandesByStatus = async (
     throw error;
   }
 };
+
+export const updateCommandeStatus = async (
+  commandeId: string,
+  status: "PENDING" | "CONFIRMED" | "IN_PROGRESS" | "DELIVERED" | "CANCELLED",
+  token: string
+): Promise<Commande> => {
+  try {
+    const response = await apiCommandes.put(
+      `/update-status/${commandeId}`,
+      status,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "text/plain",
+        },
+      }
+    );
+    const updatedCommande: Commande = response.data;
+    console.log(
+      "Statut de la commande mis à jour avec succès:",
+      updatedCommande
+    );
+    return updatedCommande;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        "Erreur API lors de la mise à jour du statut de la commande:",
+        error.response?.data || error.message
+      );
+    } else {
+      console.error(
+        "Erreur inattendue lors de la mise à jour du statut de la commande:",
+        error
+      );
+    }
+    throw error;
+  }
+};

@@ -12,7 +12,7 @@ export default function RestaurantsLayout({
     <div id="test">
       <div className="w-full h-8 flex fixed top-0 z-50 rounded-t-x">
         <button
-          className="mt-4 ml-4 bg-black/20 rounded-full w-8 h-8 flex items-center justify-center"
+          className="mt-4 ml-4 bg-black/20 rounded-full  cursor-pointerw-8 h-8 flex items-center justify-center"
           onClick={() => router.back()}
         >
           <ChevronLeft className=" w-6 h-6 text-white" />

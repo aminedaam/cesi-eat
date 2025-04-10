@@ -9,9 +9,7 @@ import {
   ChevronDown,
   MapPin,
   Phone,
-  Tag,
   Clock,
-  ArrowLeft,
   CreditCard,
   ShoppingBag,
   Building2,
@@ -29,7 +27,6 @@ import "leaflet/dist/leaflet.css";
 import L, { Map as LeafletMap, Marker as LeafletMarker } from "leaflet";
 import useAddressFromCoordinates from "@/hooks/useAddressFromCoordinates";
 import { Position } from "@/types/Position";
-import LoadingSpinner from "@/components/helper-components/LoadingSpinner";
 import useTravelTime from "@/hooks/useTravelTime";
 import { getRestaurantById } from "@/utils/apiRestaurant";
 import { Restaurant } from "@/types/Restaurants";
@@ -44,7 +41,6 @@ import {
 } from "@/utils/convertCartItemToCommandeItem";
 import { createCommande } from "@/utils/apiCommandes";
 import { toast } from "react-toastify";
-import Link from "next/link";
 
 // Helper Type Guard
 function isArticleCartItem(
@@ -581,7 +577,7 @@ const CheckoutPage = () => {
         {/* Payment Button */}
         <div className="mt-6">
           <button
-            className="w-full bg-black text-white rounded-xl py-4 font-medium hover:bg-gray-800 transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+            className="w-full bg-black cursor-pointer text-white rounded-xl py-4 font-medium hover:bg-gray-800 transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
             disabled={
               isPageLoading || // Désactivé si la page charge encore
               restaurantItems.length === 0 || // Désactivé si le panier est vide

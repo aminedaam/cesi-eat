@@ -17,7 +17,8 @@ import {
   Receipt,
   AlertCircle,
   CheckCircle2,
-  Loader2
+  Loader2,
+  Gift,
 } from "lucide-react";
 // Import useMemo
 import { useEffect, useState, useRef, useCallback, useMemo } from "react";
@@ -41,6 +42,7 @@ import {
 } from "@/utils/convertCartItemToCommandeItem";
 import { createCommande } from "@/utils/apiCommandes";
 import { toast } from "react-toastify";
+import { Parrainage } from "@/types/Parrainage";
 
 // Helper Type Guard
 function isArticleCartItem(
@@ -113,6 +115,9 @@ const CheckoutPage = () => {
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [isLoadingRestaurant, setIsLoadingRestaurant] = useState(true);
 
+  const [hasPromotion, setHasPromotion] = useState<boolean>(false);
+  const [isLoadingPromotion, setIsLoadingPromotion] = useState<boolean>(true);
+
   const handlePayment = async () => {
     if (
       !restaurantId ||
@@ -151,6 +156,8 @@ const CheckoutPage = () => {
         status: "PENDING",
         createdAt: new Date().toISOString(),
       };
+
+      
       // Prepare order item
 
       const newOrder = await createCommande(commande, accessToken);
@@ -296,20 +303,79 @@ const CheckoutPage = () => {
     // Returns null if durationInMinutes is null
   }, [durationInMinutes, restaurant?.delevryCost]);
 
+  // Simuler la vérification de promotion
+  useEffect(() => {
+    const checkPromotion = async () => {
+      if (!user?.id || !accessToken) {
+        setIsLoadingPromotion(false);
+        return;
+      }
+
+      try {
+        // Simulation d'une requête API pour vérifier si l'utilisateur a une promotion
+        // Dans un cas réel, nous utiliserions une API comme getAllParrainages
+        // et filtrerions pour trouver le parrainage de l'utilisateur actuel
+
+        // Simulons un délai de chargement
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
+        // Simulation de la réponse API
+        // Dans un cas réel, nous utiliserions la réponse de l'API
+        const mockParrainage: Parrainage = {
+          id: 1,
+          utilisateurParraine: user,
+          parrain: {
+            id: 2,
+            firstName: "John",
+            lastName: "Doe",
+            email: "john@example.com",
+            phoneNumber: "0123456789",
+            address: "123 Rue Example",
+            city: "Paris",
+            postalCode: "75001",
+            country: "France",
+            password: "hashedPassword",
+            role: "CLIENT",
+            status: "ACTIVE",
+            createdAt: new Date(),
+          },
+          promotion: true, // L'utilisateur a une promotion disponible
+        };
+
+        // Vérifier si l'utilisateur a une promotion disponible
+        setHasPromotion(mockParrainage.promotion);
+      } catch (error) {
+        console.error("Erreur lors de la vérification de la promotion:", error);
+        setHasPromotion(false);
+      } finally {
+        setIsLoadingPromotion(false);
+      }
+    };
+
+    checkPromotion();
+  }, [user?.id, accessToken]);
+
+  // Calculer la réduction de promotion
+  const reductionPromotion = useMemo(() => {
+    if (!hasPromotion) return 0;
+    // Appliquer une réduction de 10% sur le sous-total
+    return sousTotal * 0.1;
+  }, [sousTotal, hasPromotion]);
+
   const totalValue = useMemo(() => {
     // Only calculate total if all components are available
     if (fraisLivraisonValue === null) {
       return null; // Indicate total cannot be calculated yet
     }
-    return sousTotal + fraisServiceValue + fraisLivraisonValue;
-  }, [sousTotal, fraisServiceValue, fraisLivraisonValue]);
+    return (
+      sousTotal + fraisServiceValue + fraisLivraisonValue - reductionPromotion
+    );
+  }, [sousTotal, fraisServiceValue, fraisLivraisonValue, reductionPromotion]);
   // ----------------------------------------------------
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-2xl mx-auto px-4 sm:px-6">
-
-
         {/* Restaurant Info Card */}
         <div className="bg-white rounded-2xl shadow-md overflow-hidden mb-6">
           <div className="p-4 flex items-center">
@@ -333,7 +399,8 @@ const CheckoutPage = () => {
               </h2>
               <p className="text-sm text-gray-500">
                 {getTotalItemsByRestaurantId(restaurantId)} article
-                {getTotalItemsByRestaurantId(restaurantId) > 1 ? "s" : ""} dans votre commande
+                {getTotalItemsByRestaurantId(restaurantId) > 1 ? "s" : ""} dans
+                votre commande
               </p>
             </div>
           </div>
@@ -372,7 +439,9 @@ const CheckoutPage = () => {
             <div className="flex items-start">
               <MapPin className="text-gray-500 h-5 w-5 mt-0.5 flex-shrink-0" />
               <div className="ml-3 flex-1 min-w-0">
-                <p className="text-xs text-gray-500 mb-1">Adresse de livraison</p>
+                <p className="text-xs text-gray-500 mb-1">
+                  Adresse de livraison
+                </p>
                 {loadingUserData ||
                 isLoadingCoordinates ||
                 loadingAddress ||
@@ -390,7 +459,7 @@ const CheckoutPage = () => {
                         user?.address ??
                         "Adresse non disponible"}
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-500 cursor-pointer">
                       {address?.postalCode ?? user?.postalCode ?? ""}{" "}
                       {address?.city ?? user?.city ?? ""}
                     </p>
@@ -398,7 +467,7 @@ const CheckoutPage = () => {
                 )}
               </div>
             </div>
-            
+
             {/* Phone */}
             <div className="flex items-start">
               <Phone className="text-gray-500 h-5 w-5 mt-0.5 flex-shrink-0" />
@@ -416,7 +485,7 @@ const CheckoutPage = () => {
                 )}
               </div>
             </div>
-            
+
             {/* Delivery Time */}
             <div className="flex items-start">
               <Clock className="text-gray-500 h-5 w-5 mt-0.5 flex-shrink-0" />
@@ -471,9 +540,13 @@ const CheckoutPage = () => {
                   {getTotalItemsByRestaurantId(restaurantId) > 1 ? "s" : ""}
                 </span>
               </div>
-              {showItems ? <ChevronDown className="h-5 w-5 text-gray-500" /> : <ChevronRight className="h-5 w-5 text-gray-500" />}
+              {showItems ? (
+                <ChevronDown className="h-5 w-5 text-gray-500" />
+              ) : (
+                <ChevronRight className="h-5 w-5 text-gray-500" />
+              )}
             </div>
-            
+
             {showItems && (
               <div className="mt-3 space-y-2 border-t pt-3">
                 {restaurantItems.map((cartItem) => {
@@ -526,7 +599,9 @@ const CheckoutPage = () => {
             {/* Service Fee */}
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">Frais de service</span>
-              <span className="font-medium">{fraisServiceValue.toFixed(2)} €</span>
+              <span className="font-medium">
+                {fraisServiceValue.toFixed(2)} €
+              </span>
             </div>
 
             {/* Delivery Fee */}
@@ -544,11 +619,34 @@ const CheckoutPage = () => {
               </span>
             </div>
 
+            {/* Promotion Reduction */}
+            {isLoadingPromotion ? (
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Promotion</span>
+                <div className="flex items-center">
+                  <Loader2 className="h-3 w-3 text-gray-400 animate-spin mr-1" />
+                  <span className="text-gray-500">Vérification...</span>
+                </div>
+              </div>
+            ) : hasPromotion ? (
+              <div className="flex justify-between text-sm">
+                <span className="text-green-600 flex items-center">
+                  <Gift className="h-4 w-4 mr-1" />
+                  Réduction parrainage (-10%)
+                </span>
+                <span className="font-medium text-green-600">
+                  -{reductionPromotion.toFixed(2)} €
+                </span>
+              </div>
+            ) : null}
+
             {/* Total */}
             <div className="flex justify-between font-semibold text-base pt-3 border-t mt-2">
               <span>Total</span>
               <span>
-                {isPriceDataLoading || totalValue === null ? (
+                {isPriceDataLoading ||
+                totalValue === null ||
+                isLoadingPromotion ? (
                   <div className="flex items-center">
                     <Loader2 className="h-4 w-4 text-gray-400 animate-spin mr-1" />
                     <span className="text-gray-500">Calcul en cours...</span>
@@ -582,17 +680,20 @@ const CheckoutPage = () => {
               isPageLoading || // Désactivé si la page charge encore
               restaurantItems.length === 0 || // Désactivé si le panier est vide
               totalValue === null || // Désactivé si le total n'est pas calculé
-              !isCardFormValid // Désactivé si le formulaire de carte n'est pas valide
+              !isCardFormValid || // Désactivé si le formulaire de carte n'est pas valide
+              isLoadingPromotion // Désactivé si la vérification de promotion est en cours
             }
             onClick={() => {
               if (isCardFormValid) {
                 handlePayment(); // Appeler la fonction de paiement si le formulaire est valide
               } else {
-                toast.error("Veuillez remplir correctement les informations de paiement.");
+                toast.error(
+                  "Veuillez remplir correctement les informations de paiement."
+                );
               }
             }}
           >
-            {isPriceDataLoading || totalValue === null ? (
+            {isPriceDataLoading || totalValue === null || isLoadingPromotion ? (
               <>
                 <Loader2 className="h-5 w-5 mr-2 animate-spin" />
                 Calcul des frais...

@@ -138,16 +138,21 @@ const SignupPage: React.FC = () => {
           status: "ACTIVE" as const, // Spécifier le type littéral pour éviter l'erreur de type
         };
         const registerResponse = await register(userPayload);
-        console.log("RegisterResponse", registerResponse.data.token);
 
         if (registerResponse.status == 201) {
+          // Connexion après inscription réussie
+          const token = await login(userPayload.email, userPayload.password);
+
           // Si l'inscription est réussie et qu'un code de parrainage a été fourni
           if (values.codeParrainage && values.codeParrainage.trim() !== "") {
             try {
+              const userId = registerResponse.data.id;
+              console.log("values.codeParrainage", values.codeParrainage);
               // Créer le parrainage
               await createParrainage(
+                userId,
                 values.codeParrainage,
-                registerResponse.data.token
+                token ?? ""
               );
               toast.success("Inscription réussie et parrainage appliqué !");
             } catch (parrainageError) {
@@ -162,9 +167,6 @@ const SignupPage: React.FC = () => {
           } else {
             toast.success("Inscription réussie !");
           }
-
-          // Connexion après inscription réussie
-          await login(userPayload.email, userPayload.password);
         }
 
         formik.resetForm();

@@ -9,7 +9,7 @@ interface AuthState {
   isLoggedIn: boolean;
   accessToken: string | null;
   setAccessToken: (token: string) => void;
-  login: (username: string, password: string) => Promise<void>;
+  login: (username: string, password: string) => Promise<string | void>;
   logout: () => void;
 }
 
@@ -21,17 +21,19 @@ export const useAuthStore = create<AuthState>()(
       isLoggedIn: false,
       accessToken: null,
       setAccessToken: (token: string) => set({ accessToken: token }),
-
       // Action to handle login
-      login: async (email: string, password: string) => {
+      login: async (
+        username: string,
+        password: string
+      ): Promise<string | void> => {
         try {
-          const token = await login(email, password);
-
+          const token = await login(username, password);
           if (token) {
             set({
               isLoggedIn: true,
               accessToken: token,
             });
+            return token;
             // Optionally, you could set Axios default headers here if needed
             // axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
           } else {

@@ -3,18 +3,32 @@ import axios from "axios";
 import { serverURL } from "./serverURL";
 
 const apiParrainage = axios.create({
-  baseURL: serverURL + "/api/parrainages/",
+  baseURL: serverURL + "/parrainages/",
   timeout: 5000,
 });
 
-export const createParrainage = async (parrainageData: any, token: string) => {
+export const createParrainage = async (
+  idParrainne: number,
+  codeParrainage: string,
+  token: string
+) => {
   try {
-    console.log(parrainageData);
-    const response = await apiParrainage.post(`create/`, parrainageData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    console.log("Création du parrainage avec:", {
+      idParrainne,
+      codeParrainage,
     });
+    const response = await apiParrainage.post(
+      `create`,
+      {
+        idParrainne: idParrainne,
+        codeParrainage: codeParrainage,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     console.log("Parrainage créé avec succès:", response);
     return response.data;
   } catch (error) {

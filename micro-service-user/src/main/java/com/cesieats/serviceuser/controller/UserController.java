@@ -165,7 +165,7 @@ public class UserController {
                         .body("Utilisateur supprimé avec succès");
             }else{
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body("vous ne pouvez pas supprimer un utilisateur avec un autre rôle que CLIENT");
+                        .body("vous ne pouvez pas supprimer un utilisateur avec un autre rôle que CLIENT/RESTAURATEUR/LIVREUR");
             }
         }else if(!emailUser.equals(email)){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)

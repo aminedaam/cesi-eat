@@ -27,9 +27,10 @@ const signupSchema = z.object({
   city: z.string().min(1, "Veuillez renseigner ce champ"),
   country: z.string().min(1, "Veuillez renseigner ce champ"),
   password: z.string().min(1, "Veuillez renseigner ce champ"),
-  role: z.enum(["CLIENT", "RESTAURATEUR", "LIVREUR"], {
+  role: z.enum(["CLIENT", "RESTAURATEUR", "LIVREUR", "ADMIN", "DEVELOPER", "SERVICE_COMMERCIAL"], {
     errorMap: () => ({ message: "Veuillez sélectionner un rôle valide" }),
   }),
+  codeParrainage: z.string().optional(),
 });
 
 // Validation function for Formik using Zod
@@ -92,6 +93,7 @@ const SignupPage: React.FC = () => {
       country: "",
       password: "",
       role: "CLIENT", // Default role
+      codeParrainage: "", // Ajout du champ code parrainage
     },
     validate: validateZodSchema,
     onSubmit: async (values) => {
@@ -122,6 +124,7 @@ const SignupPage: React.FC = () => {
               longitude: coordinates.longitude,
             }),
           createdAt: new Date(),
+          status: "ACTIVE", // Ajout du statut par défaut pour résoudre l'erreur de type
         };
         const registerResponse = await register(userPayload);
         if (registerResponse.status == 201) {
@@ -506,6 +509,9 @@ const SignupPage: React.FC = () => {
                 <option value="CLIENT">Client</option>
                 <option value="RESTAURATEUR">Restaurateur</option>
                 <option value="LIVREUR">Livreur</option>
+                <option value="ADMIN">Administrateur</option>
+                <option value="DEVELOPER">Développeur</option>
+                <option value="SERVICE_COMMERCIAL">Service Commercial</option>
               </select>
               {/* MODIFIED: Show error only if touched, error exists AND form submitted (as select always has a value) */}
               {formik.touched.role &&
@@ -513,6 +519,39 @@ const SignupPage: React.FC = () => {
                 formik.submitCount > 0 && ( // Simplified for select, error mainly relevant after submit attempt
                   <p className="mt-1 text-xs text-red-600">
                     {formik.errors.role}
+                  </p>
+                )}
+            </div>
+
+            {/* Code Parrainage (Optionnel) */}
+            <div>
+              <Input
+                label="Code Parrainage (Optionnel)"
+                id="codeParrainage"
+                name="codeParrainage"
+                type="text"
+                placeholder="Entrez le code parrainage si vous en avez un"
+                value={formik.values.codeParrainage}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${
+                  // Apply red border if touched and error exists based on the new logic
+                  formik.touched.codeParrainage &&
+                  formik.errors.codeParrainage &&
+                  (formik.values.codeParrainage !== "" || formik.submitCount > 0)
+                    ? "border-red-500"
+                    : "border-gray-300"
+                }`}
+                aria-invalid={
+                  formik.touched.codeParrainage && !!formik.errors.codeParrainage
+                }
+              />
+              {/* MODIFIED: Show error only if touched, error existFbus AND (value is not empty OR form submitted) */}
+              {formik.touched.codeParrainage &&
+                formik.errors.codeParrainage &&
+                (formik.values.codeParrainage !== "" || formik.submitCount > 0) && (
+                  <p className="mt-1 text-xs text-red-600">
+                    {formik.errors.codeParrainage}
                   </p>
                 )}
             </div>

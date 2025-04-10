@@ -198,7 +198,7 @@ const RestaurantCartPage = () => {
                   ? (item as Article).price
                   : (item as Menu).priceMenu;
                 // Get imagePath if it exists on both types, otherwise use fallback
-                const imagePath = (item as Article).imagePath ?? "/burger.png"; // Provide a fallback image
+                const imagePath = (item as Article).imagePath ?? "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Domino%27s_pizza_logo.svg/1018px-Domino%27s_pizza_logo.svg.png"; // Provide a fallback image
                 const type = isArticle ? "article" : "menu";
 
                 // Basic check for valid ID

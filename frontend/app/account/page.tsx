@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "next/navigation";
 import BaseHeader from "@/components/header_footers/BaseHeader";
@@ -8,8 +8,14 @@ import { CustomButton } from "@/components/helper-components/CustomButton";
 import LoadingSpinner from "@/components/helper-components/LoadingSpinner";
 import { toast } from "react-toastify";
 import Link from "next/link";
-import { Settings } from "lucide-react";
+import { Settings, Gift } from "lucide-react";
 import { useMe } from "@/hooks/useMe";
+import Modal from "react-modal";
+import { customModalStyles } from "@/components/CustomModalStyles";
+
+if (typeof window !== "undefined") {
+  Modal.setAppElement("#__next");
+}
 
 const MyAccountPage: React.FC = () => {
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
@@ -17,7 +23,7 @@ const MyAccountPage: React.FC = () => {
   const logout = useAuthStore((state) => state.logout);
   const router = useRouter();
   const { user, error, loading } = useMe(accessToken ?? ""); 
-
+  const [showParrainModal, setShowParrainModal] = useState(false);
 
   // Redirect user if not logged in
   useEffect(() => {
@@ -79,7 +85,14 @@ const MyAccountPage: React.FC = () => {
             </p>
           )}
           {!loading && (
-            <div className="pt-6">
+            <div className="pt-6 space-y-4">
+              <CustomButton
+                onClick={() => setShowParrainModal(true)}
+                className="w-full flex justify-center items-center gap-2 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-black bg-gray-100 hover:bg-gray-200 "
+              >
+                <Gift size={18} />
+                Obtenir mon code parrain
+              </CustomButton>
               <CustomButton
                 onClick={handleLogout}
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white button-primary-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-400 transition duration-150 ease-in-out"
@@ -90,6 +103,41 @@ const MyAccountPage: React.FC = () => {
           )}
         </div>
       </main>
+
+      <Modal
+        isOpen={showParrainModal}
+        onRequestClose={() => setShowParrainModal(false)}
+        style={customModalStyles}
+        contentLabel="Code Parrain"
+      >
+        <div className="flex flex-col">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl font-semibold text-gray-900">Votre code parrain</h3>
+            <button
+              onClick={() => setShowParrainModal(false)}
+              className="text-gray-400 hover:text-gray-500"
+            >
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <div className="bg-purple-50 p-4 rounded-lg text-center">
+            <p className="text-sm text-gray-600 mb-2">Partagez ce code avec vos amis :</p>
+            <div className="bg-white p-3 rounded-md border border-purple-200">
+              <p className="text-2xl font-mono font-bold text-purple-600">{user?.codeParrainage || "Aucun code disponible"}</p>
+            </div>
+          </div>
+          <div className="mt-6 flex justify-end">
+            <CustomButton
+              onClick={() => setShowParrainModal(false)}
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+            >
+              Fermer
+            </CustomButton>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };

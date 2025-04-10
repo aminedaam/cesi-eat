@@ -11,7 +11,6 @@ const apiUser = axios.create({
 export const register = async (userData: User) => {
   try {
     const response = await apiUser.post("/create", userData);
-    console.log("Utilisateur créé avec succès:", response);
     return response;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -32,7 +31,6 @@ export const register = async (userData: User) => {
 export const login = async (email: string, password: string) => {
   try {
     const response = await apiUser.post("/login", { email, password });
-    console.log("Response login", response);
     return response.data.token;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -137,13 +135,11 @@ export const updatePassword = async (
 
 export const deleteUser = async (email: string, token: string) => {
   try {
-    console.log("email!", email)
     const response = await apiUser.delete(`delete/${email}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
-    console.log("Utilisateur supprimé avec succès:", response);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {

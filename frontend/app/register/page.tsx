@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { CustomButton } from "@/components/helper-components/CustomButton";
 import Link from "next/link";
 import { register } from "@/utils/apiUser";
+import { createParrainage } from "@/utils/apiParrainage";
 import { toast } from "react-toastify";
 
 // Zod schema for validation
@@ -27,9 +28,19 @@ const signupSchema = z.object({
   city: z.string().min(1, "Veuillez renseigner ce champ"),
   country: z.string().min(1, "Veuillez renseigner ce champ"),
   password: z.string().min(1, "Veuillez renseigner ce champ"),
-  role: z.enum(["CLIENT", "RESTAURATEUR", "LIVREUR", "ADMIN", "DEVELOPER", "SERVICE_COMMERCIAL"], {
-    errorMap: () => ({ message: "Veuillez sélectionner un rôle valide" }),
-  }),
+  role: z.enum(
+    [
+      "CLIENT",
+      "RESTAURATEUR",
+      "LIVREUR",
+      "ADMIN",
+      "DEVELOPER",
+      "SERVICE_COMMERCIAL",
+    ],
+    {
+      errorMap: () => ({ message: "Veuillez sélectionner un rôle valide" }),
+    }
+  ),
   codeParrainage: z.string().optional(),
 });
 
@@ -124,11 +135,35 @@ const SignupPage: React.FC = () => {
               longitude: coordinates.longitude,
             }),
           createdAt: new Date(),
-          status: "ACTIVE", // Ajout du statut par défaut pour résoudre l'erreur de type
+          status: "ACTIVE" as const, // Spécifier le type littéral pour éviter l'erreur de type
         };
         const registerResponse = await register(userPayload);
+        console.log("RegisterResponse", registerResponse.data.token);
+
         if (registerResponse.status == 201) {
-          toast.success("Inscription réussie !");
+          // Si l'inscription est réussie et qu'un code de parrainage a été fourni
+          if (values.codeParrainage && values.codeParrainage.trim() !== "") {
+            try {
+              // Créer le parrainage
+              await createParrainage(
+                values.codeParrainage,
+                registerResponse.data.token
+              );
+              toast.success("Inscription réussie et parrainage appliqué !");
+            } catch (parrainageError) {
+              console.error(
+                "Erreur lors de l'application du parrainage:",
+                parrainageError
+              );
+              toast.warning(
+                "Inscription réussie, mais le parrainage n'a pas pu être appliqué."
+              );
+            }
+          } else {
+            toast.success("Inscription réussie !");
+          }
+
+          // Connexion après inscription réussie
           await login(userPayload.email, userPayload.password);
         }
 
@@ -538,22 +573,29 @@ const SignupPage: React.FC = () => {
                   // Apply red border if touched and error exists based on the new logic
                   formik.touched.codeParrainage &&
                   formik.errors.codeParrainage &&
-                  (formik.values.codeParrainage !== "" || formik.submitCount > 0)
+                  (formik.values.codeParrainage !== "" ||
+                    formik.submitCount > 0)
                     ? "border-red-500"
                     : "border-gray-300"
                 }`}
                 aria-invalid={
-                  formik.touched.codeParrainage && !!formik.errors.codeParrainage
+                  formik.touched.codeParrainage &&
+                  !!formik.errors.codeParrainage
                 }
               />
-              {/* MODIFIED: Show error only if touched, error existFbus AND (value is not empty OR form submitted) */}
+              {/* MODIFIED: Show error only if touched, error exists AND (value is not empty OR form submitted) */}
               {formik.touched.codeParrainage &&
                 formik.errors.codeParrainage &&
-                (formik.values.codeParrainage !== "" || formik.submitCount > 0) && (
+                (formik.values.codeParrainage !== "" ||
+                  formik.submitCount > 0) && (
                   <p className="mt-1 text-xs text-red-600">
                     {formik.errors.codeParrainage}
                   </p>
                 )}
+              <p className="mt-1 text-xs text-gray-500">
+                Si vous avez un code de parrainage, vous bénéficierez d'une
+                réduction sur votre première commande.
+              </p>
             </div>
 
             {/* Submit Button */}

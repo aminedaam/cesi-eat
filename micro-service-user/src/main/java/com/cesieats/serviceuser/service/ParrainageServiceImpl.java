@@ -9,11 +9,13 @@ import com.cesieats.serviceuser.repository.ParrainageRepository;
 import com.cesieats.serviceuser.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import org.apache.commons.logging.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 @Service
 @AllArgsConstructor
@@ -21,6 +23,8 @@ public class ParrainageServiceImpl implements ParrainageService {
 
 
     private final UserRepository userRepository;
+
+
 
     private final ParrainageRepository parrainageRepository;
 
@@ -46,11 +50,16 @@ public class ParrainageServiceImpl implements ParrainageService {
     @Override
     public Parrainage createParrainage(ParrainageDto parrainage) throws CodeParrainageAlreadyUsedException, UserNotFoundException{
 
-
-        User parrainne = userRepository.findById(parrainage.getIdParrainne())
+        System.out.println("Parrainage : " + parrainage);
+        System.out.println("Id parrainne : " + parrainage.getIdParrainne());
+//        User parrainne = userRepository.find(parrainage.getIdParrainne())
+//                .orElseThrow(() -> new UserNotFoundException("L'utilisateur parrainé n'existe pas"));
+        User parrainne = userRepository.findAll().stream().filter(user -> user.getId().equals(parrainage.getIdParrainne()))
+                .findFirst()
                 .orElseThrow(() -> new UserNotFoundException("L'utilisateur parrainé n'existe pas"));
-
-        User parrain = userRepository.findByCodeParrainage(parrainage.getCodeParrainage());
+        User parrain = userRepository.findAll().stream().filter(user -> user.getCodeParrainage().equals(parrainage.getCodeParrainage()))
+                .findFirst()
+                .orElseThrow(() -> new UserNotFoundException("Le parrain n'existe pas"));
 
         if (parrain.getId() == parrainage.getIdParrainne()) {
             throw new IllegalArgumentException("L'utilisateur ne peut pas se parrainer lui-même.");
@@ -80,6 +89,13 @@ public class ParrainageServiceImpl implements ParrainageService {
                 .orElseThrow(() -> new UserNotFoundException("Aucun parrainage trouvé pour l'utilisateur avec l'ID : " + idParrainne));
     }
 
+    @Override
+    public Parrainage findByIdParrainnee(Long idParrainnee) throws UserNotFoundException {
+        return parrainageRepository.findAll().stream()
+                .filter(parrainage -> parrainage.getUtilisateurParraine().getId().equals(idParrainnee))
+                .findFirst()
+                .orElseThrow(() -> new UserNotFoundException("Aucun parrainage trouvé pour l'utilisateur avec l'ID : " + idParrainnee));
+    }
 
 
 

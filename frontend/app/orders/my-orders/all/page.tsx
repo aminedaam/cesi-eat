@@ -24,6 +24,33 @@ export default function OrderListPage() {
   const [error, setError] = useState<string | null>(null);
   const token = useAuthStore((state) => state.accessToken);
 
+  const trierCommandes = (commandes: Commande[]) => {
+    // Fonction pour trier par date
+    const trierParDate = (a: Commande, b: Commande) => {
+      const dateA = new Date(a.createdAt || "").getTime();
+      const dateB = new Date(b.createdAt || "").getTime();
+      return dateB - dateA; // Tri décroissant (plus récent en premier)
+    };
+
+    // Grouper les commandes par statut
+    const commandesEnCours = commandes
+      .filter((cmd) =>
+        ["PENDING", "CONFIRMED", "IN_PROGRESS"].includes(cmd.status)
+      )
+      .sort(trierParDate);
+
+    const commandesLivrees = commandes
+      .filter((cmd) => cmd.status === "DELIVERED")
+      .sort(trierParDate);
+
+    const commandesAnnulees = commandes
+      .filter((cmd) => cmd.status === "CANCELLED")
+      .sort(trierParDate);
+
+    // Combiner les groupes dans l'ordre spécifié
+    return [...commandesEnCours, ...commandesLivrees, ...commandesAnnulees];
+  };
+
   useEffect(() => {
     const fetchCommandes = async () => {
       if (!user) {
@@ -45,7 +72,8 @@ export default function OrderListPage() {
         }
 
         const userCommandes = await getAllCommandesByClientId(user.id, token);
-        setCommandes(userCommandes);
+        const commandesTriees = trierCommandes(userCommandes);
+        setCommandes(commandesTriees);
         setLoading(false);
       } catch (err) {
         console.error("Erreur lors de la récupération des commandes:", err);

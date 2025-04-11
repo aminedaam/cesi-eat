@@ -112,3 +112,118 @@ export const getBestMenu = async (
     throw error;
   }
 };
+
+export const getWorstMenu = async (
+  restaurantId: number,
+  token: string
+): Promise<Menu> => {
+  try {
+    const response = await apiStatistics.get(`worstMenu/${restaurantId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        "Erreur API lors de la récupération du pire menu:",
+        error.response?.data || error.message
+      );
+    } else {
+      console.error(
+        "Erreur inattendue lors de la récupération du pire menu:",
+        error
+      );
+    }
+    throw error;
+  }
+};
+
+export const getWorstArticle = async (
+  restaurantId: number,
+  token: string
+): Promise<Article> => {
+  try {
+    const response = await apiStatistics.get(`worstArticle/${restaurantId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        "Erreur API lors de la récupération du pire article:",
+        error.response?.data || error.message
+      );
+    } else {
+      console.error(
+        "Erreur inattendue lors de la récupération du pire article:",
+        error
+      );
+    }
+    throw error;
+  }
+};
+
+export const getCountArticles = async (
+  restaurantId: number,
+  articleId: string,
+  token: string
+): Promise<number> => {
+  try {
+    const response = await apiStatistics.get(
+      `getCountArticles/restaurant/${restaurantId}/article/${articleId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        "Erreur API lors de la récupération du nombre d'articles:",
+        error.response?.data || error.message
+      );
+    } else {
+      console.error(
+        "Erreur inattendue lors de la récupération du nombre d'articles:",
+        error
+      );
+    }
+    throw error;
+  }
+};
+
+export const getCountMenus = async (
+  restaurantId: number,
+  menuId: string,
+  token: string
+): Promise<number> => {
+  try {
+    const response = await apiStatistics.get(
+      `getCountMenus/restaurant/${restaurantId}/menu/${menuId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+    });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        "Erreur API lors de la récupération du nombre de menus:",
+        error.response?.data || error.message
+      );
+    } else {
+      console.error(
+        "Erreur inattendue lors de la récupération du nombre de menus:",
+        error
+      );
+    }
+    throw error;
+  }
+};

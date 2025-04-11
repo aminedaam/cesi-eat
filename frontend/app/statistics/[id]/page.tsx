@@ -3,7 +3,12 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import * as React from "react";
-import { getBestArticle, getBestMenu, ArticleStatistics, MenuStatistics } from "@/utils/apiStatistics";
+import {
+  getBestArticle,
+  getBestMenu,
+  getCountArticles,
+  getCountMenus,
+} from "@/utils/apiStatistics";
 import { getRestaurantById } from "@/utils/apiRestaurant";
 import { getArticlesByMenuId } from "@/utils/apiArticles";
 import { Restaurant } from "@/types/Restaurants";
@@ -17,9 +22,11 @@ import { RestaurateurNavigationBar } from "@/components/header_footers/Restaurat
 
 interface RestaurantStats {
   restaurant: Restaurant;
-  bestArticle: ArticleStatistics;
-  bestMenu: MenuStatistics;
+  bestArticle: Article;
+  bestMenu: Menu;
   menuArticles: Article[];
+  bestArticleCount: number;
+  bestMenuCount: number;
 }
 
 export default function RestaurantStatisticsPage() {
@@ -44,16 +51,24 @@ export default function RestaurantStatisticsPage() {
           getBestMenu(restaurantId, accessToken),
         ]);
 
-        const menuArticles = await getArticlesByMenuId(
-          bestMenu.menu.id!,
-          accessToken
-        );
+        const [menuArticles, bestArticleCount, bestMenuCount] =
+          await Promise.all([
+            getArticlesByMenuId(bestMenu.id!, accessToken),
+            getCountArticles(
+              restaurantId,
+              bestArticle.id!.toString(),
+              accessToken
+            ),
+            getCountMenus(restaurantId, bestMenu.id!.toString(), accessToken),
+          ]);
 
         setStats({
           restaurant,
           bestArticle,
           bestMenu,
           menuArticles,
+          bestArticleCount,
+          bestMenuCount,
         });
       } catch (error) {
         console.error(
@@ -97,22 +112,25 @@ export default function RestaurantStatisticsPage() {
             </div>
             <div className="border-t border-gray-200 my-4"></div>
             <div className="flex items-start">
-              {stats.bestArticle.article.imagePath && (
+              {stats.bestArticle.imagePath && (
                 <img
-                  src={stats.bestArticle.article.imagePath}
-                  alt={stats.bestArticle.article.name}
+                  src={stats.bestArticle.imagePath}
+                  alt={stats.bestArticle.name}
                   className="w-24 h-24 object-cover rounded-lg mr-4"
                 />
               )}
               <div>
                 <h3 className="text-lg font-medium">
-                  {stats.bestArticle.article.name}
+                  {stats.bestArticle.name}
                 </h3>
                 <p className="text-gray-600 mt-1">
-                  {stats.bestArticle.article.description}
+                  {stats.bestArticle.description}
                 </p>
                 <p className="text-blue-600 font-semibold mt-2">
-                  {stats.bestArticle.article.price.toFixed(2)} €
+                  {stats.bestArticle.price.toFixed(2)} €
+                </p>
+                <p className="text-gray-600 mt-2">
+                  Commandé {stats.bestArticleCount} fois
                 </p>
               </div>
             </div>
@@ -126,12 +144,15 @@ export default function RestaurantStatisticsPage() {
             <div className="border-t border-gray-200 my-4"></div>
             <div>
               <div className="mb-4">
-                <h3 className="text-lg font-medium">{stats.bestMenu.menu.name}</h3>
+                <h3 className="text-lg font-medium">{stats.bestMenu.name}</h3>
                 <p className="text-gray-600 mt-1">
-                  {stats.bestMenu.menu.description}
+                  {stats.bestMenu.description}
                 </p>
                 <p className="text-blue-600 font-semibold mt-2">
-                  {stats.bestMenu.menu.priceMenu.toFixed(2)} €
+                  {stats.bestMenu.priceMenu?.toFixed(2)} €
+                </p>
+                <p className="text-gray-600 mt-2">
+                  Commandé {stats.bestMenuCount} fois
                 </p>
               </div>
 
@@ -151,9 +172,6 @@ export default function RestaurantStatisticsPage() {
                         <h5 className="font-medium">{article.name}</h5>
                         <p className="text-sm text-gray-600">
                           {article.description}
-                        </p>
-                        <p className="text-sm text-blue-600 mt-1">
-                          {article.price.toFixed(2)} €
                         </p>
                       </div>
                     </div>

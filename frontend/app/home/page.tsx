@@ -196,7 +196,13 @@ const HomePage: React.FC = () => {
 
       try {
         const usersList = await getAllUsers(accessToken);
-        setAllUsers(usersList);
+        const filteredUsers = usersList.filter(
+          (user: User) =>
+            user.role === "CLIENT" ||
+            user.role === "RESTAURATEUR" ||
+            user.role === "LIVREUR"
+        );
+        setAllUsers(filteredUsers);
       } catch (err) {
         console.error("Erreur lors de la récupération des utilisateurs:", err);
         setErrorAllUsers("Impossible de charger la liste des utilisateurs.");
@@ -376,12 +382,14 @@ const HomePage: React.FC = () => {
     <div className="min-h-screen bg-gray-50 mt-16 mb-16">
       <BaseHeader>
         <div className="flex-1 mx-4">
-          <SearchBar
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            className="text-black placeholder-neutral-800 py-1 rounded-xl"
-            placeHolder="Rechercher dans CesiEat..."
-          />
+          {user?.role !== "SERVICE_COMMERCIAL" && (
+            <SearchBar
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              className="text-black placeholder-neutral-800 py-1 rounded-xl"
+              placeHolder="Rechercher dans CesiEat..."
+            />
+          )}
         </div>
         <div className="flex flex-row space-x-3">
           {user?.role === "CLIENT" && (
@@ -407,8 +415,6 @@ const HomePage: React.FC = () => {
               {user?.role === "RESTAURATEUR" &&
                 "Commandes en attente de confirmation"}
               {user?.role === "LIVREUR" && "Commandes confirmées à livrer"}
-              {user?.role === "SERVICE_COMMERCIAL" &&
-                "Liste de tous les utilisateurs"}
             </h4>
           </div>
         </div>
@@ -417,9 +423,9 @@ const HomePage: React.FC = () => {
 
         {user?.role === "SERVICE_COMMERCIAL" && (
           <div className="mt-8">
-            <h2 className="text-2xl font-bold mb-6">
+            <h4 className="text-gray-500 text-base mb-6 pl-2">
               Liste de tous les utilisateurs
-            </h2>
+            </h4>
             {loadingAllUsers ? (
               <div className="flex justify-center">
                 <LoadingSpinner />

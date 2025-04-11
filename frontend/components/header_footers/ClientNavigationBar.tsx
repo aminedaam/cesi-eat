@@ -17,17 +17,6 @@ export const ClientNavigationBar = ({
           Accueil
         </span>
       </Link>
-      <Link href="/browse" className="flex flex-col items-center w-1/4">
-        <Search
-          className={selectedPage === "browse" ? "text-primary-50" : ""}
-        />
-        <span
-          className={selectedPage === "browse" ? "text-primary-50" : ""}
-          style={{ fontSize: "14px" }}
-        >
-          Parcourir
-        </span>
-      </Link>
       <Link
         href="/orders/my-orders/all"
         className="flex flex-col items-center w-1/4"

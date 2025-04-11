@@ -122,10 +122,10 @@ public class CommandeService {
         return commandeRepository.findAll().stream()
                 .filter(commande -> commande.getRestaurant().getId() == restaurantId)
                 .filter(commande -> commande.getStatus().equals("DELIVERED"))
-                .mapToDouble(Commande::getPrixTotal)
-                .sum() * 0.1;
+                .mapToDouble(commande -> commande.getSousTotal() + commande.getDeliveryCosts())
+                .sum();
     }
-    public Article bestArticleByRestaurantId(Long restaurantId) {
+    public HashMap<Article,Integer> bestArticleByRestaurantId(Long restaurantId) {
         Map<Article, Integer> articleQuantities = new HashMap<>();
 
         for (Commande commande : commandeRepository.findAll()) {
@@ -137,15 +137,14 @@ public class CommandeService {
                 }
             }
         }
-        return articleQuantities.entrySet().stream()
+        return (HashMap<Article, Integer>) articleQuantities.entrySet().stream()
                 .max(Comparator
                         .comparingInt(Map.Entry<Article, Integer>::getValue)
                         .thenComparing(e -> e.getKey().getPrice()))
-                .map(Map.Entry::getKey)
                 .orElseThrow(() -> new IllegalArgumentException("Aucun article trouvé"));
     }
 
-    public Menu bestMenuByRestaurantId(Long restaurantId) {
+    public HashMap<Menu,Integer> bestMenuByRestaurantId(Long restaurantId) {
         Map<Menu, Integer> menuQuantites = new HashMap<>();
 
         for (Commande commande : commandeRepository.findAll()) {
@@ -157,15 +156,14 @@ public class CommandeService {
                 }
             }
         }
-        return menuQuantites.entrySet().stream()
+        return (HashMap<Menu, Integer>) menuQuantites.entrySet().stream()
                 .max(Comparator
                         .comparingInt(Map.Entry<Menu, Integer>::getValue)
                         .thenComparing(e -> e.getKey().getPrice()))
-                .map(Map.Entry::getKey)
                 .orElseThrow(() -> new IllegalArgumentException("Aucun article trouvé"));
     }
 
-    public Menu worstMenuByRestaurantId(Long restaurantId) {
+    public HashMap<Menu,Integer> worstMenuByRestaurantId(Long restaurantId) {
         Map<Menu, Integer> menuQuantites = new HashMap<>();
 
         for (Commande commande : commandeRepository.findAll()) {
@@ -177,15 +175,14 @@ public class CommandeService {
                 }
             }
         }
-        return menuQuantites.entrySet().stream()
+        return (HashMap<Menu, Integer>) menuQuantites.entrySet().stream()
                 .min(Comparator
                         .comparingInt(Map.Entry<Menu, Integer>::getValue)
                         .thenComparing(e -> e.getKey().getPrice()))
-                .map(Map.Entry::getKey)
                 .orElseThrow(() -> new IllegalArgumentException("Aucun article trouvé"));
     }
 
-    public Article worstArticleByRestaurantId(Long restaurantId) {
+    public HashMap<Article,Integer> worstArticleByRestaurantId(Long restaurantId) {
         Map<Article, Integer> articleQuantities = new HashMap<>();
         for (Commande commande : commandeRepository.findAll()) {
             if (commande.getRestaurant().getId() == restaurantId &&
@@ -196,11 +193,10 @@ public class CommandeService {
                 }
             }
         }
-        return articleQuantities.entrySet().stream()
+        return (HashMap<Article, Integer>) articleQuantities.entrySet().stream()
                 .min(Comparator
                         .comparingInt(Map.Entry<Article, Integer>::getValue)
                         .thenComparing(e -> e.getKey().getPrice()))
-                .map(Map.Entry::getKey)
                 .orElseThrow(() -> new IllegalArgumentException("Aucun article trouvé"));
     }
 

@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import { useFormik } from "formik";
 import { z } from "zod";
 import BaseHeader from "@/components/header_footers/BaseHeader";
-import Image from "next/image";
 import Input from "@/components/helper-components/Input";
 import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "next/navigation";
@@ -72,7 +71,6 @@ const LoginPage: React.FC = () => {
       try {
         await authLogin(values.email, values.password);
         toast.success("Connexion réussie !");
-        
       } catch (error) {
         console.error("Échec de la connexion:", error);
         setSubmitError(
@@ -208,33 +206,6 @@ const LoginPage: React.FC = () => {
               </CustomButton>
             </div>
           </form>
-          <div className="relative my-6">
-            <div
-              className="absolute inset-0 flex items-center"
-              aria-hidden="true"
-            >
-              <div className="w-full border-t border-gray-300" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">ou</span>
-            </div>
-          </div>
-          <div>
-            <CustomButton
-              type="button"
-              // onClick={handleGoogleLogin} // Logique à ajouter
-              className="w-full flex items-center justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out"
-            >
-              <Image
-                src="/google-logo.png"
-                alt="Google logo"
-                width={20}
-                height={20}
-                className="mr-2"
-              />
-              Continuer avec Google
-            </CustomButton>
-          </div>
           <div className="text-sm text-center">
             <p className="text-gray-600">
               Pas encore de compte ?{" "}

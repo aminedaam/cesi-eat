@@ -2,7 +2,6 @@
 import { useFormik } from "formik";
 import { z } from "zod";
 import BaseHeader from "../../components/header_footers/BaseHeader";
-import Image from "next/image";
 import Input from "@/components/helper-components/Input";
 import useCoordinates from "@/hooks/useCoordinates";
 import { useEffect, useState } from "react";
@@ -595,7 +594,7 @@ const SignupPage: React.FC = () => {
                   </p>
                 )}
               <p className="mt-1 text-xs text-gray-500">
-                Si vous avez un code de parrainage, vous bénéficierez d'une
+                Si vous avez un code de parrainage, vous bénéficierez d&apos;une
                 réduction sur votre première commande.
               </p>
             </div>
@@ -640,38 +639,6 @@ const SignupPage: React.FC = () => {
               </CustomButton>
             </div>
           </form>
-
-          {/* Divider */}
-          <div className="relative my-6">
-            <div
-              className="absolute inset-0 flex items-center"
-              aria-hidden="true"
-            >
-              <div className="w-full border-t border-gray-300" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">ou</span>
-            </div>
-          </div>
-
-          {/* Google Login Button (Placeholder) */}
-          <div>
-            <CustomButton
-              type="button"
-              // onClick={handleGoogleLogin} // TODO: Implement Google login logic
-              className="w-full flex items-center justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out"
-            >
-              <Image
-                src="/google-logo.png" // Make sure this path is correct in your public folder
-                alt="Google logo"
-                width={20}
-                height={20}
-                className="mr-2"
-                // Add onError fallback if needed: onError={(e) => e.currentTarget.style.display='none'}
-              />
-              Continuer avec Google
-            </CustomButton>
-          </div>
 
           {/* Link to Login Page */}
           <div className="text-sm text-center">

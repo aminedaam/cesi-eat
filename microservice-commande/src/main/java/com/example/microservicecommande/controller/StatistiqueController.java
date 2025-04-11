@@ -4,12 +4,13 @@ package com.example.microservicecommande.controller;
 import com.example.microservicecommande.entity.Article;
 import com.example.microservicecommande.entity.Menu;
 import com.example.microservicecommande.services.CommandeService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/statistiques")
@@ -24,6 +25,8 @@ public class StatistiqueController {
         return commandeService.countCommandeByRestaurandId(restaurantId);
     }
 
+
+
     @GetMapping("/recette/{restaurantId}")
     public double getRecetteByRestaurantId(@PathVariable long restaurantId) {
         return commandeService.getTotalPriceByRestaurantId(restaurantId);
@@ -37,5 +40,26 @@ public class StatistiqueController {
     public Menu getBestMenuByRestaurantId(@PathVariable long restaurantId) {
         return commandeService.bestMenuByRestaurantId(restaurantId);
     }
+    @GetMapping("/worstMenu/{restaurantId}")
+    public Menu getWorstMenuByRestaurantId(@PathVariable long restaurantId) {
+        return commandeService.worstMenuByRestaurantId(restaurantId);
+    }
+    @GetMapping("/worstArticle/{restaurantId}")
+    public Article getWorstArticleByRestaurantId(@PathVariable long restaurantId) {
+        return commandeService.worstArticleByRestaurantId(restaurantId);
+    }
+
+    @GetMapping("/getCountArticles/{restaurantId}")
+    public int getCountArticlesByRestaurantId(@PathVariable long restaurantId, @Valid @RequestBody String articleId) {
+        return commandeService.getCountArticleByRestaurantIdAndArticleId(restaurantId, articleId);
+    }
+    @GetMapping("/getCountMenus/{restaurantId}")
+    public int getCountMenusByRestaurantId(@PathVariable long restaurantId, @Valid @RequestBody String menuId) {
+        return commandeService.getCountMenuByRestaurantIdAndMenuId(restaurantId, menuId);
+    }
+
+
+
+
 
 }

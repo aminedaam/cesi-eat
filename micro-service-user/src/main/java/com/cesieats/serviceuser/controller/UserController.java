@@ -159,13 +159,13 @@ public class UserController {
         User user = userService.getUserByEmail(email).get();
 
         if(role.equals(Role.SERVICE_COMMERCIAL.toString()) || role.equals(Role.ADMIN.toString())){
-            if(user.getRole() == Role.CLIENT){
+            if(user.getRole() == Role.CLIENT ||user.getRole() == Role.RESTAURATEUR || user.getRole() == Role.LIVREUR){
                 userService.deleteUserByEmail(email);
                 return ResponseEntity.ok()
                         .body("Utilisateur supprimé avec succès");
             }else{
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body("vous ne pouvez pas supprimer un utilisateur avec un autre rôle que CLIENT");
+                        .body("vous ne pouvez pas supprimer un utilisateur avec un autre rôle que CLIENT/RESTAURATEUR/LIVREUR");
             }
         }else if(!emailUser.equals(email)){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)

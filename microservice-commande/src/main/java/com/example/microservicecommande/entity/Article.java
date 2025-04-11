@@ -14,7 +14,7 @@ public class Article {
     private String name;
     private String description;
     private double price;
-    private String imageUrl;
+    private String imagePath;
     private String typeProd;
     private String restaurantId;
     private int quantity;

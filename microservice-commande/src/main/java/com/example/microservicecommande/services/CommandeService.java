@@ -7,7 +7,7 @@ import com.example.microservicecommande.exception.CommandeNotFoundException;
 import com.example.microservicecommande.repository.CommandeRepository;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
+//import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import com.example.microservicecommande.entity.Commande;
@@ -25,33 +25,33 @@ public class CommandeService {
 
     private final CommandeRepository commandeRepository;
 
-    private final RabbitTemplate rabbitTemplate;
+    //private final RabbitTemplate rabbitTemplate;
 
-    @Value("${spring.application.name:DefaultServiceName}")
-    private String serviceName;
+    //@Value("${spring.application.name:DefaultServiceName}")
+    //private String serviceName;
 
-    public CommandeService(CommandeRepository commandeRepository, RabbitTemplate rabbitTemplate) {
+    public CommandeService(CommandeRepository commandeRepository) {
         this.commandeRepository = commandeRepository;
-        this.rabbitTemplate = rabbitTemplate;
+        //this.rabbitTemplate = rabbitTemplate;
     }
     public void createCommande(Commande commande) {
         // on créer la commande dans la base de données
         Commande savedCommande = commandeRepository.save(commande);
 
-        CommandeCreatedEvent commandeCreatedEvent = new CommandeCreatedEvent(
-                savedCommande.getId(),
-                savedCommande.getClient().getId(),
-                savedCommande.getRestaurant().getId(),
-                savedCommande.isPromotion(),
-                savedCommande.getStatus()
-        );
+//        CommandeCreatedEvent commandeCreatedEvent = new CommandeCreatedEvent(
+//                savedCommande.getId(),
+//                savedCommande.getClient().getId(),
+//                savedCommande.getRestaurant().getId(),
+//                savedCommande.isPromotion(),
+//                savedCommande.getStatus()
+//        );
 
         // puis on publie l'événement "created" dans RabbitMQ
-        rabbitTemplate.convertAndSend(
-                RabbitMqConfig.EXCHANGE_COMMANDE_EVENTS,      // Nom de l'exchange
-                RabbitMqConfig.ROUTING_KEY_CREATED,           // Routing key
-                commandeCreatedEvent                          // Le message (peut être un objet)
-        );
+        //rabbitTemplate.convertAndSend(
+        //        RabbitMqConfig.EXCHANGE_COMMANDE_EVENTS,      // Nom de l'exchange
+        //        RabbitMqConfig.ROUTING_KEY_CREATED,           // Routing key
+        //        commandeCreatedEvent                          // Le message (peut être un objet)
+        //);
     }
 
     public void updateCommande(String commandeId, Commande commandeUpdated) throws CommandeNotFoundException {
@@ -122,8 +122,8 @@ public class CommandeService {
         return commandeRepository.findAll().stream()
                 .filter(commande -> commande.getRestaurant().getId() == restaurantId)
                 .filter(commande -> commande.getStatus().equals("DELIVERED"))
-                .mapToDouble(Commande::getPrixTotal)
-                .sum() * 0.1;
+                .mapToDouble(commande -> commande.getSousTotal() + commande.getDeliveryCosts())
+                .sum();
     }
     public Article bestArticleByRestaurantId(Long restaurantId) {
         Map<Article, Integer> articleQuantities = new HashMap<>();
@@ -137,7 +137,7 @@ public class CommandeService {
                 }
             }
         }
-        return articleQuantities.entrySet().stream()
+        return  articleQuantities.entrySet().stream()
                 .max(Comparator
                         .comparingInt(Map.Entry<Article, Integer>::getValue)
                         .thenComparing(e -> e.getKey().getPrice()))
@@ -157,7 +157,7 @@ public class CommandeService {
                 }
             }
         }
-        return menuQuantites.entrySet().stream()
+        return  menuQuantites.entrySet().stream()
                 .max(Comparator
                         .comparingInt(Map.Entry<Menu, Integer>::getValue)
                         .thenComparing(e -> e.getKey().getPrice()))
@@ -202,6 +202,72 @@ public class CommandeService {
                         .thenComparing(e -> e.getKey().getPrice()))
                 .map(Map.Entry::getKey)
                 .orElseThrow(() -> new IllegalArgumentException("Aucun article trouvé"));
+    }
+
+    public int getCountArticleByRestaurantIdAndArticleId(Long restaurantId, String articleId) {
+        List<Commande> commandes = commandeRepository.findAll().stream()
+                .filter(commande -> commande.getRestaurant().getId() == restaurantId)
+                .filter(commande -> commande.getStatus().equals("DELIVERED"))
+                .collect(Collectors.toList());
+        HashMap<Article, Integer> articleQuantities = new HashMap<>();
+        System.out.println("Commandes: " + commandes.toString());
+        for (Commande commande : commandes) {
+            for (Article article : commande.getArticle()) {
+                System.out.println("Article: " + article.toString());
+
+                if (article.getId().equals(articleId)) {
+                    articleQuantities.merge(article, article.getQuantity(), Integer::sum);
+                    System.out.println("Article trouvé: " + article.toString());
+                    System.out.println("Quantité: " + article.getQuantity());
+                }
+            }
+
+        }
+       Map.Entry<Article, Integer> maxEntry = articleQuantities.entrySet()
+                .stream()
+                .max(Map.Entry.comparingByValue())
+                .orElseThrow(() -> new IllegalArgumentException("La HashMap est vide"));
+        System.out.println("Max Entry: " + maxEntry.toString());
+        return maxEntry.getValue();
+
+
+
+
+
+//        return (int) commandeRepository.findAll().stream()
+//                .filter(commande -> commande.getRestaurant().getId() == restaurantId)
+//                .filter(commande -> commande.getStatus().equals("DELIVERED"))
+//                .flatMap(commande -> commande.getArticle().stream())
+//                .filter(article -> article.getId() == articleId)
+//                .mapToInt(Article::getQuantity)
+//                .sum();
+
+
+    }
+    public int getCountMenuByRestaurantIdAndMenuId(Long restaurantId, String menuId) {
+        List<Commande> commandes = commandeRepository.findAll().stream()
+                .filter(commande -> commande.getRestaurant().getId() == restaurantId)
+                .filter(commande -> commande.getStatus().equals("DELIVERED"))
+                .collect(Collectors.toList());
+        HashMap<Menu, Integer> menuQuantites = new HashMap<>();
+        System.out.println("Commandes: " + commandes.toString());
+        for (Commande commande : commandes) {
+            for (Menu menu : commande.getMenu()) {
+                System.out.println("Article: " + menu.toString());
+
+                if (menu.getId().equals(menuId)) {
+                    menuQuantites.merge(menu, menu.getQuantity(), Integer::sum);
+                    System.out.println("Article trouvé: " + menu.toString());
+                    System.out.println("Quantité: " + menu.getQuantity());
+                }
+            }
+
+        }
+        Map.Entry<Menu, Integer> maxEntry = menuQuantites.entrySet()
+                .stream()
+                .max(Map.Entry.comparingByValue())
+                .orElseThrow(() -> new IllegalArgumentException("La HashMap est vide"));
+        return maxEntry.getValue();
     }
 
 }

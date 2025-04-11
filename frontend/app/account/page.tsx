@@ -8,7 +8,7 @@ import { CustomButton } from "@/components/helper-components/CustomButton";
 import LoadingSpinner from "@/components/helper-components/LoadingSpinner";
 import { toast } from "react-toastify";
 import Link from "next/link";
-import { Settings, Gift } from "lucide-react";
+import { Settings, Gift, Shield } from "lucide-react";
 import { useMe } from "@/hooks/useMe";
 import Modal from "react-modal";
 import { customModalStyles } from "@/components/CustomModalStyles";
@@ -51,14 +51,28 @@ const MyAccountPage: React.FC = () => {
       <BaseHeader />
       <main className="flex-grow flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="w-full max-w-lg bg-white p-8 shadow-lg rounded-xl space-y-6">
-          <div className="flex flex-row justify-between">
-            <div></div>
+          <div className="flex flex-row items-center">
+            {" "}
+            {/* items-center pour l'alignement vertical */}
+            {/* Espace flexible à gauche */}
+            <div className="flex-1">
+              {/* Vous pourriez mettre des éléments alignés à gauche ici si nécessaire */}
+            </div>
+            {/* Titre centré */}
             <h2 className="text-center text-2xl font-bold text-gray-900">
               Mon Compte
             </h2>
-            <Link href="/account/settings">
-              <Settings className="cursor-pointer" />
-            </Link>
+            {/* Espace flexible à droite, contenant les icônes alignées à droite */}
+            <div className="flex flex-1 flex-row justify-end gap-4">
+              {" "}
+              {/* justify-end pour aligner les icônes à droite DANS cet espace */}
+              <Link href="/policy">
+                <Shield className="cursor-pointer" />
+              </Link>
+              <Link href="/account/settings">
+                <Settings className="cursor-pointer" />
+              </Link>
+            </div>
           </div>
           {loading ? (
             <div className="flex flex-col items-center justify-center py-10">

@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export const FooterMobile: React.FC = () => {
   return (
@@ -18,7 +19,9 @@ export const FooterMobile: React.FC = () => {
           <p className="text-black"> Politique de confidentialité</p>
           <p className="text-black"> Conditions générales</p>
         </div>
-        <p className="text-black">© 2025 Cesi Eat</p>
+        <Link href="/policy">
+          <p className="text-black">© 2025 Cesi Eat</p>
+        </Link>
       </div>
     </div>
   );

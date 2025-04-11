@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/statistiques")
@@ -31,12 +32,12 @@ public class StatistiqueController {
         return commandeService.getTotalPriceByRestaurantId(restaurantId);
     }
     @GetMapping("/bestArticle/{restaurantId}")
-    public HashMap<Article, Integer> getBestArticleByRestaurantId(@PathVariable long restaurantId) {
+    public Map.Entry<Article,Integer> getBestArticleByRestaurantId(@PathVariable long restaurantId) {
         return commandeService.bestArticleByRestaurantId(restaurantId);
     }
 
     @GetMapping("/bestMenu/{restaurantId}")
-    public HashMap<Menu, Integer> getBestMenuByRestaurantId(@PathVariable long restaurantId) {
+    public Map.Entry<Menu,Integer> getBestMenuByRestaurantId(@PathVariable long restaurantId) {
         return commandeService.bestMenuByRestaurantId(restaurantId);
     }
     @GetMapping("/worstMenu/{restaurantId}")

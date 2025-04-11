@@ -125,7 +125,7 @@ public class CommandeService {
                 .mapToDouble(commande -> commande.getSousTotal() + commande.getDeliveryCosts())
                 .sum();
     }
-    public HashMap<Article,Integer> bestArticleByRestaurantId(Long restaurantId) {
+    public Map.Entry<Article,Integer> bestArticleByRestaurantId(Long restaurantId) {
         Map<Article, Integer> articleQuantities = new HashMap<>();
 
         for (Commande commande : commandeRepository.findAll()) {
@@ -137,14 +137,14 @@ public class CommandeService {
                 }
             }
         }
-        return (HashMap<Article, Integer>) articleQuantities.entrySet().stream()
+        return  articleQuantities.entrySet().stream()
                 .max(Comparator
                         .comparingInt(Map.Entry<Article, Integer>::getValue)
                         .thenComparing(e -> e.getKey().getPrice()))
                 .orElseThrow(() -> new IllegalArgumentException("Aucun article trouvé"));
     }
 
-    public HashMap<Menu,Integer> bestMenuByRestaurantId(Long restaurantId) {
+    public Map.Entry<Menu,Integer> bestMenuByRestaurantId(Long restaurantId) {
         Map<Menu, Integer> menuQuantites = new HashMap<>();
 
         for (Commande commande : commandeRepository.findAll()) {
@@ -156,7 +156,7 @@ public class CommandeService {
                 }
             }
         }
-        return (HashMap<Menu, Integer>) menuQuantites.entrySet().stream()
+        return  menuQuantites.entrySet().stream()
                 .max(Comparator
                         .comparingInt(Map.Entry<Menu, Integer>::getValue)
                         .thenComparing(e -> e.getKey().getPrice()))

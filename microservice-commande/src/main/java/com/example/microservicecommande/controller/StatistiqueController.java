@@ -49,12 +49,12 @@ public class StatistiqueController {
         return commandeService.worstArticleByRestaurantId(restaurantId);
     }
 
-    @GetMapping("/getCountArticles/{restaurantId}")
-    public int getCountArticlesByRestaurantId(@PathVariable long restaurantId, @Valid @RequestBody String articleId) {
+    @GetMapping("/getCountArticles/restaurant/{restaurantId}/article/{articleId}")
+    public int getCountArticlesByRestaurantId(@PathVariable long restaurantId, @Valid @PathVariable String articleId) {
         return commandeService.getCountArticleByRestaurantIdAndArticleId(restaurantId, articleId);
     }
-    @GetMapping("/getCountMenus/{restaurantId}")
-    public int getCountMenusByRestaurantId(@PathVariable long restaurantId, @Valid @RequestBody String menuId) {
+    @GetMapping("/getCountMenus/restaurant/{restaurantId}/menu/{menuId}")
+    public int getCountMenusByRestaurantId(@PathVariable long restaurantId, @Valid @PathVariable String menuId) {
         return commandeService.getCountMenuByRestaurantIdAndMenuId(restaurantId, menuId);
     }
 

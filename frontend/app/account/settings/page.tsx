@@ -50,7 +50,7 @@ const UserSettingsPage: React.FC = () => {
       router.replace("/register");
     } catch (err) {
       console.error("Error deleting account:", err);
-      toast.error("Failed to delete account.");
+      toast.error("Une erreur est survenue lors de la suppression de votre compte.");
     }
   };
 

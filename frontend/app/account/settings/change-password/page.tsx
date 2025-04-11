@@ -25,12 +25,12 @@ const ChangePasswordPage: React.FC = () => {
     e.preventDefault();
 
     if (newPassword !== confirmPassword) {
-      toast.error("New password and confirmation do not match.");
+      toast.error("Le nouveau mot de passe et la confirmation ne correspondent pas.");
       return;
     }
 
     if (!accessToken) {
-      toast.error("Access token missing. Please log in again.");
+      toast.error("Vous avez été déconnecté.");
       return;
     }
 
@@ -46,7 +46,7 @@ const ChangePasswordPage: React.FC = () => {
       router.replace("/account/settings");
     } catch (err) {
       console.error("Error updating password:", err);
-      toast.error("Failed to update the password.");
+      toast.error("Une erreur est survenue lors de la mise à jour du mot de passe.");
     } finally {
       setIsUpdating(false);
     }

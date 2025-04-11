@@ -20,7 +20,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 export default function OrderDetailPage() {
-  const {id} = useParams()
+  const { id } = useParams();
   const commandeId = id as string;
   const router = useRouter();
   const [commande, setCommande] = useState<Commande | null>(null);
@@ -39,6 +39,7 @@ export default function OrderDetailPage() {
       try {
         const commandeData = await getCommandeById(commandeId, token);
         setCommande(commandeData);
+        setLoading(false);
       } catch (err) {
         console.error("Erreur lors de la récupération de la commande:", err);
         setError(

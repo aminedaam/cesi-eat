@@ -2,6 +2,7 @@
 import { ClientNavigationBar } from "@/components/header_footers/ClientNavigationBar";
 import { LivreurNavigationBar } from "@/components/header_footers/LivreurNavigationBar";
 import { RestaurateurNavigationBar } from "@/components/header_footers/RestaurateurNavigationBar";
+import { ServiceCommercialNavigationBar } from "@/components/header_footers/ServiceCommercialNavigationBar";
 import { useMe } from "@/hooks/useMe";
 import { useAuthStore } from "@/store/authStore";
 
@@ -12,25 +13,33 @@ export default function AccountLayout({
 }) {
   const accessToken = useAuthStore((state) => state.accessToken);
   const { user } = useMe(accessToken ?? "");
+
   switch (user?.role) {
     case "RESTAURATEUR":
       return (
         <div className="min-h-screen flex flex-col bg-gray-50">
-          <RestaurateurNavigationBar selectedPage={"account"} />
+          <RestaurateurNavigationBar selectedPage={"home"} />
           <main>{children}</main>
         </div>
       );
     case "LIVREUR":
       return (
         <div className="min-h-screen flex flex-col bg-gray-50">
-          <LivreurNavigationBar selectedPage={"account"} />
+          <LivreurNavigationBar selectedPage={"home"} />
+          <main>{children}</main>
+        </div>
+      );
+    case "SERVICE_COMMERCIAL":
+      return (
+        <div className="min-h-screen flex flex-col bg-gray-50">
+          <ServiceCommercialNavigationBar selectedPage={"home"} />
           <main>{children}</main>
         </div>
       );
     default:
       return (
         <div className="min-h-screen flex flex-col bg-gray-50">
-          <ClientNavigationBar selectedPage={"account"} />
+          <ClientNavigationBar selectedPage={"home"} />
           <main>{children}</main>
         </div>
       );

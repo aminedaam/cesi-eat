@@ -61,7 +61,7 @@ const UserSettingsPage: React.FC = () => {
   const handleUpdate = async () => {
     // Use the original user's email as the identifier, but send merged data as the payload
     if (!user?.email || !accessToken) {
-      toast.error("Cannot update profile: User data or session missing.");
+      toast.error("Une erreur est survenue.");
       return;
     }
     setIsUpdating(true);
@@ -92,7 +92,7 @@ const UserSettingsPage: React.FC = () => {
       console.error("Error updating profile:", err);
       const errorMessage =
         err instanceof Error ? err.message : "Failed to update profile.";
-      toast.error(errorMessage);
+      toast.error("Une erreur est survenue lors de la mise à jour du profil.");
     } finally {
       setIsUpdating(false);
     }

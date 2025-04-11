@@ -318,9 +318,6 @@ function RestaurantPage() {
                                 <p className="font-medium text-sm">
                                   {article.name}
                                 </p>
-                                <p className="text-xs text-gray-500">
-                                  {article.price.toFixed(2)}€
-                                </p>
                               </div>
                             </div>
                           </div>
@@ -427,7 +424,8 @@ function RestaurantPage() {
                 </h3>{" "}
                 <p className="mt-1 text-gray-500">
                   {" "}
-                  Ce restaurant n&apos;a pas encore ajouté d&apos;articles à son menu.{" "}
+                  Ce restaurant n&apos;a pas encore ajouté d&apos;articles à son
+                  menu.{" "}
                 </p>{" "}
               </div>
             </div>

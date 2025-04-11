@@ -7,7 +7,14 @@ import { useParams, useRouter } from "next/navigation";
 import { deleteRestaurant, getRestaurantById } from "@/utils/apiRestaurant";
 import { Restaurant } from "@/types/Restaurants";
 import Link from "next/link";
-import { ChevronDown, Edit, Star, Trash, PlusCircle, Utensils } from "lucide-react";
+import {
+  ChevronDown,
+  Edit,
+  Star,
+  Trash,
+  PlusCircle,
+  Utensils,
+} from "lucide-react";
 import LoadingSpinner from "@/components/helper-components/LoadingSpinner";
 import { useAuthStore } from "@/store/authStore";
 import { CustomButton } from "@/components/helper-components/CustomButton";
@@ -82,9 +89,15 @@ function RestaurantPage() {
         setError(null);
       } catch (error) {
         console.error("Error fetching articles:", error);
-        if (error && typeof error === 'object' && 'response' in error && 
-            error.response && typeof error.response === 'object' && 
-            'status' in error.response && error.response.status === 404) {
+        if (
+          error &&
+          typeof error === "object" &&
+          "response" in error &&
+          error.response &&
+          typeof error.response === "object" &&
+          "status" in error.response &&
+          error.response.status === 404
+        ) {
           setArticles([]);
           setLoading(false);
           setError(null);
@@ -107,9 +120,15 @@ function RestaurantPage() {
         setLoading(false);
       } catch (error) {
         console.error("Error fetching menus:", error);
-        if (error && typeof error === 'object' && 'response' in error && 
-            error.response && typeof error.response === 'object' && 
-            'status' in error.response && error.response.status === 404) {
+        if (
+          error &&
+          typeof error === "object" &&
+          "response" in error &&
+          error.response &&
+          typeof error.response === "object" &&
+          "status" in error.response &&
+          error.response.status === 404
+        ) {
           setMenus([]);
           setLoading(false);
         } else {
@@ -134,9 +153,15 @@ function RestaurantPage() {
             `Error fetching articles for menu ID ${menu.id}:`,
             error
           );
-          if (error && typeof error === 'object' && 'response' in error && 
-              error.response && typeof error.response === 'object' && 
-              'status' in error.response && error.response.status === 404) {
+          if (
+            error &&
+            typeof error === "object" &&
+            "response" in error &&
+            error.response &&
+            typeof error.response === "object" &&
+            "status" in error.response &&
+            error.response.status === 404
+          ) {
             map[menu.id!] = [];
           } else {
             map[menu.id!] = [];
@@ -200,7 +225,7 @@ function RestaurantPage() {
       }
     } catch (err) {
       console.error(`Error deleting ${deleteType.toLowerCase()}:`, err);
-      toast.error(`Failed to delete ${deleteType.toLowerCase()}.`);
+      toast.error(`Impossible de supprimer ${deleteType.toLowerCase()}.`);
     }
   };
 
@@ -365,9 +390,6 @@ function RestaurantPage() {
                               </div>
                               <div>
                                 <p className="font-medium">{article.name}</p>
-                                <p className="text-sm text-gray-500">
-                                  {article.price}€
-                                </p>
                               </div>
                             </div>
                             <div className="flex items-center space-x-2">
@@ -462,9 +484,12 @@ function RestaurantPage() {
                 <div className="bg-gray-100 p-4 rounded-full">
                   <Utensils className="h-12 w-12 text-gray-400" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-700">Aucun menu ou article disponible</h3>
+                <h3 className="text-xl font-semibold text-gray-700">
+                  Aucun menu ou article disponible
+                </h3>
                 <p className="text-gray-500 max-w-md">
-                  Ce restaurant n&apos;a pas encore de menus ou d&apos;articles. Vous pouvez en ajouter en utilisant les boutons ci-dessus.
+                  Ce restaurant n&apos;a pas encore de menus ou d&apos;articles.
+                  Vous pouvez en ajouter en utilisant les boutons ci-dessus.
                 </p>
                 <div className="flex flex-wrap gap-3 mt-4">
                   <Link href={`/restaurants/${restaurantId}/menus/create`}>

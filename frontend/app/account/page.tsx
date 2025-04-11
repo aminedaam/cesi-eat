@@ -22,7 +22,7 @@ const MyAccountPage: React.FC = () => {
   const accessToken = useAuthStore((state) => state.accessToken);
   const logout = useAuthStore((state) => state.logout);
   const router = useRouter();
-  const { user, error, loading } = useMe(accessToken ?? ""); 
+  const { user, error, loading } = useMe(accessToken ?? "");
   const [showParrainModal, setShowParrainModal] = useState(false);
 
   // Redirect user if not logged in
@@ -86,13 +86,15 @@ const MyAccountPage: React.FC = () => {
           )}
           {!loading && (
             <div className="pt-6 space-y-4">
-              <CustomButton
-                onClick={() => setShowParrainModal(true)}
-                className="w-full flex justify-center items-center gap-2 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-black bg-gray-100 hover:bg-gray-200 "
-              >
-                <Gift size={18} />
-                Obtenir mon code parrain
-              </CustomButton>
+              {user?.role !== "SERVICE_COMMERCIAL" && (
+                <CustomButton
+                  onClick={() => setShowParrainModal(true)}
+                  className="w-full flex justify-center items-center gap-2 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-black bg-gray-100 hover:bg-gray-200 "
+                >
+                  <Gift size={18} />
+                  Obtenir mon code parrain
+                </CustomButton>
+              )}
               <CustomButton
                 onClick={handleLogout}
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white button-primary-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-400 transition duration-150 ease-in-out"
@@ -112,20 +114,36 @@ const MyAccountPage: React.FC = () => {
       >
         <div className="flex flex-col">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-xl font-semibold text-gray-900">Votre code parrain</h3>
+            <h3 className="text-xl font-semibold text-gray-900">
+              Votre code parrain
+            </h3>
             <button
               onClick={() => setShowParrainModal(false)}
               className="text-gray-400 hover:text-gray-500"
             >
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </button>
           </div>
           <div className="bg-purple-50 p-4 rounded-lg text-center">
-            <p className="text-sm text-gray-600 mb-2">Partagez ce code avec vos amis :</p>
+            <p className="text-sm text-gray-600 mb-2">
+              Partagez ce code avec vos amis :
+            </p>
             <div className="bg-white p-3 rounded-md border border-purple-200">
-              <p className="text-2xl font-mono font-bold text-purple-600">{user?.codeParrainage || "Aucun code disponible"}</p>
+              <p className="text-2xl font-mono font-bold text-purple-600">
+                {user?.codeParrainage || "Aucun code disponible"}
+              </p>
             </div>
           </div>
           <div className="mt-6 flex justify-end">

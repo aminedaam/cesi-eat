@@ -198,7 +198,8 @@ const RestaurantCartPage = () => {
                   ? (item as Article).price
                   : (item as Menu).priceMenu;
                 // Get imagePath if it exists on both types, otherwise use fallback
-                const imagePath = (item as Article).imagePath ?? "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Domino%27s_pizza_logo.svg/1018px-Domino%27s_pizza_logo.svg.png"; // Provide a fallback image
+
+                const imagePath = (item as Article).imagePath; // Provide a fallback image
                 const type = isArticle ? "article" : "menu";
 
                 // Basic check for valid ID
@@ -210,18 +211,20 @@ const RestaurantCartPage = () => {
 
                 return (
                   <div
-                    key={`${type}-${id}`} // Use combined key for potential ID clashes between articles/menus
-                    className="flex items-center justify-between gap-4 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors duration-200"
+                  key={`${type}-${id}`} // Use combined key for potential ID clashes between articles/menus
+                  className="flex items-center justify-between gap-4 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors duration-200"
                   >
-                    {/* --- Display Item --- */}
+                  {/* --- Display Item --- */}
+                  {imagePath && (
                     <div className="relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
-                      <Image
-                        src={imagePath} // Use extracted imagePath
-                        alt={name}
-                        fill
-                        className="object-cover"
-                      />
+                    <Image
+                      src={imagePath} // Use extracted imagePath
+                      alt={name}
+                      fill
+                      className="object-cover"
+                    />
                     </div>
+                  )}
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-gray-900 truncate">{name}</p>
                       <p className="text-sm text-gray-500 mt-1">

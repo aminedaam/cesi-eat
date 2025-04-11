@@ -78,7 +78,9 @@ export const RestaurantList: React.FC<RestaurantListProps> = ({ filter }) => {
           const errorMessage =
             "Erreur lors de la récupération des restaurants.";
           setFetchError(errorMessage);
-          toast.error(errorMessage);
+          toast.error(
+            "Une erreur s'est produite lors de la récupération des restaurants."
+          );
           setRestaurants([]); // Ensure restaurants list is empty on error
           setProcessedRestaurants([]);
         }
@@ -105,7 +107,7 @@ export const RestaurantList: React.FC<RestaurantListProps> = ({ filter }) => {
         if (!location) {
           setLocationTimedOut(true);
           if (!locationToastShownRef.current) {
-            toast.error(
+            toast.info(
               "Impossible de récupérer votre position après 5 secondes. Les restaurants seront affichés par défaut."
             );
             locationToastShownRef.current = true;
@@ -176,7 +178,7 @@ export const RestaurantList: React.FC<RestaurantListProps> = ({ filter }) => {
           } catch (error) {
             console.error("Erreur lors du calcul des distances:", error);
             if (isMounted) {
-              toast.error(
+              toast.info(
                 "Impossible de calculer les distances. Affichage par défaut."
               );
               // Fallback to the default (unsorted) list on error
@@ -247,7 +249,9 @@ export const RestaurantList: React.FC<RestaurantListProps> = ({ filter }) => {
   if (restaurants.length > 0 && filteredRestaurants.length === 0) {
     return (
       <div className="w-full p-4 text-center">
-        <p className="text-gray-600 text-lg">Aucun restaurant ne correspond à votre filtre.</p>
+        <p className="text-gray-600 text-lg">
+          Aucun restaurant ne correspond à votre filtre.
+        </p>
       </div>
     );
   }
@@ -269,8 +273,8 @@ export const RestaurantList: React.FC<RestaurantListProps> = ({ filter }) => {
             key={restaurant.id}
             className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden"
           >
-            <RestaurantItem 
-              restaurant={restaurant} 
+            <RestaurantItem
+              restaurant={restaurant}
               distance={restaurant.distanceFromUser}
             />
           </div>

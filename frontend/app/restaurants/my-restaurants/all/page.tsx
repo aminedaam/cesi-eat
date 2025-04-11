@@ -6,7 +6,14 @@ import { useMe } from "@/hooks/useMe";
 import { useAuthStore } from "@/store/authStore";
 import { Restaurant } from "@/types/Restaurants";
 import { getAllRestaurants, getMyRestaurants } from "@/utils/apiRestaurant";
-import { Bell, Plus, Search, MapPin, Utensils, ShoppingCart } from "lucide-react";
+import {
+  Bell,
+  Plus,
+  Search,
+  MapPin,
+  Utensils,
+  ShoppingCart,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
@@ -47,7 +54,8 @@ const MyRestaurantsPage: React.FC = () => {
             Accès non autorisé
           </h1>
           <p className="text-gray-600">
-            Vous n&apos;avez pas les permissions nécessaires pour accéder à cette page.
+            Vous n&apos;avez pas les permissions nécessaires pour accéder à
+            cette page.
           </p>
         </div>
       </div>
@@ -65,12 +73,7 @@ const MyRestaurantsPage: React.FC = () => {
             placeHolder="Rechercher dans mes restaurants..."
           />
         </div>
-        <div className="flex flex-row space-x-3">
-          <Bell />
-          <Link href={"/cart"}>
-            <ShoppingCart />
-          </Link>
-        </div>
+        <div className="flex flex-row space-x-3"></div>
       </BaseHeader>
 
       <main className="flex flex-col mt-16 max-w-7xl mx-auto px-4 py-8">

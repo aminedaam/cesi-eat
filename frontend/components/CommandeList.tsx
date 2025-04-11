@@ -4,7 +4,15 @@ import React from "react";
 import { Commande } from "@/types/Commandes";
 import { formatDate } from "@/utils/formatDate";
 import LoadingSpinner from "./helper-components/LoadingSpinner";
-import { Clock, Loader2, CheckCircle, XCircle, ShoppingBag, Truck, MapPin } from "lucide-react";
+import {
+  Clock,
+  Loader2,
+  CheckCircle,
+  XCircle,
+  ShoppingBag,
+  Truck,
+  MapPin,
+} from "lucide-react";
 import Link from "next/link";
 
 interface CommandeListProps {
@@ -13,13 +21,17 @@ interface CommandeListProps {
   error: string | null;
   userRole: "CLIENT" | "RESTAURATEUR" | "LIVREUR";
   onConfirmCommande?: (commandeId: number) => void;
+  onDeclineCommande?: (commandeId: number) => void;
   onAcceptLivraison?: (commandeId: number) => void;
   onFinLivraison?: (commandeId: number) => void;
   isCommandesDisponibles?: boolean;
   title?: string;
 }
 
-const getEmptyMessage = (userRole: string, isCommandesDisponibles: boolean): string => {
+const getEmptyMessage = (
+  userRole: string,
+  isCommandesDisponibles: boolean
+): string => {
   if (userRole === "RESTAURATEUR") {
     return "Aucune commande en attente pour le moment.";
   }
@@ -69,6 +81,7 @@ const CommandeItem: React.FC<{
   commande: Commande;
   userRole: string;
   onConfirmCommande?: (commandeId: number) => void;
+  onDeclineCommande?: (commandeId: number) => void;
   onAcceptLivraison?: (commandeId: number) => void;
   onFinLivraison?: (commandeId: number) => void;
   isCommandesDisponibles?: boolean;
@@ -76,6 +89,7 @@ const CommandeItem: React.FC<{
   commande,
   userRole,
   onConfirmCommande,
+  onDeclineCommande,
   onAcceptLivraison,
   onFinLivraison,
   isCommandesDisponibles = false,
@@ -119,9 +133,7 @@ const CommandeItem: React.FC<{
               <span>
                 {item.quantity}x {item.name}
               </span>
-              <span>
-                {(item.price * item.quantity).toFixed(2)} €
-              </span>
+              <span>{(item.price * item.quantity).toFixed(2)} €</span>
             </li>
           ))}
           {commande.menu.map((item, index) => (
@@ -132,9 +144,7 @@ const CommandeItem: React.FC<{
               <span>
                 {item.quantity}x {item.name}
               </span>
-              <span>
-                {(item.price * item.quantity).toFixed(2)} €
-              </span>
+              <span>{(item.price * item.quantity).toFixed(2)} €</span>
             </li>
           ))}
         </ul>
@@ -144,8 +154,7 @@ const CommandeItem: React.FC<{
         <div className="flex justify-between items-center">
           <div className="text-sm text-gray-600">
             <p>
-              Client: {commande.client.firstName}{" "}
-              {commande.client.lastName}
+              Client: {commande.client.firstName} {commande.client.lastName}
             </p>
             <p>Adresse: {commande.client.address}</p>
           </div>
@@ -156,6 +165,14 @@ const CommandeItem: React.FC<{
                 onClick={() => onConfirmCommande(commande.id!)}
               >
                 Confirmer
+              </button>
+            )}
+            {userRole === "RESTAURATEUR" && onDeclineCommande && (
+              <button
+                className="bg-red-500 cursor-pointer hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                onClick={() => onDeclineCommande(commande.id!)}
+              >
+                Refuser
               </button>
             )}
             {userRole === "LIVREUR" && onAcceptLivraison && (
@@ -170,28 +187,32 @@ const CommandeItem: React.FC<{
                 {isCommandesDisponibles ? "Prendre en charge" : "Accepter"}
               </button>
             )}
-            {userRole === "LIVREUR" && onFinLivraison && commande.status === "IN_PROGRESS" && (
-              <button
-                className="bg-green-500 cursor-pointer hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                onClick={() => onFinLivraison(commande.id!)}
-              >
-                Livraison terminée
-              </button>
-            )}
+            {userRole === "LIVREUR" &&
+              onFinLivraison &&
+              commande.status === "IN_PROGRESS" && (
+                <button
+                  className="bg-green-500 cursor-pointer hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                  onClick={() => onFinLivraison(commande.id!)}
+                >
+                  Livraison terminée
+                </button>
+              )}
           </div>
         </div>
-        
+
         {/* Bouton pour afficher la commande sur la carte */}
-        {userRole === "LIVREUR" && commande.client.latitude && commande.client.longitude && (
-          <div className="mt-4 flex justify-end">
-            <Link 
-              href={`/map?lat=${commande.client.latitude}&lng=${commande.client.longitude}&auto=true`}
-              className="inline-flex items-center bg-white hover:bg-primary-700 text- black px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-            >
-              Voir sur la carte
-            </Link>
-          </div>
-        )}
+        {userRole === "LIVREUR" &&
+          commande.client.latitude &&
+          commande.client.longitude && (
+            <div className="mt-4 flex justify-end">
+              <Link
+                href={`/map?lat=${commande.client.latitude}&lng=${commande.client.longitude}&auto=true`}
+                className="inline-flex items-center bg-white hover:bg-primary-700 text- black px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+              >
+                Voir sur la carte
+              </Link>
+            </div>
+          )}
       </div>
     </div>
   </div>
@@ -203,6 +224,7 @@ export const CommandeList: React.FC<CommandeListProps> = ({
   error,
   userRole,
   onConfirmCommande,
+  onDeclineCommande,
   onAcceptLivraison,
   onFinLivraison,
   isCommandesDisponibles = false,
@@ -229,9 +251,7 @@ export const CommandeList: React.FC<CommandeListProps> = ({
   if (commandes.length === 0) {
     return (
       <div className="space-y-6">
-        {title && (
-          <h2 className="text-xl font-semibold mb-4">{title}</h2>
-        )}
+        {title && <h2 className="text-xl font-semibold mb-4">{title}</h2>}
         <div className="text-center py-12 bg-gray-50 rounded-lg">
           <p className="text-gray-600 text-lg">
             {getEmptyMessage(userRole, isCommandesDisponibles)}
@@ -243,9 +263,7 @@ export const CommandeList: React.FC<CommandeListProps> = ({
 
   return (
     <div className="space-y-6">
-      {title && (
-        <h2 className="text-xl font-semibold mb-4">{title}</h2>
-      )}
+      {title && <h2 className="text-xl font-semibold mb-4">{title}</h2>}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {commandes.map((commande) => (
           <CommandeItem
@@ -253,6 +271,7 @@ export const CommandeList: React.FC<CommandeListProps> = ({
             commande={commande}
             userRole={userRole}
             onConfirmCommande={onConfirmCommande}
+            onDeclineCommande={onDeclineCommande}
             onAcceptLivraison={onAcceptLivraison}
             onFinLivraison={onFinLivraison}
             isCommandesDisponibles={isCommandesDisponibles}
@@ -261,4 +280,4 @@ export const CommandeList: React.FC<CommandeListProps> = ({
       </div>
     </div>
   );
-}; 
+};

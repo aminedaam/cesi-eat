@@ -150,6 +150,11 @@ const CheckoutPage = () => {
         ) as MenuCartItem[]
       );
 
+      console.log("Services fees:", fraisServiceValue);
+      console.log("Delivery costs:", fraisLivraisonValue);
+      console.log("Sous total:", sousTotal);
+      console.log("Total value:", totalValue);
+
       const commande: Commande = {
         restaurant: restaurant,
         client: user,
@@ -161,6 +166,7 @@ const CheckoutPage = () => {
         deliveryCosts: fraisLivraisonValue ?? 0,
         servicesFees: fraisServiceValue ?? 0,
         promotion: !promotionAlreadyBeenUsed, // La commande a une promotion si la promotion n'a jamais été utilisée
+        sousTotal: sousTotal,
       };
 
       // Prepare order item

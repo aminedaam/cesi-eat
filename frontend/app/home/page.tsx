@@ -19,7 +19,12 @@ import LoadingSpinner from "@/components/helper-components/LoadingSpinner";
 import { toast } from "react-toastify";
 import { getMyRestaurants } from "@/utils/apiRestaurant";
 import { User } from "@/types/User";
-import { getUsersByRole, updateUserStatus, deleteUser, getAllUsers } from "@/utils/apiUser";
+import {
+  getUsersByRole,
+  updateUserStatus,
+  deleteUser,
+  getAllUsers,
+} from "@/utils/apiUser";
 import Modal from "@/components/helper-components/Modal";
 
 const HomePage: React.FC = () => {
@@ -29,11 +34,16 @@ const HomePage: React.FC = () => {
   const accessToken = useAuthStore((state) => state.accessToken);
   const { user, loading, error } = useMe(accessToken ?? "");
   const [commandes, setCommandes] = useState<Commande[]>([]);
-  const [commandesDisponibles, setCommandesDisponibles] = useState<Commande[]>([]);
+  const [commandesDisponibles, setCommandesDisponibles] = useState<Commande[]>(
+    []
+  );
   const [loadingCommandes, setLoadingCommandes] = useState(false);
-  const [loadingCommandesDisponibles, setLoadingCommandesDisponibles] = useState(false);
+  const [loadingCommandesDisponibles, setLoadingCommandesDisponibles] =
+    useState(false);
   const [errorCommandes, setErrorCommandes] = useState<string | null>(null);
-  const [errorCommandesDisponibles, setErrorCommandesDisponibles] = useState<string | null>(null);
+  const [errorCommandesDisponibles, setErrorCommandesDisponibles] = useState<
+    string | null
+  >(null);
   const [clients, setClients] = useState<User[]>([]);
   const [loadingClients, setLoadingClients] = useState(false);
   const [errorClients, setErrorClients] = useState<string | null>(null);
@@ -41,7 +51,11 @@ const HomePage: React.FC = () => {
   const [loadingAllUsers, setLoadingAllUsers] = useState(false);
   const [errorAllUsers, setErrorAllUsers] = useState<string | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [userToDelete, setUserToDelete] = useState<{ id: number; email: string; name: string } | null>(null);
+  const [userToDelete, setUserToDelete] = useState<{
+    id: number;
+    email: string;
+    name: string;
+  } | null>(null);
 
   useEffect(() => {
     if (!isLoggedIn) {
@@ -49,14 +63,23 @@ const HomePage: React.FC = () => {
     }
   }, [isLoggedIn, router]);
 
-  const handleError = useCallback((err: unknown, setError: (error: string | null) => void, setCommandes: (commandes: Commande[]) => void) => {
-    console.error("Erreur lors de la récupération des commandes:", err);
-    if (err instanceof Error) {
-      setCommandes([]);
-    } else {
-      setError("Impossible de charger les commandes. Veuillez réessayer plus tard.");
-    }
-  }, []);
+  const handleError = useCallback(
+    (
+      err: unknown,
+      setError: (error: string | null) => void,
+      setCommandes: (commandes: Commande[]) => void
+    ) => {
+      console.error("Erreur lors de la récupération des commandes:", err);
+      if (err instanceof Error) {
+        setCommandes([]);
+      } else {
+        setError(
+          "Impossible de charger les commandes. Veuillez réessayer plus tard."
+        );
+      }
+    },
+    []
+  );
 
   // useEffect pour les commandes en cours de livraison (IN_PROGRESS)
   useEffect(() => {
@@ -67,7 +90,10 @@ const HomePage: React.FC = () => {
       setErrorCommandes(null);
 
       try {
-        const commandesEnCours = await getCommandesByStatus("IN_PROGRESS", accessToken);
+        const commandesEnCours = await getCommandesByStatus(
+          "IN_PROGRESS",
+          accessToken
+        );
         setCommandes(commandesEnCours);
       } catch (err) {
         handleError(err, setErrorCommandes, setCommandes);
@@ -88,7 +114,10 @@ const HomePage: React.FC = () => {
       setErrorCommandesDisponibles(null);
 
       try {
-        const commandesConfirmees = await getCommandesByStatus("CONFIRMED", accessToken);
+        const commandesConfirmees = await getCommandesByStatus(
+          "CONFIRMED",
+          accessToken
+        );
         setCommandesDisponibles(commandesConfirmees);
       } catch (err) {
         handleError(err, setErrorCommandesDisponibles, setCommandesDisponibles);
@@ -183,8 +212,12 @@ const HomePage: React.FC = () => {
     if (!accessToken) return;
 
     try {
-      await updateCommandeStatus(commandeId.toString(), "CONFIRMED", accessToken);
-      setCommandes(commandes.filter((c) => c.id !== commandeId));
+      await updateCommandeStatus(
+        commandeId.toString(),
+        "CONFIRMED",
+        accessToken
+      );
+      setCommandes(commandes.filter((c) => c.id !== commandeId.toString()));
       toast.success("Commande confirmée avec succès !");
     } catch (err) {
       console.error("Erreur lors de la confirmation de la commande:", err);
@@ -192,13 +225,39 @@ const HomePage: React.FC = () => {
     }
   };
 
+  const handleDeclineCommande = async (commandeId: number) => {
+    if (!accessToken) return;
+
+    try {
+      await updateCommandeStatus(
+        commandeId.toString(),
+        "CANCELLED",
+        accessToken
+      );
+      setCommandes(commandes.filter((c) => c.id !== commandeId.toString()));
+      toast.success("Commande refusée avec succès !");
+    } catch (err) {
+      console.error("Erreur lors du refus de la commande:", err);
+      toast.error("Impossible de refuser la commande. Veuillez réessayer.");
+    }
+  };
+
   const handleAcceptLivraison = async (commandeId: number) => {
     if (!accessToken) return;
 
     try {
-      await updateCommandeStatus(commandeId.toString(), "IN_PROGRESS", accessToken);
-      const updatedCommandes = await getCommandesByStatus("IN_PROGRESS", accessToken);
-      setCommandesDisponibles(commandesDisponibles.filter((c) => c.id !== commandeId));
+      await updateCommandeStatus(
+        commandeId.toString(),
+        "IN_PROGRESS",
+        accessToken
+      );
+      const updatedCommandes = await getCommandesByStatus(
+        "IN_PROGRESS",
+        accessToken
+      );
+      setCommandesDisponibles(
+        commandesDisponibles.filter((c) => c.id !== commandeId.toString())
+      );
       setCommandes(updatedCommandes);
       toast.success("Livraison acceptée avec succès !");
     } catch (err) {
@@ -211,8 +270,12 @@ const HomePage: React.FC = () => {
     if (!accessToken) return;
 
     try {
-      await updateCommandeStatus(commandeId.toString(), "DELIVERED", accessToken);
-      setCommandes(commandes.filter((c) => c.id !== commandeId));
+      await updateCommandeStatus(
+        commandeId.toString(),
+        "DELIVERED",
+        accessToken
+      );
+      setCommandes(commandes.filter((c) => c.id !== commandeId.toString()));
       toast.success("Livraison terminée avec succès !");
     } catch (err) {
       console.error("Erreur lors de la fin de la livraison:", err);
@@ -224,21 +287,37 @@ const HomePage: React.FC = () => {
     if (!accessToken) return;
 
     try {
-      const newStatus = allUsers.find(u => u.id === userId)?.status === "ACTIVE" ? "SUSPENDED" : "ACTIVE";
+      const newStatus =
+        allUsers.find((u) => u.id === userId)?.status === "ACTIVE"
+          ? "SUSPENDED"
+          : "ACTIVE";
       await updateUserStatus(userId, newStatus, accessToken);
-      setAllUsers(allUsers.map(user => 
-        user.id === userId 
-          ? { ...user, status: newStatus }
-          : user
-      ));
-      toast.success(`Utilisateur ${newStatus === "ACTIVE" ? "réactivé" : "suspendu"} avec succès !`);
+      setAllUsers(
+        allUsers.map((user) =>
+          user.id === userId ? { ...user, status: newStatus } : user
+        )
+      );
+      toast.success(
+        `Utilisateur ${
+          newStatus === "ACTIVE" ? "réactivé" : "suspendu"
+        } avec succès !`
+      );
     } catch (err) {
-      console.error("Erreur lors de la modification du statut de l'utilisateur:", err);
-      toast.error("Impossible de modifier le statut de l'utilisateur. Veuillez réessayer.");
+      console.error(
+        "Erreur lors de la modification du statut de l'utilisateur:",
+        err
+      );
+      toast.error(
+        "Impossible de modifier le statut de l'utilisateur. Veuillez réessayer."
+      );
     }
   };
 
-  const openDeleteModal = (user: { id: number; email: string; name: string }) => {
+  const openDeleteModal = (user: {
+    id: number;
+    email: string;
+    name: string;
+  }) => {
     setUserToDelete(user);
     setIsDeleteModalOpen(true);
   };
@@ -253,7 +332,7 @@ const HomePage: React.FC = () => {
 
     try {
       await deleteUser(userToDelete.email, accessToken);
-      setAllUsers(allUsers.filter(user => user.email !== userToDelete.email));
+      setAllUsers(allUsers.filter((user) => user.email !== userToDelete.email));
       toast.success("Utilisateur supprimé avec succès !");
       closeDeleteModal();
     } catch (err) {
@@ -305,10 +384,11 @@ const HomePage: React.FC = () => {
           />
         </div>
         <div className="flex flex-row space-x-3">
-          <Bell />
-          <Link href={"/cart"}>
-            <ShoppingCart />
-          </Link>
+          {user?.role === "CLIENT" && (
+            <Link href={"/cart"}>
+              <ShoppingCart />
+            </Link>
+          )}
         </div>
       </BaseHeader>
 
@@ -319,13 +399,16 @@ const HomePage: React.FC = () => {
               {user?.role === "CLIENT" && "Passe ta commande !"}
               {user?.role === "RESTAURATEUR" && "Gestion des commandes"}
               {user?.role === "LIVREUR" && "Commandes à livrer"}
-              {user?.role === "SERVICE_COMMERCIAL" && "Gestion des utilisateurs"}
+              {user?.role === "SERVICE_COMMERCIAL" &&
+                "Gestion des utilisateurs"}
             </h1>
             <h4 className="text-gray-500 text-base">
               {user?.role === "CLIENT" && "À découvrir sur CesiEats"}
-              {user?.role === "RESTAURATEUR" && "Commandes en attente de confirmation"}
+              {user?.role === "RESTAURATEUR" &&
+                "Commandes en attente de confirmation"}
               {user?.role === "LIVREUR" && "Commandes confirmées à livrer"}
-              {user?.role === "SERVICE_COMMERCIAL" && "Liste de tous les utilisateurs"}
+              {user?.role === "SERVICE_COMMERCIAL" &&
+                "Liste de tous les utilisateurs"}
             </h4>
           </div>
         </div>
@@ -334,7 +417,9 @@ const HomePage: React.FC = () => {
 
         {user?.role === "SERVICE_COMMERCIAL" && (
           <div className="mt-8">
-            <h2 className="text-2xl font-bold mb-6">Liste de tous les utilisateurs</h2>
+            <h2 className="text-2xl font-bold mb-6">
+              Liste de tous les utilisateurs
+            </h2>
             {loadingAllUsers ? (
               <div className="flex justify-center">
                 <LoadingSpinner />
@@ -348,19 +433,34 @@ const HomePage: React.FC = () => {
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th
+                        scope="col"
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
                         Nom
                       </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th
+                        scope="col"
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
                         Email
                       </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th
+                        scope="col"
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
                         Rôle
                       </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th
+                        scope="col"
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
                         Statut
                       </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th
+                        scope="col"
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
                         Actions
                       </th>
                     </tr>
@@ -374,7 +474,9 @@ const HomePage: React.FC = () => {
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-500">{user.email}</div>
+                          <div className="text-sm text-gray-500">
+                            {user.email}
+                          </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
@@ -382,9 +484,13 @@ const HomePage: React.FC = () => {
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            user.status === "ACTIVE" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-                          }`}>
+                          <span
+                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                              user.status === "ACTIVE"
+                                ? "bg-green-100 text-green-800"
+                                : "bg-red-100 text-red-800"
+                            }`}
+                          >
                             {user.status}
                           </span>
                         </td>
@@ -398,19 +504,23 @@ const HomePage: React.FC = () => {
                           <button
                             onClick={() => handleSuspendUser(user.id!)}
                             className={`px-3 py-1.5 rounded-md transition-colors duration-200 cursor-pointer font-medium ${
-                              user.status === "ACTIVE" 
-                                ? "bg-yellow-50 text-yellow-600 hover:bg-yellow-100" 
+                              user.status === "ACTIVE"
+                                ? "bg-yellow-50 text-yellow-600 hover:bg-yellow-100"
                                 : "bg-green-50 text-green-600 hover:bg-green-100"
                             }`}
                           >
-                            {user.status === "ACTIVE" ? "Suspendre" : "Réactiver"}
+                            {user.status === "ACTIVE"
+                              ? "Suspendre"
+                              : "Réactiver"}
                           </button>
                           <button
-                            onClick={() => openDeleteModal({ 
-                              id: user.id!, 
-                              email: user.email, 
-                              name: `${user.firstName} ${user.lastName}` 
-                            })}
+                            onClick={() =>
+                              openDeleteModal({
+                                id: user.id!,
+                                email: user.email,
+                                name: `${user.firstName} ${user.lastName}`,
+                              })
+                            }
                             className="px-3 py-1.5 rounded-md bg-red-50 text-red-600 hover:bg-red-100 transition-colors duration-200 cursor-pointer font-medium"
                           >
                             Supprimer
@@ -440,9 +550,8 @@ const HomePage: React.FC = () => {
                   isCommandesDisponibles={false}
                   title="Commandes en cours de livraison"
                 />
-                
+
                 <CommandeList
-                
                   commandes={commandesDisponibles}
                   loading={loadingCommandesDisponibles}
                   error={errorCommandesDisponibles}
@@ -455,7 +564,7 @@ const HomePage: React.FC = () => {
                 />
               </>
             )}
-            
+
             {user?.role === "RESTAURATEUR" && (
               <CommandeList
                 commandes={commandes}
@@ -463,6 +572,7 @@ const HomePage: React.FC = () => {
                 error={errorCommandes}
                 userRole={user.role}
                 onConfirmCommande={handleConfirmCommande}
+                onDeclineCommande={handleDeclineCommande}
                 onAcceptLivraison={undefined}
                 onFinLivraison={undefined}
                 title="Commandes en attente"

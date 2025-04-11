@@ -13,6 +13,8 @@ export interface Commande {
   deliveryCosts: number;
   servicesFees: number;
   promotion: boolean;
+  sousTotal: number;
+  livreur?: User;
 }
 
 export interface CommandeArticle {

@@ -125,7 +125,7 @@ public class CommandeService {
                 .mapToDouble(commande -> commande.getSousTotal() + commande.getDeliveryCosts())
                 .sum();
     }
-    public Map.Entry<Article,Integer> bestArticleByRestaurantId(Long restaurantId) {
+    public Article bestArticleByRestaurantId(Long restaurantId) {
         Map<Article, Integer> articleQuantities = new HashMap<>();
 
         for (Commande commande : commandeRepository.findAll()) {
@@ -141,10 +141,11 @@ public class CommandeService {
                 .max(Comparator
                         .comparingInt(Map.Entry<Article, Integer>::getValue)
                         .thenComparing(e -> e.getKey().getPrice()))
+                .map(Map.Entry::getKey)
                 .orElseThrow(() -> new IllegalArgumentException("Aucun article trouvé"));
     }
 
-    public Map.Entry<Menu,Integer> bestMenuByRestaurantId(Long restaurantId) {
+    public Menu bestMenuByRestaurantId(Long restaurantId) {
         Map<Menu, Integer> menuQuantites = new HashMap<>();
 
         for (Commande commande : commandeRepository.findAll()) {
@@ -160,10 +161,11 @@ public class CommandeService {
                 .max(Comparator
                         .comparingInt(Map.Entry<Menu, Integer>::getValue)
                         .thenComparing(e -> e.getKey().getPrice()))
+                .map(Map.Entry::getKey)
                 .orElseThrow(() -> new IllegalArgumentException("Aucun article trouvé"));
     }
 
-    public HashMap<Menu,Integer> worstMenuByRestaurantId(Long restaurantId) {
+    public Menu worstMenuByRestaurantId(Long restaurantId) {
         Map<Menu, Integer> menuQuantites = new HashMap<>();
 
         for (Commande commande : commandeRepository.findAll()) {
@@ -175,14 +177,15 @@ public class CommandeService {
                 }
             }
         }
-        return (HashMap<Menu, Integer>) menuQuantites.entrySet().stream()
+        return menuQuantites.entrySet().stream()
                 .min(Comparator
                         .comparingInt(Map.Entry<Menu, Integer>::getValue)
                         .thenComparing(e -> e.getKey().getPrice()))
+                .map(Map.Entry::getKey)
                 .orElseThrow(() -> new IllegalArgumentException("Aucun article trouvé"));
     }
 
-    public HashMap<Article,Integer> worstArticleByRestaurantId(Long restaurantId) {
+    public Article worstArticleByRestaurantId(Long restaurantId) {
         Map<Article, Integer> articleQuantities = new HashMap<>();
         for (Commande commande : commandeRepository.findAll()) {
             if (commande.getRestaurant().getId() == restaurantId &&
@@ -193,11 +196,78 @@ public class CommandeService {
                 }
             }
         }
-        return (HashMap<Article, Integer>) articleQuantities.entrySet().stream()
+        return articleQuantities.entrySet().stream()
                 .min(Comparator
                         .comparingInt(Map.Entry<Article, Integer>::getValue)
                         .thenComparing(e -> e.getKey().getPrice()))
+                .map(Map.Entry::getKey)
                 .orElseThrow(() -> new IllegalArgumentException("Aucun article trouvé"));
+    }
+
+    public int getCountArticleByRestaurantIdAndArticleId(Long restaurantId, String articleId) {
+        List<Commande> commandes = commandeRepository.findAll().stream()
+                .filter(commande -> commande.getRestaurant().getId() == restaurantId)
+                .filter(commande -> commande.getStatus().equals("DELIVERED"))
+                .collect(Collectors.toList());
+        HashMap<Article, Integer> articleQuantities = new HashMap<>();
+        System.out.println("Commandes: " + commandes.toString());
+        for (Commande commande : commandes) {
+            for (Article article : commande.getArticle()) {
+                System.out.println("Article: " + article.toString());
+
+                if (article.getId().equals(articleId)) {
+                    articleQuantities.merge(article, article.getQuantity(), Integer::sum);
+                    System.out.println("Article trouvé: " + article.toString());
+                    System.out.println("Quantité: " + article.getQuantity());
+                }
+            }
+
+        }
+       Map.Entry<Article, Integer> maxEntry = articleQuantities.entrySet()
+                .stream()
+                .max(Map.Entry.comparingByValue())
+                .orElseThrow(() -> new IllegalArgumentException("La HashMap est vide"));
+        System.out.println("Max Entry: " + maxEntry.toString());
+        return maxEntry.getValue();
+
+
+
+
+
+//        return (int) commandeRepository.findAll().stream()
+//                .filter(commande -> commande.getRestaurant().getId() == restaurantId)
+//                .filter(commande -> commande.getStatus().equals("DELIVERED"))
+//                .flatMap(commande -> commande.getArticle().stream())
+//                .filter(article -> article.getId() == articleId)
+//                .mapToInt(Article::getQuantity)
+//                .sum();
+
+
+    }
+    public int getCountMenuByRestaurantIdAndMenuId(Long restaurantId, String menuId) {
+        List<Commande> commandes = commandeRepository.findAll().stream()
+                .filter(commande -> commande.getRestaurant().getId() == restaurantId)
+                .filter(commande -> commande.getStatus().equals("DELIVERED"))
+                .collect(Collectors.toList());
+        HashMap<Menu, Integer> menuQuantites = new HashMap<>();
+        System.out.println("Commandes: " + commandes.toString());
+        for (Commande commande : commandes) {
+            for (Menu menu : commande.getMenu()) {
+                System.out.println("Article: " + menu.toString());
+
+                if (menu.getId().equals(menuId)) {
+                    menuQuantites.merge(menu, menu.getQuantity(), Integer::sum);
+                    System.out.println("Article trouvé: " + menu.toString());
+                    System.out.println("Quantité: " + menu.getQuantity());
+                }
+            }
+
+        }
+        Map.Entry<Menu, Integer> maxEntry = menuQuantites.entrySet()
+                .stream()
+                .max(Map.Entry.comparingByValue())
+                .orElseThrow(() -> new IllegalArgumentException("La HashMap est vide"));
+        return maxEntry.getValue();
     }
 
 }
